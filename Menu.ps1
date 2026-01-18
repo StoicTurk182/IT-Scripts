@@ -25,6 +25,7 @@ $Script:MenuStructure = [ordered]@{
     )
     "Utilities" = @(
         @{ Name = "Create Backup Folders"; Path = "Utils/BACKUPS/Create_Folders_v2.ps1"; Description = "Create backup folder structure for migrations" }
+        @{ Name = "Install Standard Apps"; Path = "Utils/Install-StandardApps.ps1";       Description = "Auto-installs Winget, 7-Zip, and Notepad++" }
     )
 }
 
