@@ -7,7 +7,6 @@
     Author: Andrew Jones
     Usage: iex (irm "https://raw.githubusercontent.com/StoicTurk182/IT-Scripts/main/Menu.ps1")
 #>
-
 #Requires -Version 5.1
 
 $Script:Config = @{
@@ -16,13 +15,12 @@ $Script:Config = @{
     Branch    = "main"
     BaseUrl   = $null
 }
-
 $Script:Config.BaseUrl = "https://raw.githubusercontent.com/$($Script:Config.RepoOwner)/$($Script:Config.RepoName)/$($Script:Config.Branch)"
 
 $Script:MenuStructure = @{
     "Active Directory" = @(
         @{ Name = "Copy User Groups (Interactive)"; Path = "ActiveDirectory/migrate_groups/migrate_user_group_memberships_interactive.ps1"; Description = "Copy group memberships interactively" }
-        @{ Name = "Copy User Groups (Parameters)";  Path = "ActiveDirectory/migrate_groups/migrate_user_group_memberships_param.ps1"; Description = "Copy group memberships with parameters" }
+        @{ Name = "Copy User Groups (Parameters)"; Path = "ActiveDirectory/migrate_groups/migrate_user_group_memberships_param.ps1"; Description = "Copy group memberships with parameters" }
         @{ Name = "UPN Name Change"; Path = "ActiveDirectory/Rename-UPN/UPN_NameChange.ps1"; Description = "Change user UPN and display name" }
     )
     "Device Setup" = @(
@@ -47,10 +45,10 @@ function Show-MainMenu {
     Show-Banner
     Write-Host "  SELECT A CATEGORY:" -ForegroundColor Yellow
     Write-Host ""
-    $categories = $Script:MenuStructure.Keys | Sort-Object
+    $categories = @($Script:MenuStructure.Keys | Sort-Object)
     $index = 1
     foreach ($category in $categories) {
-        $count = $Script:MenuStructure[$category].Count
+        $count = @($Script:MenuStructure[$category]).Count
         Write-Host "    [$index] $category ($count scripts)" -ForegroundColor White
         $index++
     }
@@ -111,7 +109,7 @@ function Invoke-RemoteScript {
 function Start-ToolboxMenu {
     $running = $true
     while ($running) {
-        $categories = Show-MainMenu
+        $categories = @(Show-MainMenu)
         $sel = Read-Host "  Selection"
         switch ($sel.ToUpper()) {
             "Q" {
@@ -134,9 +132,8 @@ function Start-ToolboxMenu {
             default {
                 if ($sel -match '^\d+$') {
                     $idx = [int]$sel - 1
-                    $catArray = @($categories)
-                    if ($idx -ge 0 -and $idx -lt $catArray.Count) {
-                        $selectedCat = $catArray[$idx]
+                    if ($idx -ge 0 -and $idx -lt $categories.Count) {
+                        $selectedCat = $categories[$idx]
                         $inCat = $true
                         while ($inCat) {
                             $scripts = @(Show-CategoryMenu -CategoryName $selectedCat)
