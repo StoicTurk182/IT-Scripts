@@ -21,15 +21,16 @@ $Script:Config.BaseUrl = "https://raw.githubusercontent.com/$($Script:Config.Rep
 
 $Script:MenuStructure = @{
     "Active Directory" = @(
-        @{ Name = "Copy User Groups (Interactive)"; Path = "ActiveDirectory/migrate_user_group_memberships_interactive.ps1"; Description = "Copy group memberships interactively" }
-        @{ Name = "Copy User Groups (Parameters)";  Path = "ActiveDirectory/migrate_user_group_memberships_param.ps1";       Description = "Copy group memberships with parameters" }
-        @{ Name = "UPN Name Change";                Path = "ActiveDirectory/UPN_NameChange.ps1";                             Description = "Change user UPN and display name" }
+        @{ Name = "Copy User Groups (Interactive)"; Path = "ActiveDirectory/migrate_groups/migrate_user_group_memberships_interactive.ps1"; Description = "Copy group memberships interactively" }
+        @{ Name = "Copy User Groups (Parameters)";  Path = "ActiveDirectory/migrate_groups/migrate_user_group_memberships_param.ps1"; Description = "Copy group memberships with parameters" }
+        @{ Name = "UPN Name Change"; Path = "ActiveDirectory/Rename-UPN/UPN_NameChange.ps1"; Description = "Change user UPN and display name" }
     )
     "Device Setup" = @(
-        @{ Name = "Get Hardware Hash";     Path = "Setup/hwh.ps1";                       Description = "Collect Autopilot hardware hash" }
-        @{ Name = "Create Backup Folders"; Path = "Setup/BACKUPS/Create_Folders_v2.ps1"; Description = "Create backup folder structure for migrations" }
+        @{ Name = "Get Hardware Hash"; Path = "Setup/HWH/hwh.ps1"; Description = "Collect Autopilot hardware hash" }
     )
-    "Utilities" = @()
+    "Utilities" = @(
+        @{ Name = "Create Backup Folders"; Path = "Utils/BACKUPS/Create_Folders_v2.ps1"; Description = "Create backup folder structure for migrations" }
+    )
 }
 
 function Show-Banner {
