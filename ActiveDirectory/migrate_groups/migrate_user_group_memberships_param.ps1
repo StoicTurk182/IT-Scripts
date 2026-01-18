@@ -13,12 +13,24 @@ Function Copy-ADUserGroups {
         [string]$TargetUser,
 
         [Parameter(Mandatory=$false)]
-        [string]$LogPath = ".\GroupCopyLog.txt" # Default log location (current folder)
+        [string]$LogPath # Left empty to allow smart detection
     )
 
     Process {
+        # --- 1. SMART LOG PATH LOGIC ---
+        # If the user didn't specify a log path, pick the best one based on how the script is running.
+        if ([string]::IsNullOrWhiteSpace($LogPath)) {
+            if ($PSScriptRoot) {
+                # Running from a physical file? Save log next to it.
+                $LogPath = Join-Path -Path $PSScriptRoot -ChildPath "GroupCopyLog.txt"
+            }
+            else {
+                # Running from Web/IEX? Save log to Desktop to avoid permission errors.
+                $LogPath = "$env:USERPROFILE\Desktop\GroupCopyLog.txt"
+            }
+        }
+
         # --- LOGGING HELPER FUNCTION ---
-        # This writes to BOTH the console (with color) and the file (with timestamp)
         function Write-Log {
             param (
                 [string]$Message,
@@ -35,13 +47,15 @@ Function Copy-ADUserGroups {
             try { Add-Content -Path $LogPath -Value $LogLine -ErrorAction SilentlyContinue } catch {}
         }
 
+        Write-Log -Message "Log file location: $LogPath" -Color DarkGray
+
         # Clean up inputs
         $SourceUser = $SourceUser.Trim()
         $TargetUser = $TargetUser.Trim()
 
         Write-Log -Message "--- Starting Group Copy: $SourceUser -> $TargetUser ---" -Color Cyan
 
-        # 1. Validate Users
+        # 2. Validate Users
         Try {
             $SourceObj = Get-ADUser -Identity $SourceUser -Properties MemberOf -ErrorAction Stop
             $TargetObj = Get-ADUser -Identity $TargetUser -ErrorAction Stop
@@ -52,7 +66,7 @@ Function Copy-ADUserGroups {
             Return 
         }
 
-        # 2. Get Groups
+        # 3. Get Groups
         $Groups = @($SourceObj | Select-Object -ExpandProperty MemberOf)
 
         if ($Groups.Count -eq 0) {
@@ -62,7 +76,7 @@ Function Copy-ADUserGroups {
 
         Write-Log -Message "Found $( $Groups.Count ) groups to copy." -Color Cyan
 
-        # 3. Loop and Add
+        # 4. Loop and Add
         foreach ($Group in $Groups) {
             # Extract pretty name
             $GroupName = ($Group -split ",")[0] -replace "CN=",""
