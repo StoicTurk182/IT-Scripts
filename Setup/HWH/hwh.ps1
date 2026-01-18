@@ -3,10 +3,9 @@
     Collects hardware hash for Intune Autopilot enrollment (USB/Offline friendly).
 .DESCRIPTION
     Retrieves hardware hash via CIM (no module required) and saves to CSV.
-    Prioritizes Network Share -> Falls back to USB/Script Local Directory.
+    Prioritizes Network Share -> Falls back to USB/Script Local Directory -> Falls back to C:\AutopilotHashes (IEX mode).
 .NOTES
-    Version: 5.1
-    Improved CSV consistency for bulk imports.
+    Version: 5.2 (IEX Compatible)
 #>
 
 param(
@@ -18,11 +17,19 @@ param(
 $Hostname = $env:COMPUTERNAME
 $DateString = Get-Date -Format 'yyyy-MM-dd'
 
-# Robust Base Path Detection (Handles running as script file OR selection)
-if ($PSScriptRoot) {
+# --- ROBUST PATH DETECTION (The Fix) ---
+if (-not [string]::IsNullOrWhiteSpace($PSScriptRoot)) {
+    # Scenario A: Running from a physical file (e.g., USB stick)
     $BaseDir = $PSScriptRoot
-} else {
+}
+elseif (-not [string]::IsNullOrWhiteSpace($MyInvocation.MyCommand.Path)) {
+    # Scenario B: Running as a selected block in ISE/VSCode
     $BaseDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+}
+else {
+    # Scenario C: Running via IEX (Memory)
+    # We default to a safe, persistent folder on the C: drive so the CSV isn't lost.
+    $BaseDir = "$env:SystemDrive\AutopilotData"
 }
 
 # Define Paths
@@ -56,21 +63,17 @@ try {
     }
 
     # --- 4. Create Standardized Object ---
-    # We ALWAYS create the Group Tag property, even if empty.
-    # This ensures every CSV generated has identical headers.
     $HashObject = [PSCustomObject]@{
         'Device Serial Number' = $BIOS.SerialNumber
         'Windows Product ID'   = $ProductID
         'Hardware Hash'        = $DevDetail.DeviceHardwareData
         'Group Tag'            = $GroupTag
-        'Assigned User'        = "" # Optional but good for template compliance
+        'Assigned User'        = "" 
     }
 
     # --- 5. Determine Output Location ---
     $TargetDir = $LocalHashPath
-    $SaveSuccessLocal = $false
     $SaveSuccessNetwork = $false
-    $FinalPath = ""
 
     # Try Network First
     if (Test-Path -Path $NetworkSharePath) {
@@ -89,11 +92,12 @@ try {
     $FinalPath = Join-Path -Path $TargetDir -ChildPath $CSVFileName
     $HashObject | Export-Csv -Path $FinalPath -NoTypeInformation -Force -Encoding ASCII -ErrorAction Stop
 
-    # Secondary Backup (If we wrote to network, ALSO write to USB/Local for safety)
+    # Secondary Backup (Network Success? Still save a local copy!)
     if ($SaveSuccessNetwork) {
         $LocalBackupFile = Join-Path -Path $LocalHashPath -ChildPath $CSVFileName
         $HashObject | Export-Csv -Path $LocalBackupFile -NoTypeInformation -Force -Encoding ASCII -ErrorAction SilentlyContinue
         Write-Host "$Hostname|SUCCESS_NETWORK|$FinalPath" -ForegroundColor Green
+        Write-Host "  (Local Backup saved to: $LocalBackupFile)" -ForegroundColor DarkGray
     }
     else {
         Write-Host "$Hostname|SUCCESS_LOCAL|$FinalPath" -ForegroundColor Cyan
