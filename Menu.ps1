@@ -26,11 +26,10 @@ $Script:MenuStructure = @{
         @{ Name = "UPN Name Change";                Path = "ActiveDirectory/UPN_NameChange.ps1";                             Description = "Change user UPN and display name" }
     )
     "Device Setup" = @(
-        @{ Name = "Get Hardware Hash";    Path = "Setup/hwh.ps1";                       Description = "Collect Autopilot hardware hash" }
+        @{ Name = "Get Hardware Hash";     Path = "Setup/hwh.ps1";                       Description = "Collect Autopilot hardware hash" }
         @{ Name = "Create Backup Folders"; Path = "Setup/BACKUPS/Create_Folders_v2.ps1"; Description = "Create backup folder structure for migrations" }
     )
-    "Utilities" = @(
-    )
+    "Utilities" = @()
 }
 
 function Show-Banner {
@@ -69,11 +68,12 @@ function Show-CategoryMenu {
     $scripts = $Script:MenuStructure[$CategoryName]
     if ($scripts.Count -eq 0) {
         Write-Host "    No scripts in this category." -ForegroundColor DarkGray
-    } else {
+    }
+    else {
         $index = 1
-        foreach ($script in $scripts) {
-            Write-Host "    [$index] $($script.Name)" -ForegroundColor White
-            Write-Host "        $($script.Description)" -ForegroundColor DarkGray
+        foreach ($s in $scripts) {
+            Write-Host "    [$index] $($s.Name)" -ForegroundColor White
+            Write-Host "        $($s.Description)" -ForegroundColor DarkGray
             $index++
         }
     }
@@ -87,18 +87,22 @@ function Show-CategoryMenu {
 function Invoke-RemoteScript {
     param ([string]$ScriptPath, [string]$ScriptName)
     $url = "$($Script:Config.BaseUrl)/$ScriptPath"
-    Write-Host "`n  Fetching: $ScriptName" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "  Fetching: $ScriptName" -ForegroundColor Cyan
     Write-Host "  URL: $url" -ForegroundColor DarkGray
     try {
         $content = Invoke-RestMethod -Uri $url -ErrorAction Stop
-        Write-Host "`n  Executing...`n" -ForegroundColor Green
-        Write-Host ("  " + "=" * 50) -ForegroundColor DarkGray
+        Write-Host ""
+        Write-Host "  Executing..." -ForegroundColor Green
+        Write-Host "  ==================================================" -ForegroundColor DarkGray
         Invoke-Expression $content
-        Write-Host ("  " + "=" * 50) -ForegroundColor DarkGray
-        Write-Host "  Complete.`n" -ForegroundColor Green
-    } catch {
+        Write-Host "  ==================================================" -ForegroundColor DarkGray
+        Write-Host "  Complete." -ForegroundColor Green
+    }
+    catch {
         Write-Host "  ERROR: $($_.Exception.Message)" -ForegroundColor Red
     }
+    Write-Host ""
     Write-Host "  Press any key..." -ForegroundColor DarkGray
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
@@ -109,15 +113,57 @@ function Start-ToolboxMenu {
         $categories = Show-MainMenu
         $sel = Read-Host "  Selection"
         switch ($sel.ToUpper()) {
-            "Q" { $running = $false; Write-Host "`n  Goodbye.`n" -ForegroundColor Cyan }
+            "Q" {
+                $running = $false
+                Write-Host ""
+                Write-Host "  Goodbye." -ForegroundColor Cyan
+                Write-Host ""
+            }
             "R" {
                 try {
                     $menuUrl = "$($Script:Config.BaseUrl)/Menu.ps1"
                     Invoke-Expression (Invoke-RestMethod -Uri $menuUrl)
                     return
-                } catch { Write-Host "  Reload failed." -ForegroundColor Red; Start-Sleep 2 }
+                }
+                catch {
+                    Write-Host "  Reload failed." -ForegroundColor Red
+                    Start-Sleep -Seconds 2
+                }
             }
             default {
                 if ($sel -match '^\d+$') {
                     $idx = [int]$sel - 1
-                    $catArra
+                    $catArray = @($categories)
+                    if ($idx -ge 0 -and $idx -lt $catArray.Count) {
+                        $selectedCat = $catArray[$idx]
+                        $inCat = $true
+                        while ($inCat) {
+                            $scripts = Show-CategoryMenu -CategoryName $selectedCat
+                            $sSel = Read-Host "  Selection"
+                            switch ($sSel.ToUpper()) {
+                                "B" { $inCat = $false }
+                                "Q" {
+                                    $inCat = $false
+                                    $running = $false
+                                    Write-Host ""
+                                    Write-Host "  Goodbye." -ForegroundColor Cyan
+                                    Write-Host ""
+                                }
+                                default {
+                                    if ($sSel -match '^\d+$') {
+                                        $sIdx = [int]$sSel - 1
+                                        if ($sIdx -ge 0 -and $sIdx -lt $scripts.Count) {
+                                            Invoke-RemoteScript -ScriptPath $scripts[$sIdx].Path -ScriptName $scripts[$sIdx].Name
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+Start-ToolboxMenu
