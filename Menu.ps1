@@ -16,16 +16,16 @@ $Script:BaseUrl = "https://raw.githubusercontent.com/$($Script:Config.RepoOwner)
 
 $Script:MenuStructure = [ordered]@{
     "Active Directory" = @(
-        @{ Name = "Copy User Groups (Interactive)"; Path = "ActiveDirectory/migrate_groups/migrate_user_group_memberships_interactive.ps1"; Description = "Copy group memberships interactively" }
-        @{ Name = "Copy User Groups (Parameters)"; Path = "ActiveDirectory/migrate_groups/migrate_user_group_memberships_param.ps1"; Description = "Copy group memberships with parameters" }
-        @{ Name = "UPN Name Change"; Path = "ActiveDirectory/Rename-UPN/UPN_NameChange.ps1"; Description = "Change user UPN and display name" }
+        # The 'Interactive' script was deleted, so we only list the 'Param' version
+        @{ Name = "Copy User Groups";     Path = "ActiveDirectory/migrate_groups/migrate_user_group_memberships_param.ps1"; Description = "Copy groups from Source to Target user" }
+        @{ Name = "UPN Name Change";      Path = "ActiveDirectory/Rename-UPN/UPN_NameChange.ps1";                           Description = "Change user UPN and display name" }
     )
     "Device Setup" = @(
-        @{ Name = "Get Hardware Hash"; Path = "Setup/HWH/hwh.ps1"; Description = "Collect Autopilot hardware hash" }
+        @{ Name = "Get Hardware Hash";    Path = "Setup/HWH/hwh.ps1";                                                        Description = "Collect Autopilot hardware hash" }
     )
     "Utilities" = @(
-        @{ Name = "Create Backup Folders"; Path = "Utils/BACKUPS/Create_Folders_v2.ps1"; Description = "Create backup folder structure for migrations" }
-        @{ Name = "Install Standard Apps"; Path = "Utils/Install-StandardApps.ps1";       Description = "Auto-installs Winget, 7-Zip, and Notepad++" }
+        @{ Name = "Create Backup Folders"; Path = "Utils/BACKUPS/Create_Folders_v2.ps1";                                     Description = "Create backup folder structure for migrations" }
+        @{ Name = "Install Standard Apps"; Path = "Utils/Install-standard-apps/Install-StandardApps.ps1";                    Description = "Auto-installs Winget, 7-Zip, and Notepad++" }
     )
 }
 
