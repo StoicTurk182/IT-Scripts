@@ -66,7 +66,7 @@ function Show-CategoryMenu {
     Show-Banner
     Write-Host "  CATEGORY: $CategoryName" -ForegroundColor Yellow
     Write-Host ""
-    $scripts = $Script:MenuStructure[$CategoryName]
+    $scripts = @($Script:MenuStructure[$CategoryName])
     if ($scripts.Count -eq 0) {
         Write-Host "    No scripts in this category." -ForegroundColor DarkGray
     }
@@ -139,7 +139,7 @@ function Start-ToolboxMenu {
                         $selectedCat = $catArray[$idx]
                         $inCat = $true
                         while ($inCat) {
-                            $scripts = Show-CategoryMenu -CategoryName $selectedCat
+                            $scripts = @(Show-CategoryMenu -CategoryName $selectedCat)
                             $sSel = Read-Host "  Selection"
                             switch ($sSel.ToUpper()) {
                                 "B" { $inCat = $false }
