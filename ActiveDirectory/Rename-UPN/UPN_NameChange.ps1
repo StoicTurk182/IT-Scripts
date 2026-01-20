@@ -1,15 +1,14 @@
 #Requires -Modules ActiveDirectory
 
 # --- 1. SETUP LOGGING (Works for File or IEX) ---
-# We use the User's Temp folder because it is guaranteed to exist
-# regardless of how the script is run.
 $LogDir = "$env:TEMP\ADRenameLogs"
+# Ensure the directory exists
 if (!(Test-Path $LogDir)) { New-Item -Path $LogDir -ItemType Directory -Force | Out-Null }
 
 # Create a unique filename based on time
 $LogFile = "$LogDir\Log_$(Get-Date -Format 'yyyyMMdd_HHmm').txt"
 
-# Start recording everything visible in the console to the text file
+# Start recording
 Start-Transcript -Path $LogFile -Append
 
 Function Rename-ADUserSmart {
@@ -94,14 +93,13 @@ Function Rename-ADUserSmart {
     Try {
         Write-Host "Updating Identity attributes..." -NoNewline
         
-        # UPDATED: Added 'EmailAddress' to this hashtable
         $UserChanges = @{
             GivenName = $NewFirstName
             Surname = $NewLastName
             DisplayName = $NewDisplayName
             SamAccountName = $NewSamAccount
             UserPrincipalName = $NewUPN
-            EmailAddress = $NewUPN  # <--- Updates the General Tab 'mail' attribute
+            EmailAddress = $NewUPN  # Updates the General Tab 'mail' attribute
         }
 
         if ($ProxyRemove.Count -gt 0) {
@@ -138,7 +136,14 @@ Try {
     Rename-ADUserSmart -Identity $InputUser
 }
 Finally {
-    # This block runs even if the script crashes, ensuring logs are saved.
+    # Stop recording
     Stop-Transcript
-    Write-Host "`nLog saved to: $LogFile" -ForegroundColor Gray
+    
+    # --- LOGGING REMINDER & AUTO-OPEN ---
+    Write-Host "`n--------------------------------------------------" -ForegroundColor Gray
+    Write-Host "LOGS SAVED: $LogDir" -ForegroundColor Yellow
+    Write-Host "Opening log location folder..." -ForegroundColor Yellow
+    
+    # This command opens File Explorer to the folder
+    Invoke-Item $LogDir
 }
