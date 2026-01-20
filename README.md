@@ -701,6 +701,120 @@ Some environments may block via:
 | AD scripts | No (AD perms) | Requires AD module and delegation |
 | Create_Folders_v2.ps1 | Depends | Write access to target path |
 
+## IEX File Handling - Important Consideration
+
+When scripts are executed via `iex (irm ...)` from the web, certain PowerShell automatic variables behave differently than when running from a local file. This affects scripts that create log files, CSVs, or any output files.
+
+### The Problem
+
+When running a script from a file, `$PSScriptRoot` contains the script's directory path. When running via IEX from the web, `$PSScriptRoot` is empty because there is no physical script file.
+
+This causes issues when scripts try to save files "next to the script" - they may:
+- Fail with "Access Denied" (attempting to write to System32)
+- Save files to unexpected locations
+- Throw errors about invalid paths
+
+### The Solution - Smart Path Detection
+
+Scripts should detect how they are being executed and choose an appropriate output location:
+
+```powershell
+# Smart log/output path detection
+if ([string]::IsNullOrWhiteSpace($LogPath)) {
+    if ($PSScriptRoot) {
+        # Running from a physical file - save next to script
+        $LogPath = Join-Path -Path $PSScriptRoot -ChildPath "OutputFile.txt"
+    }
+    else {
+        # Running from Web/IEX - save to Desktop to avoid permission errors
+        $LogPath = "$env:USERPROFILE\Desktop\OutputFile.txt"
+    }
+}
+```
+
+### Implementation Pattern
+
+For any script that creates output files, use this pattern:
+
+```powershell
+[CmdletBinding()]
+param(
+    [Parameter(Mandatory=$false)]
+    [string]$OutputPath  # Leave empty to allow smart detection
+)
+
+Process {
+    # Smart path detection at the start of the script
+    if ([string]::IsNullOrWhiteSpace($OutputPath)) {
+        if ($PSScriptRoot) {
+            $OutputPath = Join-Path -Path $PSScriptRoot -ChildPath "MyOutput.csv"
+        }
+        else {
+            $OutputPath = "$env:USERPROFILE\Desktop\MyOutput.csv"
+        }
+    }
+    
+    Write-Host "Output will be saved to: $OutputPath" -ForegroundColor DarkGray
+    
+    # Rest of script...
+}
+```
+
+### Common Output Locations for IEX Execution
+
+| Location | Variable | Use Case |
+|----------|----------|----------|
+| Desktop | `$env:USERPROFILE\Desktop` | User-facing outputs, logs |
+| Documents | `$env:USERPROFILE\Documents` | Reports, exports |
+| Temp | `$env:TEMP` | Temporary files |
+| Current Directory | `$PWD` | If user navigated to specific folder |
+
+### Example: Logging Function with Smart Path
+
+```powershell
+function Write-Log {
+    param (
+        [string]$Message,
+        [string]$Color = "White",
+        [string]$Type = "INFO" 
+    )
+    $Timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $LogLine = "[$Timestamp] [$Type] $Message"
+    
+    # Write to Console
+    Write-Host " $Message" -ForegroundColor $Color
+    
+    # Write to File (with error handling for permission issues)
+    try { 
+        Add-Content -Path $LogPath -Value $LogLine -ErrorAction SilentlyContinue 
+    } catch {}
+}
+```
+
+### Variables NOT Available in IEX Execution
+
+| Variable | From File | From IEX |
+|----------|-----------|----------|
+| `$PSScriptRoot` | Script directory | Empty |
+| `$PSCommandPath` | Full script path | Empty |
+| `$MyInvocation.MyCommand.Path` | Full script path | Empty |
+
+### Testing Your Scripts
+
+Always test scripts both ways:
+
+1. **From file:**
+```powershell
+& "C:\Users\Administrator\Andrew J IT Labs\IT-Scripts\Utils\MyScript.ps1"
+```
+
+2. **From web (after pushing):**
+```powershell
+iex (irm "https://raw.githubusercontent.com/StoicTurk182/IT-Scripts/main/Utils/MyScript.ps1")
+```
+
+Verify output files are created in the expected location for both methods.
+
 ## Troubleshooting
 
 ### Script Not Found (404)
