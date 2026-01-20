@@ -94,3 +94,16 @@ The Finally Block: At the very bottom, I wrapped the execution in Try {} Finally
 How to Retrieve Logs
 After running the script (either manually or via IEX), you can find the logs by opening File Explorer and typing %TEMP%\ADRenameLogs in the address bar.
 
+> UPDATE ADDITIONAL
+
+What happens now?
+Run the script: You perform your rename operation.
+
+Script Finishes:
+
+It stops the transcript.
+
+It prints LOGS SAVED: C:\Users\YourName\AppData\Local\Temp\ADRenameLogs in Yellow.
+
+It immediately launches a Windows Explorer window showing that folder, so you can verify the log exists or attach it to a ticket if needed.
+
