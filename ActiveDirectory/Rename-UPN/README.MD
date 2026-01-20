@@ -70,3 +70,27 @@ Troubleshooting
 
 Permission Denied: Ensure you have rights to rename objects in the specific OU where the user lives. Some "Protected Users" (like Domain Admins) cannot be modified by scripts unless specific delegation is enabled.
 
+> UPDATE 20/01/2026 
+
+Summary of Changes
+1. The General Tab Email Fix
+I added EmailAddress = $NewUPN to the $UserChanges hashtable in Section 5.
+
+Why: In PowerShell, Set-ADUser maps the parameter -EmailAddress directly to the Active Directory mail attribute (which populates the General Tab).
+
+Result: The user will now see the new email address immediately when opening the user properties in ADUC.
+
+2. The "Universal" Logging Logic
+I wrapped the entire script execution in Start-Transcript and Stop-Transcript.
+
+The Issue with IEX: If you run a script via iex (Invoke-Expression), variables like $PSScriptRoot (the folder the script is in) are null, because the script technically resides in memory, not on the disk.
+
+The Fix: I set the log path to $env:TEMP\ADRenameLogs.
+
+$env:TEMP always resolves to the current user's temporary folder (e.g., C:\Users\Admin\AppData\Local\Temp). This path exists on every Windows machine, regardless of how you deploy the script.
+
+The Finally Block: At the very bottom, I wrapped the execution in Try {} Finally {}. This ensures that even if you cancel the script or it errors out, Stop-Transcript still runs, saving the log file successfully.
+
+How to Retrieve Logs
+After running the script (either manually or via IEX), you can find the logs by opening File Explorer and typing %TEMP%\ADRenameLogs in the address bar.
+

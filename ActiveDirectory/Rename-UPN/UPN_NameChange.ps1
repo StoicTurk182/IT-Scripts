@@ -1,5 +1,17 @@
 #Requires -Modules ActiveDirectory
 
+# --- 1. SETUP LOGGING (Works for File or IEX) ---
+# We use the User's Temp folder because it is guaranteed to exist
+# regardless of how the script is run.
+$LogDir = "$env:TEMP\ADRenameLogs"
+if (!(Test-Path $LogDir)) { New-Item -Path $LogDir -ItemType Directory -Force | Out-Null }
+
+# Create a unique filename based on time
+$LogFile = "$LogDir\Log_$(Get-Date -Format 'yyyyMMdd_HHmm').txt"
+
+# Start recording everything visible in the console to the text file
+Start-Transcript -Path $LogFile -Append
+
 Function Rename-ADUserSmart {
     param (
         [Parameter(Mandatory=$true, HelpMessage="Enter either the Short Login ID (SamAccountName) OR the Full Email (UPN)")]
@@ -55,26 +67,22 @@ Function Rename-ADUserSmart {
     Write-Host "PROPOSED CHANGES:"
     Write-Host "   Name:  $NewDisplayName"
     Write-Host "   UPN:   $NewUPN" 
+    Write-Host "   Email: $NewUPN (General Tab)"
     Write-Host "--------------------------------"
     
     $Confirm = Read-Host "Type 'Y' to proceed"
     if ($Confirm -ne 'Y') { Write-Warning "Cancelled."; return }
 
-    # 4. Handle Proxy Addresses (THE FIX IS HERE)
+    # 4. Handle Proxy Addresses
     $CurrentProxy = $User.proxyAddresses
     $OldPrimary = $CurrentProxy | Where-Object { $_ -cmatch '^SMTP:' } | Select-Object -First 1
     
-    # Explicitly define these as String Arrays [string[]] so they aren't PSObjects
     [string[]]$ProxyRemove = @()
     [string[]]$ProxyAdd    = @()
     
     if ($OldPrimary) {
         $OldEmail = $OldPrimary -replace "^SMTP:", ""
-        
-        # Force raw string
         $ProxyRemove += "$OldPrimary"
-        
-        # Add new as Primary, Old as Alias
         $ProxyAdd += "SMTP:$NewUPN"
         $ProxyAdd += "smtp:$OldEmail"
     }
@@ -86,18 +94,16 @@ Function Rename-ADUserSmart {
     Try {
         Write-Host "Updating Identity attributes..." -NoNewline
         
-        # We create a hashtable for the changes to keep the command clean
+        # UPDATED: Added 'EmailAddress' to this hashtable
         $UserChanges = @{
             GivenName = $NewFirstName
             Surname = $NewLastName
             DisplayName = $NewDisplayName
             SamAccountName = $NewSamAccount
             UserPrincipalName = $NewUPN
+            EmailAddress = $NewUPN  # <--- Updates the General Tab 'mail' attribute
         }
 
-        # Handle Proxy Addresses logic for the -Add/-Remove parameters
-        # If arrays are empty, we shouldn't pass them, so we do specific logic here
-        
         if ($ProxyRemove.Count -gt 0) {
             Set-ADUser -Identity $User @UserChanges -Remove @{proxyAddresses = $ProxyRemove} -Add @{proxyAddresses = $ProxyAdd} -ErrorAction Stop
         }
@@ -126,6 +132,13 @@ Function Rename-ADUserSmart {
     Write-Host "`nCOMPLETE." -ForegroundColor Cyan
 }
 
-# Run it
-$InputUser = Read-Host "Enter the Username or Email"
-Rename-ADUserSmart -Identity $InputUser
+# --- RUN SCRIPT ---
+Try {
+    $InputUser = Read-Host "Enter the Username or Email"
+    Rename-ADUserSmart -Identity $InputUser
+}
+Finally {
+    # This block runs even if the script crashes, ensuring logs are saved.
+    Stop-Transcript
+    Write-Host "`nLog saved to: $LogFile" -ForegroundColor Gray
+}
