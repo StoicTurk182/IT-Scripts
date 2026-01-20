@@ -1,88 +1,83 @@
 #Requires -Modules ActiveDirectory
 
 # --- 1. SETUP LOGGING (Universal) ---
-$LogDir = "$env:TEMP\ADRenameLogs"
+$LogDir = "$env:TEMP\ADGroupCopyLogs"
 if (!(Test-Path $LogDir)) { New-Item -Path $LogDir -ItemType Directory -Force | Out-Null }
 $LogFile = "$LogDir\Log_$(Get-Date -Format 'yyyyMMdd_HHmm').txt"
 
 # Start Transcript (Captures the aesthetic output perfectly)
 Start-Transcript -Path $LogFile -Append | Out-Null
 
-Function Rename-ADUserSmart {
-    param (
-        [Parameter(Mandatory=$true)]
-        [string]$Identity
+Function Copy-ADUserGroupsSmart {
+    param(
+        [string]$SourceUser,
+        [string]$TargetUser
     )
 
     # --- HEADER ---
     Write-Host "`n========================================================" -ForegroundColor Cyan
-    Write-Host "            AD IDENTITY UPDATE WIZARD                   " -ForegroundColor Cyan
+    Write-Host "            AD GROUP COPY WIZARD                        " -ForegroundColor Cyan
     Write-Host "========================================================" -ForegroundColor Cyan
 
-    # --- SECTION: SEARCH ---
-    Write-Host "`n[ SEARCH ]" -ForegroundColor Magenta
-    Write-Host "   Target Identity    : " -NoNewline
-    Write-Host "$Identity" -ForegroundColor White
+    # --- SECTION: INPUT ---
+    # If parameters were not passed, ask for them now with clean spacing
+    if ([string]::IsNullOrWhiteSpace($SourceUser)) {
+        Write-Host "`n[ INPUT REQUIRED ]" -ForegroundColor Magenta
+        $SourceUser = Read-Host "   > Enter SOURCE Username (Copy FROM) "
+    }
+    if ([string]::IsNullOrWhiteSpace($TargetUser)) {
+        if (![string]::IsNullOrWhiteSpace($SourceUser)) { 
+            # Only print header if we didn't just print it above
+        } else { Write-Host "`n[ INPUT REQUIRED ]" -ForegroundColor Magenta }
+        
+        $TargetUser = Read-Host "   > Enter TARGET Username (Copy TO)   "
+    }
 
+    # --- SECTION: VALIDATION ---
+    Write-Host "`n[ VALIDATION ]" -ForegroundColor Magenta
+    
+    # 1. Validate Source
+    Write-Host "   Checking Source '$SourceUser' ... " -NoNewline
     Try {
-        $User = Get-ADUser -Filter "UserPrincipalName -eq '$Identity' -or SamAccountName -eq '$Identity'" -Properties proxyAddresses, DisplayName, EmailAddress, UserPrincipalName, Title, Department -ErrorAction Stop
+        $SourceObj = Get-ADUser -Identity $SourceUser -Properties MemberOf -ErrorAction Stop
+        Write-Host "[ OK ]" -ForegroundColor Green
     }
     Catch {
-        Write-Warning "`n   [!] Error contacting Active Directory."
-        Return
-    }
-
-    if (-not $User) {
-        Write-Host "   Status             : " -NoNewline
-        Write-Host "NOT FOUND" -ForegroundColor Red
-        Write-Warning "   The user '$Identity' could not be located."
-        Return
-    }
-    
-    Write-Host "   Status             : " -NoNewline
-    Write-Host "FOUND" -ForegroundColor Green
-    Write-Host "   Current Name       : $($User.Name)"
-    Write-Host "   Current UPN        : $($User.UserPrincipalName)"
-
-    # --- SECTION: INPUT ---
-    Write-Host "`n[ INPUT DETAILS ]" -ForegroundColor Magenta
-    
-    # Auto-Detect Domain
-    if ($User.UserPrincipalName -match "@") {
-        $DomainSuffix = ($User.UserPrincipalName -split "@")[1]
-    }
-    else {
-        Write-Host "   [!] Domain not detected." -ForegroundColor Yellow
-        $DomainSuffix = Read-Host "   > Enter Domain (e.g. corp.com)"
-    }
-
-    # Better input handling with spacing
-    $NewNamePrefix = Read-Host "   > New Username (e.g. j.doe)   " 
-    if ($NewNamePrefix -match "@") {
-        Write-Warning "   [!] Invalid Input: Do not include the '@' symbol."
+        Write-Host "[ FAIL ]" -ForegroundColor Red
+        Write-Warning "   Could not find Source user '$SourceUser'."
         return
     }
 
-    $NewFirstName = Read-Host "   > New First Name              "
-    $NewLastName  = Read-Host "   > New Last Name               "
+    # 2. Validate Target
+    Write-Host "   Checking Target '$TargetUser' ... " -NoNewline
+    Try {
+        $TargetObj = Get-ADUser -Identity $TargetUser -Properties MemberOf -ErrorAction Stop
+        Write-Host "[ OK ]" -ForegroundColor Green
+    }
+    Catch {
+        Write-Host "[ FAIL ]" -ForegroundColor Red
+        Write-Warning "   Could not find Target user '$TargetUser'."
+        return
+    }
+
+    # 3. Analyze Groups
+    $Groups = @($SourceObj | Select-Object -ExpandProperty MemberOf)
     
-    $NewUPN = "$NewNamePrefix@$DomainSuffix"
-    $NewDisplayName = "$NewFirstName $NewLastName"
-    $NewSamAccount = $NewNamePrefix 
+    if ($Groups.Count -eq 0) {
+        Write-Host "`n   [ INFO ] Source user has no group memberships to copy." -ForegroundColor Yellow
+        return
+    }
 
     # --- SECTION: CONFIRMATION ---
-    Write-Host "`n[ PROPOSED CHANGES ]" -ForegroundColor Magenta
+    Write-Host "`n[ PROPOSED ACTION ]" -ForegroundColor Magenta
     Write-Host "--------------------------------------------------------" -ForegroundColor Gray
-    Write-Host "   ATTRIBUTE        CURRENT VALUE           NEW VALUE" -ForegroundColor Gray
-    Write-Host "   ---------        -------------           ---------" -ForegroundColor Gray
-    Write-Host "   Display Name     $($User.DisplayName)    $NewDisplayName"
-    Write-Host "   SamAccount       $($User.SamAccountName) $NewSamAccount"
-    Write-Host "   UserPrincipal    $($User.UserPrincipalName) $NewUPN"
-    Write-Host "   Email (Gen Tab)  $($User.EmailAddress)   $NewUPN"
+    Write-Host "   SOURCE User      : $($SourceObj.Name)"
+    Write-Host "   TARGET User      : $($TargetObj.Name)"
+    Write-Host "   Groups to Copy   : $($Groups.Count)"
     Write-Host "--------------------------------------------------------" -ForegroundColor Gray
-    
+
     Write-Host ""
-    $Confirm = Read-Host "   >>> Type 'Y' to APPLY these changes"
+    $Confirm = Read-Host "   >>> Type 'Y' to COPY these groups"
     if ($Confirm -ne 'Y') { 
         Write-Host "`n   [ ABORTED ] Operation cancelled by user." -ForegroundColor Yellow
         return 
@@ -90,75 +85,49 @@ Function Rename-ADUserSmart {
 
     # --- SECTION: EXECUTION ---
     Write-Host "`n[ EXECUTION ]" -ForegroundColor Magenta
-
-    # 1. Proxy Address Logic
-    $CurrentProxy = $User.proxyAddresses
-    $OldPrimary = $CurrentProxy | Where-Object { $_ -cmatch '^SMTP:' } | Select-Object -First 1
     
-    [string[]]$ProxyRemove = @()
-    [string[]]$ProxyAdd    = @()
-    
-    if ($OldPrimary) {
-        $OldEmail = $OldPrimary -replace "^SMTP:", ""
-        $ProxyRemove += "$OldPrimary"
-        $ProxyAdd += "SMTP:$NewUPN"
-        $ProxyAdd += "smtp:$OldEmail"
-    }
-    else {
-        $ProxyAdd += "SMTP:$NewUPN"
-    }
-
-    # 2. Update Attributes
-    Try {
-        Write-Host "   Updating Attributes ... " -NoNewline
+    foreach ($Group in $Groups) {
+        # Extract pretty name for display (Remove CN=...,OU=...)
+        $GroupName = ($Group -split ",")[0] -replace "CN=",""
         
-        $UserChanges = @{
-            GivenName = $NewFirstName
-            Surname = $NewLastName
-            DisplayName = $NewDisplayName
-            SamAccountName = $NewSamAccount
-            UserPrincipalName = $NewUPN
-            EmailAddress = $NewUPN
-        }
+        # Calculate padding for alignment
+        # We cap display name at 35 chars to keep alignment clean
+        $DisplayName = if ($GroupName.Length -gt 35) { $GroupName.Substring(0,32) + "..." } else { $GroupName }
+        $Padding = " " * (40 - $DisplayName.Length)
 
-        if ($ProxyRemove.Count -gt 0) {
-            Set-ADUser -Identity $User @UserChanges -Remove @{proxyAddresses = $ProxyRemove} -Add @{proxyAddresses = $ProxyAdd} -ErrorAction Stop
+        Write-Host "   $DisplayName $Padding : " -NoNewline
+
+        Try {
+            Add-ADGroupMember -Identity $Group -Members $TargetUser -ErrorAction Stop
+            Write-Host "[ COPIED ]" -ForegroundColor Green
         }
-        else {
-            Set-ADUser -Identity $User @UserChanges -Add @{proxyAddresses = $ProxyAdd} -ErrorAction Stop
+        Catch {
+            if ($_.Exception.Message -like "*already a member*") {
+                Write-Host "[ EXISTS ]" -ForegroundColor DarkGray
+            }
+            elseif ($_.Exception.Message -like "*Insufficient access rights*") {
+                 Write-Host "[ ACCESS DENIED ]" -ForegroundColor Red
+            }
+            else {
+                Write-Host "[ FAILED ]" -ForegroundColor Red
+                Write-Log "Error adding to $GroupName : $($_.Exception.Message)"
+            }
         }
-        
-        Write-Host "[ OK ]" -ForegroundColor Green
-    }
-    Catch {
-        Write-Host "[ FAIL ]" -ForegroundColor Red
-        Write-Error "   Error: $($_.Exception.Message)"
-        Return
     }
 
-    # 3. Rename Object
-    Try {
-        Write-Host "   Renaming AD Object  ... " -NoNewline
-        Rename-ADObject -Identity $User -NewName $NewDisplayName -ErrorAction Stop
-        Write-Host "[ OK ]" -ForegroundColor Green
-    }
-    Catch {
-        Write-Host "[ WARN ]" -ForegroundColor Yellow
-        Write-Warning "   Attributes updated, but object rename failed: $($_.Exception.Message)"
-    }
-    
-    Write-Host "`n   [ COMPLETE ] All operations finished." -ForegroundColor Cyan
+    Write-Host "`n   [ COMPLETE ] Operation finished." -ForegroundColor Cyan
     Write-Host "========================================================" -ForegroundColor Cyan
 }
 
 # --- MAIN EXECUTION ---
 Try {
-    # Clear visual noise if possible (Optional)
-    # Clear-Host 
-
-    Write-Host "`n"
-    $InputUser = Read-Host "ENTER USERNAME OR EMAIL TO START"
-    Rename-ADUserSmart -Identity $InputUser
+    # If variables exist (passed via command line), use them. Otherwise run interactive.
+    if ($SourceUser -and $TargetUser) {
+        Copy-ADUserGroupsSmart -SourceUser $SourceUser -TargetUser $TargetUser
+    }
+    else {
+        Copy-ADUserGroupsSmart
+    }
 }
 Finally {
     Stop-Transcript | Out-Null

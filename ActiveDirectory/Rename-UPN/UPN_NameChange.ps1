@@ -1,78 +1,97 @@
 #Requires -Modules ActiveDirectory
 
-# --- 1. SETUP LOGGING (Works for File or IEX) ---
+# --- 1. SETUP LOGGING (Universal) ---
 $LogDir = "$env:TEMP\ADRenameLogs"
-# Ensure the directory exists
 if (!(Test-Path $LogDir)) { New-Item -Path $LogDir -ItemType Directory -Force | Out-Null }
-
-# Create a unique filename based on time
 $LogFile = "$LogDir\Log_$(Get-Date -Format 'yyyyMMdd_HHmm').txt"
 
-# Start recording
-Start-Transcript -Path $LogFile -Append
+# Start Transcript (Captures the aesthetic output perfectly)
+Start-Transcript -Path $LogFile -Append | Out-Null
 
 Function Rename-ADUserSmart {
     param (
-        [Parameter(Mandatory=$true, HelpMessage="Enter either the Short Login ID (SamAccountName) OR the Full Email (UPN)")]
+        [Parameter(Mandatory=$true)]
         [string]$Identity
     )
 
-    Write-Host "Searching for '$Identity'..." -NoNewline
+    # --- HEADER ---
+    Write-Host "`n========================================================" -ForegroundColor Cyan
+    Write-Host "            AD IDENTITY UPDATE WIZARD                   " -ForegroundColor Cyan
+    Write-Host "========================================================" -ForegroundColor Cyan
 
-    # 1. SMART SEARCH
+    # --- SECTION: SEARCH ---
+    Write-Host "`n[ SEARCH ]" -ForegroundColor Magenta
+    Write-Host "   Target Identity    : " -NoNewline
+    Write-Host "$Identity" -ForegroundColor White
+
     Try {
-        $User = Get-ADUser -Filter "UserPrincipalName -eq '$Identity' -or SamAccountName -eq '$Identity'" -Properties proxyAddresses, DisplayName, EmailAddress, UserPrincipalName -ErrorAction Stop
+        $User = Get-ADUser -Filter "UserPrincipalName -eq '$Identity' -or SamAccountName -eq '$Identity'" -Properties proxyAddresses, DisplayName, EmailAddress, UserPrincipalName, Title, Department -ErrorAction Stop
     }
     Catch {
-        Write-Warning "`nError contacting Active Directory. Check your connection."
+        Write-Warning "`n   [!] Error contacting Active Directory."
         Return
     }
 
     if (-not $User) {
-        Write-Host " FAILED." -ForegroundColor Red
-        Write-Warning "User '$Identity' was not found."
+        Write-Host "   Status             : " -NoNewline
+        Write-Host "NOT FOUND" -ForegroundColor Red
+        Write-Warning "   The user '$Identity' could not be located."
         Return
     }
     
-    Write-Host " FOUND!" -ForegroundColor Green
-    Write-Host "   Name:  $($User.Name)"
+    Write-Host "   Status             : " -NoNewline
+    Write-Host "FOUND" -ForegroundColor Green
+    Write-Host "   Current Name       : $($User.Name)"
+    Write-Host "   Current UPN        : $($User.UserPrincipalName)"
+
+    # --- SECTION: INPUT ---
+    Write-Host "`n[ INPUT DETAILS ]" -ForegroundColor Magenta
     
-    # 2. Auto-Detect Domain
+    # Auto-Detect Domain
     if ($User.UserPrincipalName -match "@") {
         $DomainSuffix = ($User.UserPrincipalName -split "@")[1]
     }
     else {
-        $DomainSuffix = Read-Host "Could not detect domain. Please type it (e.g. orionad.lab)"
+        Write-Host "   [!] Domain not detected." -ForegroundColor Yellow
+        $DomainSuffix = Read-Host "   > Enter Domain (e.g. corp.com)"
     }
 
-    # 3. Gather New Details
-    Write-Host "`n--- Enter New Identity Details ---" -ForegroundColor Yellow
-    
-    $NewNamePrefix = Read-Host "New Username (e.g. bob.jones)" 
-    
+    # Better input handling with spacing
+    $NewNamePrefix = Read-Host "   > New Username (e.g. j.doe)   " 
     if ($NewNamePrefix -match "@") {
-        Write-Warning "Stop! Only enter the username part, not the '@' symbol."
+        Write-Warning "   [!] Invalid Input: Do not include the '@' symbol."
         return
     }
 
-    $NewFirstName = Read-Host "New First Name"
-    $NewLastName  = Read-Host "New Last Name"
+    $NewFirstName = Read-Host "   > New First Name              "
+    $NewLastName  = Read-Host "   > New Last Name               "
     
     $NewUPN = "$NewNamePrefix@$DomainSuffix"
     $NewDisplayName = "$NewFirstName $NewLastName"
     $NewSamAccount = $NewNamePrefix 
 
-    Write-Host "--------------------------------"
-    Write-Host "PROPOSED CHANGES:"
-    Write-Host "   Name:  $NewDisplayName"
-    Write-Host "   UPN:   $NewUPN" 
-    Write-Host "   Email: $NewUPN (General Tab)"
-    Write-Host "--------------------------------"
+    # --- SECTION: CONFIRMATION ---
+    Write-Host "`n[ PROPOSED CHANGES ]" -ForegroundColor Magenta
+    Write-Host "--------------------------------------------------------" -ForegroundColor Gray
+    Write-Host "   ATTRIBUTE        CURRENT VALUE           NEW VALUE" -ForegroundColor Gray
+    Write-Host "   ---------        -------------           ---------" -ForegroundColor Gray
+    Write-Host "   Display Name     $($User.DisplayName)    $NewDisplayName"
+    Write-Host "   SamAccount       $($User.SamAccountName) $NewSamAccount"
+    Write-Host "   UserPrincipal    $($User.UserPrincipalName) $NewUPN"
+    Write-Host "   Email (Gen Tab)  $($User.EmailAddress)   $NewUPN"
+    Write-Host "--------------------------------------------------------" -ForegroundColor Gray
     
-    $Confirm = Read-Host "Type 'Y' to proceed"
-    if ($Confirm -ne 'Y') { Write-Warning "Cancelled."; return }
+    Write-Host ""
+    $Confirm = Read-Host "   >>> Type 'Y' to APPLY these changes"
+    if ($Confirm -ne 'Y') { 
+        Write-Host "`n   [ ABORTED ] Operation cancelled by user." -ForegroundColor Yellow
+        return 
+    }
 
-    # 4. Handle Proxy Addresses
+    # --- SECTION: EXECUTION ---
+    Write-Host "`n[ EXECUTION ]" -ForegroundColor Magenta
+
+    # 1. Proxy Address Logic
     $CurrentProxy = $User.proxyAddresses
     $OldPrimary = $CurrentProxy | Where-Object { $_ -cmatch '^SMTP:' } | Select-Object -First 1
     
@@ -89,9 +108,9 @@ Function Rename-ADUserSmart {
         $ProxyAdd += "SMTP:$NewUPN"
     }
 
-    # 5. Execute Changes
+    # 2. Update Attributes
     Try {
-        Write-Host "Updating Identity attributes..." -NoNewline
+        Write-Host "   Updating Attributes ... " -NoNewline
         
         $UserChanges = @{
             GivenName = $NewFirstName
@@ -99,7 +118,7 @@ Function Rename-ADUserSmart {
             DisplayName = $NewDisplayName
             SamAccountName = $NewSamAccount
             UserPrincipalName = $NewUPN
-            EmailAddress = $NewUPN  # Updates the General Tab 'mail' attribute
+            EmailAddress = $NewUPN
         }
 
         if ($ProxyRemove.Count -gt 0) {
@@ -109,41 +128,46 @@ Function Rename-ADUserSmart {
             Set-ADUser -Identity $User @UserChanges -Add @{proxyAddresses = $ProxyAdd} -ErrorAction Stop
         }
         
-        Write-Host " Done." -ForegroundColor Green
+        Write-Host "[ OK ]" -ForegroundColor Green
     }
     Catch {
-        Write-Error "`nFailed to update attributes: $($_.Exception.Message)"
+        Write-Host "[ FAIL ]" -ForegroundColor Red
+        Write-Error "   Error: $($_.Exception.Message)"
         Return
     }
 
-    # 6. Rename the Object (CN)
+    # 3. Rename Object
     Try {
-        Write-Host "Renaming AD Object..." -NoNewline
+        Write-Host "   Renaming AD Object  ... " -NoNewline
         Rename-ADObject -Identity $User -NewName $NewDisplayName -ErrorAction Stop
-        Write-Host " Done." -ForegroundColor Green
+        Write-Host "[ OK ]" -ForegroundColor Green
     }
     Catch {
-        Write-Warning "`nAttributes updated, but failed to rename the object CN."
-        Write-Error $_.Exception.Message
+        Write-Host "[ WARN ]" -ForegroundColor Yellow
+        Write-Warning "   Attributes updated, but object rename failed: $($_.Exception.Message)"
     }
     
-    Write-Host "`nCOMPLETE." -ForegroundColor Cyan
+    Write-Host "`n   [ COMPLETE ] All operations finished." -ForegroundColor Cyan
+    Write-Host "========================================================" -ForegroundColor Cyan
 }
 
-# --- RUN SCRIPT ---
+# --- MAIN EXECUTION ---
 Try {
-    $InputUser = Read-Host "Enter the Username or Email"
+    # Clear visual noise if possible (Optional)
+    # Clear-Host 
+
+    Write-Host "`n"
+    $InputUser = Read-Host "ENTER USERNAME OR EMAIL TO START"
     Rename-ADUserSmart -Identity $InputUser
 }
 Finally {
-    # Stop recording
-    Stop-Transcript
+    Stop-Transcript | Out-Null
     
-    # --- LOGGING REMINDER & AUTO-OPEN ---
     Write-Host "`n--------------------------------------------------" -ForegroundColor Gray
-    Write-Host "LOGS SAVED: $LogDir" -ForegroundColor Yellow
-    Write-Host "Opening log location folder..." -ForegroundColor Yellow
+    Write-Host " LOG FILE: $LogFile" -ForegroundColor Yellow
+    Write-Host " Opening log folder..." -ForegroundColor Gray
+    Write-Host "--------------------------------------------------" -ForegroundColor Gray
     
-    # This command opens File Explorer to the folder
+    # Open folder
     Invoke-Item $LogDir
 }
