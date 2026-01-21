@@ -32,6 +32,10 @@ $Script:MenuStructure = [ordered]@{
         @{ Name = "Create_Bypass"; Path = "Windows Autopilot Deployment_WINhome/Create_Bypass.ps1"; Description = "Create files for Windows ISO modification to prep for Home Edition" }
         @{ Name = "Install_AnyBurn"; Path = "Windows Autopilot Deployment_WINhome/Install_AnyBurn.ps1"; Description = "Install AnyBurn for ISO editing" }
     )
+
+    "Set-AutoLock" = @(
+        @{ Name = "Set-AutoLock"; Path = "Utils/Set Screen Lock/Set-AutoLock.ps1"; Description = "Set Windows Auto-Lock timeout for user and machine" }
+    )
 }
 
 function Show-Banner {

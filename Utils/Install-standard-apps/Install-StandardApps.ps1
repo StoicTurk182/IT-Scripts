@@ -22,7 +22,8 @@ if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdenti
 
 $AppsToInstall = @(
     "7zip.7zip",
-    "Notepad++.Notepad++"
+    "Notepad++.Notepad++",
+    "Adobe.Acrobat.Reader.64-bit"
 )
 
 function Write-Log {
