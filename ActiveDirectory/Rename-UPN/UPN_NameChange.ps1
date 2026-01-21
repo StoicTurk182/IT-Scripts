@@ -5,7 +5,6 @@ $LogDir = "$env:TEMP\ADRenameLogs"
 if (!(Test-Path $LogDir)) { New-Item -Path $LogDir -ItemType Directory -Force | Out-Null }
 $LogFile = "$LogDir\Log_$(Get-Date -Format 'yyyyMMdd_HHmm').txt"
 
-# Start Transcript (Captures the aesthetic output perfectly)
 Start-Transcript -Path $LogFile -Append | Out-Null
 
 Function Rename-ADUserSmart {
@@ -25,7 +24,7 @@ Function Rename-ADUserSmart {
     Write-Host "$Identity" -ForegroundColor White
 
     Try {
-        $User = Get-ADUser -Filter "UserPrincipalName -eq '$Identity' -or SamAccountName -eq '$Identity'" -Properties proxyAddresses, DisplayName, EmailAddress, UserPrincipalName, Title, Department -ErrorAction Stop
+        $User = Get-ADUser -Filter "UserPrincipalName -eq '$Identity' -or SamAccountName -eq '$Identity'" -Properties proxyAddresses, DisplayName, EmailAddress, UserPrincipalName -ErrorAction Stop
     }
     Catch {
         Write-Warning "`n   [!] Error contacting Active Directory."
@@ -47,7 +46,6 @@ Function Rename-ADUserSmart {
     # --- SECTION: INPUT ---
     Write-Host "`n[ INPUT DETAILS ]" -ForegroundColor Magenta
     
-    # Auto-Detect Domain
     if ($User.UserPrincipalName -match "@") {
         $DomainSuffix = ($User.UserPrincipalName -split "@")[1]
     }
@@ -56,7 +54,6 @@ Function Rename-ADUserSmart {
         $DomainSuffix = Read-Host "   > Enter Domain (e.g. corp.com)"
     }
 
-    # Better input handling with spacing
     $NewNamePrefix = Read-Host "   > New Username (e.g. j.doe)   " 
     if ($NewNamePrefix -match "@") {
         Write-Warning "   [!] Invalid Input: Do not include the '@' symbol."
@@ -91,22 +88,48 @@ Function Rename-ADUserSmart {
     # --- SECTION: EXECUTION ---
     Write-Host "`n[ EXECUTION ]" -ForegroundColor Magenta
 
-    # 1. Proxy Address Logic
-    $CurrentProxy = $User.proxyAddresses
-    $OldPrimary = $CurrentProxy | Where-Object { $_ -cmatch '^SMTP:' } | Select-Object -First 1
+    # --- FIX START: ROBUST PROXY CALCULATION (Prevents the "Max/Match" Error) ---
     
-    [string[]]$ProxyRemove = @()
-    [string[]]$ProxyAdd    = @()
+    # 1. Get current list into a modifiable List object
+    $CurrentList = @($User.proxyAddresses)
+    if ($CurrentList -eq $null) { $CurrentList = @() }
     
+    $NewProxyList = [System.Collections.Generic.List[string]]::new()
+
+    # 2. Identify the Old Primary (Case sensitive 'SMTP:')
+    $OldPrimary = $CurrentList | Where-Object { $_ -cmatch '^SMTP:' } | Select-Object -First 1
+
+    # 3. Build Base List: Add all existing addresses EXCEPT the Old Primary
+    foreach ($addr in $CurrentList) {
+        if ($addr -ne $OldPrimary) {
+            $NewProxyList.Add($addr)
+        }
+    }
+
+    # 4. Add the NEW Primary (SMTP:...)
+    # First, if the new UPN already exists as a lowercase alias (smtp:), remove it to avoid duplicates
+    $ExistingAlias = "smtp:$NewUPN"
+    if ($NewProxyList.Contains($ExistingAlias)) {
+        $NewProxyList.Remove($ExistingAlias)
+    }
+    $NewProxyList.Add("SMTP:$NewUPN")
+
+    # 5. Add the Old Primary as a lowercase alias (smtp:...)
     if ($OldPrimary) {
         $OldEmail = $OldPrimary -replace "^SMTP:", ""
-        $ProxyRemove += "$OldPrimary"
-        $ProxyAdd += "SMTP:$NewUPN"
-        $ProxyAdd += "smtp:$OldEmail"
+        # Only add if it's different from the new one
+        if ($OldEmail -ne $NewUPN) {
+             # Check if we already have it to avoid duplicates
+             if (-not $NewProxyList.Contains("smtp:$OldEmail")) {
+                 $NewProxyList.Add("smtp:$OldEmail")
+             }
+        }
     }
-    else {
-        $ProxyAdd += "SMTP:$NewUPN"
-    }
+
+    # 6. Convert to Array for the AD Command
+    [string[]]$FinalProxyArray = $NewProxyList.ToArray()
+
+    # --- FIX END ---
 
     # 2. Update Attributes
     Try {
@@ -118,15 +141,11 @@ Function Rename-ADUserSmart {
             DisplayName = $NewDisplayName
             SamAccountName = $NewSamAccount
             UserPrincipalName = $NewUPN
-            EmailAddress = $NewUPN
+            EmailAddress = $NewUPN  # Updates the General Tab 'mail' attribute
         }
 
-        if ($ProxyRemove.Count -gt 0) {
-            Set-ADUser -Identity $User @UserChanges -Remove @{proxyAddresses = $ProxyRemove} -Add @{proxyAddresses = $ProxyAdd} -ErrorAction Stop
-        }
-        else {
-            Set-ADUser -Identity $User @UserChanges -Add @{proxyAddresses = $ProxyAdd} -ErrorAction Stop
-        }
+        # CRITICAL FIX: Use -Replace instead of -Add/-Remove
+        Set-ADUser -Identity $User @UserChanges -Replace @{proxyAddresses = $FinalProxyArray} -ErrorAction Stop
         
         Write-Host "[ OK ]" -ForegroundColor Green
     }
@@ -153,9 +172,6 @@ Function Rename-ADUserSmart {
 
 # --- MAIN EXECUTION ---
 Try {
-    # Clear visual noise if possible (Optional)
-    # Clear-Host 
-
     Write-Host "`n"
     $InputUser = Read-Host "ENTER USERNAME OR EMAIL TO START"
     Rename-ADUserSmart -Identity $InputUser
@@ -168,6 +184,5 @@ Finally {
     Write-Host " Opening log folder..." -ForegroundColor Gray
     Write-Host "--------------------------------------------------" -ForegroundColor Gray
     
-    # Open folder
     Invoke-Item $LogDir
 }
