@@ -886,3 +886,22 @@ Avoid spaces - use hyphens:
 - Invoke-Expression: https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/invoke-expression
 - GitHub Raw Content: https://docs.github.com/en/repositories/working-with-files/using-files/viewing-a-file
 - Git Documentation: https://git-scm.com/doc
+
+## Sources for modifications 
+
+- Official Microsoft Documentation
+- Set-ADUser & Attributes: https://learn.microsoft.com/en-us/powershell/module/activedirectory/set-aduser
+- Rename-ADObject: https://learn.microsoft.com/en-us/powershell/module/activedirectory/rename-adobject
+- Start-Transcript (Logging): https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.host/start-transcript
+- Splatting (Hashtables for Parameters): https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_splatting
+- Try/Catch/Finally (Error Handling): https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_try_catch_finally
+
+## Technical References & Guides
+
+- SS64 PowerShell Index (Industry Standard Cheat Sheet): https://ss64.com/ps/
+- Active Directory Attributes (SMTP vs smtp): https://adamtheautomator.com/powershell-active-directory/
+- Handling Proxy Addresses: https://www.powershellisfun.com/2022/07/25/manage-email-addresses-proxyaddresses-in-active-directory-with-powershell/
+
+
+
+
