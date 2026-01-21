@@ -5,7 +5,7 @@
     1. Sets TLS 1.2 (Required for GitHub).
     2. Checks for Admin rights.
     3. Auto-installs Winget if missing.
-    4. Installs/Upgrades 7-Zip and Notepad++.
+    4. Smart Install: Checks if app is installed; if not, installs it. If yes, upgrades it.
 #>
 
 # --- CRITICAL FIX: FORCE TLS 1.2 FOR GITHUB ---
@@ -74,23 +74,38 @@ if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
     }
 }
 
-# --- STEP 2: INSTALL APPS ---
+# --- STEP 2: INSTALL OR UPGRADE APPS ---
 foreach ($AppID in $AppsToInstall) {
     Write-Host ""
-    Write-Log "Checking: $AppID" -Color Yellow
+    Write-Log "Processing: $AppID" -Color Yellow
     
-    # We use Start-Process to ensure we wait for the installer to finish
-    $Process = Start-Process -FilePath "winget" -ArgumentList "upgrade --id $AppID --accept-package-agreements --accept-source-agreements --silent" -PassThru -Wait -NoNewWindow
+    # 1. Attempt INSTALL first (Handles fresh installs)
+    # We use Start-Process to capture the specific exit codes reliably
+    $InstallProc = Start-Process -FilePath "winget" -ArgumentList "install --id $AppID --accept-package-agreements --accept-source-agreements --silent" -PassThru -Wait -NoNewWindow
     
-    if ($Process.ExitCode -eq 0) {
-        Write-Log " [OK] Success." -Color Green
+    if ($InstallProc.ExitCode -eq 0) {
+        Write-Log " [OK] Installed Successfully." -Color Green
     }
-    elseif ($Process.ExitCode -eq -1978334967) { 
-        # -1978334967 means "No update available" (Already installed)
-        Write-Log " [OK] Already up to date." -Color Green 
+    # 2. Catch 'Already Installed' error (-1978335212) -> Switch to UPGRADE
+    elseif ($InstallProc.ExitCode -eq -1978335212) { 
+        Write-Log " [!] App already installed. Checking for updates..." -Color Gray
+        
+        $UpgradeProc = Start-Process -FilePath "winget" -ArgumentList "upgrade --id $AppID --accept-package-agreements --accept-source-agreements --silent" -PassThru -Wait -NoNewWindow
+        
+        if ($UpgradeProc.ExitCode -eq 0) {
+            Write-Log " [OK] Upgrade Successful." -Color Green
+        }
+        elseif ($UpgradeProc.ExitCode -eq -1978334967) { 
+            # -1978334967 means "No update available"
+            Write-Log " [OK] System is already up to date." -Color Green 
+        }
+        else {
+            Write-Log " [X] Upgrade Failed. Code: $($UpgradeProc.ExitCode)" -Color Red
+        }
     }
     else {
-        Write-Log " [!] Exit Code: $($Process.ExitCode)" -Color Red
+        # Catch other random install errors
+        Write-Log " [X] Install Failed. Code: $($InstallProc.ExitCode)" -Color Red
     }
 }
 
