@@ -17,7 +17,7 @@
     Admin rights required for machine-wide policy settings.
 #>
 param (
-    [int]$Minutes = 5
+    [int]$Minutes = 20
 )
 
 # Convert Minutes to Seconds
