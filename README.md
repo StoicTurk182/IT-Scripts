@@ -1,5 +1,7 @@
 # IT-Scripts Toolbox
 
+
+
 Centralized PowerShell scripts for IT administration with on-the-fly execution from GitHub.
 
 Repository: https://github.com/StoicTurk182/IT-Scripts
@@ -48,7 +50,77 @@ Scripts are fetched from GitHub and executed in memory without writing to disk. 
 Raw GitHub URL format:
 ```
 https://raw.githubusercontent.com/{owner}/{repo}/{branch}/{path}
+
 ```
+
+## WinGet Applications 
+
+Installing WinGet application requires the correct ID filed for the application and flags that can be used please see the below for details
+```powershell
+winget search "Name of App"
+How to use it
+Open PowerShell.
+
+Type winget search firefox (or whatever app you need).
+
+Look at the Id column in the results.
+
+Copy that exact text into your $AppsToInstall list.
+
+Example Output:
+
+Plaintext
+
+Name               Id                     Version
+--------------------------------------------------
+Mozilla Firefox    Mozilla.Firefox        114.0.2
+
+```
+
+## JSON Application Export
+
+1. The "Full Backup" (JSON File)
+This command scans your computer and creates a .json file containing a list of every app installed via Winget.
+
+Run this in PowerShell:
+
+PowerShell
+
+winget export -o "$env:USERPROFILE\Desktop\MyApps.json"
+What it does: Creates a file named MyApps.json on your Desktop.
+
+What's inside: A structured list of App IDs and versions.
+
+2. How to Restore (The Import)
+If you move to a new computer (or wipe this one), you can reinstall everything in that file with one command:
+
+PowerShell
+
+winget import -i "$env:USERPROFILE\Desktop\MyApps.json" --accept-package-agreements --accept-source-agreements
+3. Bonus: Get IDs ready for your script
+Since you are building a custom script with an $AppsToInstall array, you probably don't want a JSON file—you just want the IDs formatted so you can copy-paste them into your code.
+
+Run this "Magic Snippet" in PowerShell. It will list your apps formatted exactly for your script array:
+
+PowerShell
+
+# Get all installed apps and format them as a quoted list
+$apps = winget list | Out-String
+$lines = $apps -split "`r`n"
+foreach ($line in $lines) {
+    # Skip header lines and grab the ID (usually the 2nd column)
+    if ($line -match '^\S+\s+([a-zA-Z0-9\.]+)\s+') {
+        Write-Host """$($Matches[1])""," -ForegroundColor Cyan
+    }
+}
+Output will look like this:
+
+Plaintext
+
+"7zip.7zip",
+"Mozilla.Firefox",
+"Microsoft.VisualStudioCode",
+"Valve.Steam",
 
 ## Initial Repository Setup
 
