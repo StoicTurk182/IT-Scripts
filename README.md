@@ -10,7 +10,15 @@ Repository: https://github.com/StoicTurk182/IT-Scripts
 
 ```powershell
 iex (irm "https://raw.githubusercontent.com/StoicTurk182/IT-Scripts/main/Menu.ps1")
+
+# First, define the text (as you likely already have)
+$tools = 'iex (irm "https://raw.githubusercontent.com/StoicTurk182/IT-Scripts/main/Menu.ps1")'
+
+# Then, ACTIVATE it by running this:
+Invoke-Expression $tools
+
 ```
+
 
 If TLS errors occur (older systems):
 
