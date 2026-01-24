@@ -28,6 +28,7 @@ $Script:MenuStructure = [ordered]@{
         @{ Name = "Install Standard Apps"; Path = "Utils/Install-standard-apps/Install-StandardApps.ps1";                    Description = "Auto-installs Winget, 7-Zip, and Notepad++" }
         @{ Name = "Set Screen Lock"; Path = "Utils/Set Screen Lock/Set-AutoLock.ps1";                                        Description = "Set Windows Auto-Lock timeout for user and machine" }
         @{ Name = "Export App JSON"; Path = "Utils/Export App JSON/App Export_JSON.ps1";                             Description = "Export list of installed applications to a text file" }
+        @{ Name = "Win11 Feature Manager"; Path = "Utils/Windows mgmt/Win11-FeatureManager.ps1";                       Description = "Manage Windows 11 features and settings" }
     )
 
     "Windows Autopilot Deployment_WINhome" = @(
