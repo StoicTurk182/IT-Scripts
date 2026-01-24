@@ -2,14 +2,24 @@
 
 Interactive PowerShell tool to check, enable, and disable common Windows 11 features via registry and service commands. Works via `iex (irm)` or locally.
 
-Repository: Add to your IT-Scripts repo at `Utils/Win11-FeatureManager/`
+Repository: https://github.com/StoicTurk182/IT-Scripts
+
+Location: `Utils/Windows mgmt/Win11-FeatureManager.ps1`
 
 ## Quick Start
 
-Run from GitHub (replace with your repo URL):
+Run from IT-Scripts Toolbox menu:
 
 ```powershell
-iex (irm "https://raw.githubusercontent.com/YourRepo/IT-Scripts/main/Utils/Win11-FeatureManager/Win11-FeatureManager.ps1")
+iex (irm "https://raw.githubusercontent.com/StoicTurk182/IT-Scripts/main/Menu.ps1")
+```
+
+Select: Utilities > Windows mgmt
+
+Run directly:
+
+```powershell
+iex (irm "https://raw.githubusercontent.com/StoicTurk182/IT-Scripts/main/Utils/Windows%20mgmt/Win11-FeatureManager.ps1")
 ```
 
 Run locally:
@@ -21,8 +31,10 @@ Run locally:
 With TLS override for older systems:
 
 ```powershell
-[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; iex (irm "https://raw.githubusercontent.com/YourRepo/IT-Scripts/main/Utils/Win11-FeatureManager/Win11-FeatureManager.ps1")
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; iex (irm "https://raw.githubusercontent.com/StoicTurk182/IT-Scripts/main/Utils/Windows%20mgmt/Win11-FeatureManager.ps1")
 ```
+
+Note: Spaces in URLs must be encoded as `%20`.
 
 ## Requirements
 
@@ -76,21 +88,29 @@ Toggle common system settings:
 
 Manage key Windows services with Start/Stop/Auto/Disable options:
 
-- Windows Update (wuauserv)
-- Windows Search (WSearch)
-- Windows Time (w32time)
-- Remote Desktop Services (TermService)
-- Windows Remote Management (WinRM)
-- Windows Defender (WinDefend)
-- Print Spooler (Spooler)
-- BITS (Background Intelligent Transfer)
+| Service | Service Name |
+|---------|--------------|
+| Windows Update | wuauserv |
+| Windows Search | WSearch |
+| Windows Time | w32time |
+| Remote Desktop Services | TermService |
+| Windows Remote Management | WinRM |
+| Windows Defender | WinDefend |
+| Print Spooler | Spooler |
+| BITS | BITS |
 
 ### Windows Firewall
 
-- Enable/Disable all firewall profiles
-- Enable/Disable Network Discovery
-- Enable/Disable File and Printer Sharing
-- Enable/Disable Remote Desktop firewall rules
+| Option | Action |
+|--------|--------|
+| Enable All Profiles | netsh advfirewall set allprofiles state on |
+| Disable All Profiles | netsh advfirewall set allprofiles state off |
+| Enable Network Discovery | Enable firewall rule group |
+| Disable Network Discovery | Disable firewall rule group |
+| Enable File and Printer Sharing | Enable firewall rule group |
+| Disable File and Printer Sharing | Disable firewall rule group |
+| Enable Remote Desktop Rule | Enable firewall rule group |
+| Disable Remote Desktop Rule | Disable firewall rule group |
 
 ### Quick Commands
 
@@ -134,31 +154,12 @@ Main Menu
 └── [0] Exit
 ```
 
-## Adding to IT-Scripts Toolbox
+## Menu.ps1 Entry
 
-Create folder and copy script:
-
-```powershell
-cd "C:\Users\Administrator\Andrew J IT Labs\IT-Scripts"
-mkdir "Utils\Win11-FeatureManager"
-Copy-Item "C:\Downloads\Win11-FeatureManager.ps1" -Destination ".\Utils\Win11-FeatureManager\"
-```
-
-Add menu entry to Menu.ps1:
+The script is registered in Menu.ps1 under Utilities:
 
 ```powershell
-"Utilities" = @(
-    @{ Name = "Create Backup Folders"; Path = "Utils/BACKUPS/Create_Folders_v2.ps1"; Description = "Create backup folder structure for migrations" }
-    @{ Name = "Win11 Feature Manager"; Path = "Utils/Win11-FeatureManager/Win11-FeatureManager.ps1"; Description = "Manage Windows 11 features and privacy settings" }
-)
-```
-
-Commit and push:
-
-```powershell
-git add -A
-git commit -m "Add: Win11 Feature Manager to Utilities"
-git push
+@{ Name = "Windows mgmt"; Path = "Utils/Windows mgmt/Win11-FeatureManager.ps1"; Description = "Manage Windows 11 features and settings" }
 ```
 
 ## How It Works
