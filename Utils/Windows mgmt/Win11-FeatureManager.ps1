@@ -1,10 +1,10 @@
 <#
 .SYNOPSIS
-    Win11 Feature & Printer Manager (Diamond Edition)
+    Win11 Feature & Printer Manager (Platinum Edition)
     Includes: 
-      - GPO Force & Lock (Privacy Fix)
+      - Network Audit (Shares + IP Resolution)
+      - GPO Force & Lock (Location Fix)
       - Verbose Update Cleaner
-      - System Scan (Markdown)
       - Printer Lock/Maintenance
     Runs via: iex (irm "url")
 #>
@@ -27,7 +27,7 @@ $Menus = [ordered]@{
                 On={ Set-Service "lfsvc" -StartupType Automatic; Start-Service "lfsvc" }
                 Off={ Stop-Service "lfsvc" -Force; Set-Service "lfsvc" -StartupType Disabled }
             }
-            # 2. SENSOR LOCK (Hardware Driver)
+            # 2. SENSOR LOCK (Hardware Driver Fix)
             "Sensor Hardware Lock"     = @{ 
                 Path="HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}"; 
                 Name="SensorPermissionState"; On=1; Off=0; RefreshExplorer=$true 
@@ -192,7 +192,48 @@ function Run-SystemScan {
         $null = $sb.AppendLine("")
     }
 
-    # 4. INSTALLED APPS
+    # 4. NETWORK SHARES & MAPPED DRIVES
+    Write-Host "  - Gathering Network Shares & Maps..." -ForegroundColor Gray
+    $null = $sb.AppendLine("## Network Shares & Mapped Drives")
+    
+    # Hosted Shares
+    $null = $sb.AppendLine("### Local Hosted Shares")
+    $localShares = Get-SmbShare -ErrorAction SilentlyContinue | Sort-Object Name
+    if ($localShares) {
+        foreach ($ls in $localShares) {
+            $desc = if ($ls.Description) { " ($($ls.Description))" } else { "" }
+            $null = $sb.AppendLine("- **$($ls.Name):** $($ls.Path)$desc")
+        }
+    } else { $null = $sb.AppendLine("_No local shares hosted._") }
+    $null = $sb.AppendLine("")
+
+    # Active Connections with IP Resolution
+    $null = $sb.AppendLine("### Mapped Drives & Active Connections")
+    $conns = Get-SmbConnection -ErrorAction SilentlyContinue
+    $maps  = Get-SmbMapping -ErrorAction SilentlyContinue
+    
+    if ($conns) {
+        foreach ($c in $conns) {
+            # Resolve IP
+            $serverIP = "Resolving..."
+            try { 
+                $addresses = [System.Net.Dns]::GetHostAddresses($c.ServerName)
+                $serverIP = ($addresses | Where-Object { $_.AddressFamily -eq 'InterNetwork' } | Select-Object -First 1).IPAddressToString
+                if (!$serverIP) { $serverIP = $addresses[0].IPAddressToString }
+            } catch { $serverIP = "Unresolved" }
+
+            # Find Drive Letter
+            $drive = $maps | Where-Object { $_.RemotePath -match [regex]::Escape($c.ServerName) -and $_.RemotePath -match [regex]::Escape($c.ShareName) } | Select-Object -ExpandProperty LocalPath -First 1
+            $prefix = if ($drive) { "**$drive**" } else { "(UNC)" }
+
+            $null = $sb.AppendLine("- $prefix \\$($c.ServerName)\$($c.ShareName)")
+            $null = $sb.AppendLine("  - **IP Address:** $serverIP")
+            $null = $sb.AppendLine("  - **Username:** $($c.UserName)")
+        }
+    } else { $null = $sb.AppendLine("_No active remote SMB connections._") }
+    $null = $sb.AppendLine("")
+
+    # 5. INSTALLED APPS
     Write-Host "  - Gathering Installed Applications..." -ForegroundColor Gray
     $null = $sb.AppendLine("## Installed Applications")
     $path1 = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*"
