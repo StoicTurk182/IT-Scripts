@@ -83,8 +83,10 @@ function Get-Selection {
 
 function Test-LanguageInstalled {
     param ([string]$LangTag)
-    $installed = Get-WinUserLanguageList | Select-Object -ExpandProperty LanguageTag
-    return ($installed -contains $LangTag)
+    # Get the list and filter by Name (which matches the Tag, e.g., 'en-US')
+    $installed = Get-WinUserLanguageList | Where-Object { $_.LanguageTag -eq $LangTag -or $_.Name -eq $LangTag }
+    
+    return ($null -ne $installed)
 }
 
 function Apply-RegionSettings {
@@ -98,10 +100,17 @@ function Apply-RegionSettings {
     Write-Host "==================================================`n" -ForegroundColor Cyan
     
     if (-not (Test-LanguageInstalled -LangTag $LangTag)) {
-        Write-Warning "Language pack '$LangTag' not installed!"
-        Write-Host "Please install the pack via Windows Settings before continuing.`n" -ForegroundColor Yellow
+    Write-Host "Language pack '$LangTag' not found in user list. Attempting to add..." -ForegroundColor Yellow
+    try {
+        $List = Get-WinUserLanguageList
+        $List.Add($LangTag)
+        Set-WinUserLanguageList -LanguageList $List -Force
+        Write-Host "[OK] Language pack added to list." -ForegroundColor Green
+    } catch {
+        Write-Warning "Could not automatically add '$LangTag'. Please install it manually."
         return $false
     }
+}
     
     $success = $true
     

@@ -1,6 +1,12 @@
+# Self-Elevate immediately if not running as Admin
+if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole("Administrator")) {
+    $arg = "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`""
+    Start-Process powershell.exe -Verb RunAs -ArgumentList $arg
+    exit
+}
 <#
 .SYNOPSIS
-    Win11 Feature & Printer Manager (Platinum Edition)
+    Win11/Server Feature Manager (DC/Admin Edition)
     Includes: 
       - Network Audit (Shares + IP Resolution)
       - GPO Force & Lock (Location Fix)
