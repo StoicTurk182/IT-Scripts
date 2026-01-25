@@ -66,23 +66,24 @@ $Menus = [ordered]@{
                     $v -eq 0
                 }
                 On = {
-                    $Keys = @(
-                        @{ P="HKLM:\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors"; N="DisableLocation"; V=0 },
-                        @{ P="HKLM:\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors"; N="DisableWindowsLocationProvider"; V=0 },
-                        @{ P="HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy"; N="LetAppsAccessLocation"; V=1 }
-                    )
-                    foreach ($k in $Keys) {
-                        if (!(Test-Path $k.P)) { New-Item -Path $k.P -Force | Out-Null }
-                        Set-ItemProperty -Path $k.P -Name $k.N -Value $k.V -Type DWORD -Force
-                        
-                        # ACL LOCK: Prevent SYSTEM (GPO Service) from overwriting this
-                        $acl = Get-Acl $k.P
-                        $rule = New-Object System.Security.AccessControl.RegistryAccessRule("SYSTEM", "SetValue,Delete,DeleteSubdirectoriesAndFiles", "Deny")
-                        $acl.AddAccessRule($rule)
-                        Set-Acl -Path $k.P -AclObject $acl
-                    }
-                    Out-Color " [GPO Locked]" "Green"
-                }
+    $Keys = @(
+        @{ P="HKLM:\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors"; N="DisableLocation"; V=0 },
+        @{ P="HKLM:\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors"; N="DisableWindowsLocationProvider"; V=0 },
+        @{ P="HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy"; N="LetAppsAccessLocation"; V=1 }
+    )
+    foreach ($k in $Keys) {
+        if (!(Test-Path $k.P)) { New-Item -Path $k.P -Force | Out-Null }
+        Set-ItemProperty -Path $k.P -Name $k.N -Value $k.V -Type DWORD -Force
+        
+        # ACL LOCK: Corrected the permission strings to match the Enums exactly
+        $acl = Get-Acl $k.P
+        # We use 'WriteKey' and 'Delete' which covers SetValue and Subdirectory deletion
+        $rule = New-Object System.Security.AccessControl.RegistryAccessRule("SYSTEM", "WriteKey, Delete", "Deny")
+        $acl.AddAccessRule($rule)
+        Set-Acl -Path $k.P -AclObject $acl
+    }
+    Out-Color " [GPO Locked]" "Green"
+}
                 Off = {
                     # Unlock and Delete
                     $Keys = @("HKLM:\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors", "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy")
