@@ -29,6 +29,7 @@ $Script:MenuStructure = [ordered]@{
         @{ Name = "Set Screen Lock"; Path = "Utils/Set Screen Lock/Set-AutoLock.ps1";                                        Description = "Set Windows Auto-Lock timeout for user and machine" }
         @{ Name = "Export App JSON"; Path = "Utils/Export App JSON/App Export_JSON.ps1";                             Description = "Export list of installed applications to a text file" }
         @{ Name = "Windows mgmt"; Path = "Utils/Windows mgmt/Win11-FeatureManager.ps1";                       Description = "Manage Windows 11 features and settings" }
+        @{ Name = "Set Loc"; Path = "Utils\Set Loc\Set-Region.ps1";                                     Description = "mgmt-Tools general purpose" }
     )
 
     "Windows Autopilot Deployment_WINhome" = @(
