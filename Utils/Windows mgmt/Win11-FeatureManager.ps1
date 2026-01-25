@@ -1,9 +1,29 @@
-# Self-Elevate immediately if not running as Admin
-if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole("Administrator")) {
-    $arg = "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`""
-    Start-Process powershell.exe -Verb RunAs -ArgumentList $arg
-    exit
+# ============================================================================
+# TOTAL BYPASS ELEVATION (Local Admin Fix)
+# ============================================================================
+$IsAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+
+if (!$IsAdmin) {
+    # If the window is flashing and closing, -NoExit will keep it open so you can see the error.
+    $ArgList = "-NoExit -NoProfile -ExecutionPolicy Bypass -Command `"& {Set-ExecutionPolicy Bypass -Scope Process -Force; & '$PSCommandPath'}`""
+    
+    try {
+        Start-Process powershell.exe -Verb RunAs -ArgumentList $ArgList -ErrorAction Stop
+        exit
+    } catch {
+        Write-Error "CRITICAL: Could not launch elevated process. Check if UAC is disabled."
+        Pause ; exit
+    }
 }
+
+# Clear any previous warnings
+Clear-Host
+Write-Host "--- SESSION: LOCAL ADMIN ELEVATED ---" -ForegroundColor Green
+# ============================================================================
+
+# ============================================================================
+# REMAINDER OF YOUR SCRIPT STARTS HERE
+# ============================================================================
 <#
 .SYNOPSIS
     Win11/Server Feature Manager (DC/Admin Edition)
@@ -436,9 +456,7 @@ function Show-QuickCommands {
 # ============================================================================
 # MAIN LOOP
 # ============================================================================
-if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole('Administrator')) {
-    Write-Warning "Run as Administrator."; Start-Sleep 3; exit
-}
+
 while ($true) {
     Clear-Host; Out-Color "=== Win11 Feature & Printer Manager ===" "Cyan"
     $i=1; $Menus.Keys | % { Write-Host " [$i] $_" -ForegroundColor Yellow; $i++ }
