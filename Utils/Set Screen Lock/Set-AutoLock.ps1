@@ -1,77 +1,48 @@
 <#
 .SYNOPSIS
-    Sets the Windows Auto-Lock timeout for both Current User and Local Machine.
-    Compatible with IEX (Invoke-Expression) and local execution.
-.PARAMETER Minutes
-    The number of minutes to wait before locking. Default is 5.
-.EXAMPLE
-    .\Set-AutoLock.ps1
-    Sets auto-lock to default 5 minutes.
-.EXAMPLE
-    .\Set-AutoLock.ps1 -Minutes 10
-    Sets auto-lock to 10 minutes.
-.NOTES
-    Author: Andrew Jones
-    Version: 1.0
-    Requires: PowerShell 5.1+
-    Admin rights required for machine-wide policy settings.
+    Interactive Auto-Lock Configurator.
 #>
-param (
-    [int]$Minutes = 20
-)
 
-# Convert Minutes to Seconds
-$Seconds = $Minutes * 60
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host " WINDOWS AUTO-LOCK CONFIGURATOR" -ForegroundColor Cyan
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host "1) Set Specific Timeout (Minutes)"
+Write-Host "2) Disable Auto-Lock (Never Lock)"
+Write-Host "----------------------------------------"
+$Choice = Read-Host "Select an option (1 or 2)"
 
-Write-Host "----------------------------------------------------" -ForegroundColor Cyan
-Write-Host " Config using: $Minutes Minutes ($Seconds Seconds)" -ForegroundColor Cyan
-Write-Host "----------------------------------------------------" -ForegroundColor Gray
+if ($Choice -eq "2") {
+    $Seconds = 0
+    $StatusValue = "0"
+    $Display = "DISABLED (Never)"
+} else {
+    $Mins = Read-Host "Enter minutes until lock"
+    $Seconds = [int]$Mins * 60
+    $StatusValue = "1"
+    $Display = "$Mins Minutes"
+}
 
-# --- PART 1: Current User Settings (The "Soft" Lock) ---
-# This sets the screensaver timeout and forces the password requirement on resume.
+# --- Execution Logic ---
+Write-Host "`nApplying: $Display..." -ForegroundColor Yellow
+
 try {
-    Write-Host "Setting Current User (Screensaver) config..." -NoNewline
     $UserPath = "HKCU:\Control Panel\Desktop"
-    
-    # 1. Enable Screensaver logic (even if set to "None", this activates the timer)
-    Set-ItemProperty -Path $UserPath -Name "ScreenSaveActive" -Value "1" -Type String -Force
-    # 2. Force 'On resume, display logon screen'
-    Set-ItemProperty -Path $UserPath -Name "ScreenSaverIsSecure" -Value "1" -Type String -Force
-    # 3. Set the timeout duration
+    Set-ItemProperty -Path $UserPath -Name "ScreenSaveActive" -Value $StatusValue -Type String -Force
+    Set-ItemProperty -Path $UserPath -Name "ScreenSaverIsSecure" -Value $StatusValue -Type String -Force
     Set-ItemProperty -Path $UserPath -Name "ScreenSaveTimeOut" -Value "$Seconds" -Type String -Force
-    
-    # Refresh user parameters immediately
-    [void][System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms')
     rundll32.exe user32.dll, UpdatePerUserSystemParameters
-    Write-Host " [OK]" -ForegroundColor Green
-}
-catch {
-    Write-Host " [FAILED] - $_" -ForegroundColor Red
-}
+    Write-Host "[OK] User settings updated." -ForegroundColor Green
+} catch { Write-Host "[!] User settings failed." -ForegroundColor Red }
 
-# --- PART 2: Local Machine Security Policy (The "Hard" Lock) ---
-# This sets the 'Interactive logon: Machine inactivity limit'.
-# Requires ADMIN privileges.
-$IsAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")
-
-if ($IsAdmin) {
+if (([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
     try {
-        Write-Host "Setting Machine Policy (Inactivity Limit)..." -NoNewline
         $MachinePath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System"
-        
         if (!(Test-Path $MachinePath)) { New-Item -Path $MachinePath -Force | Out-Null }
-        
-        # Set InactivityTimeoutSecs
         Set-ItemProperty -Path $MachinePath -Name "InactivityTimeoutSecs" -Value $Seconds -Type DWord -Force
-        Write-Host " [OK]" -ForegroundColor Green
-    }
-    catch {
-        Write-Host " [FAILED] - $_" -ForegroundColor Red
-    }
-}
-else {
-    Write-Host "Skipping Machine Policy (Requires 'Run as Administrator')" -ForegroundColor Yellow
+        Write-Host "[OK] Machine policy updated." -ForegroundColor Green
+    } catch { Write-Host "[!] Machine policy failed." -ForegroundColor Red }
+} else {
+    Write-Host "[!] Admin rights missing: Machine Policy skipped." -ForegroundColor Yellow
 }
 
-Write-Host "----------------------------------------------------" -ForegroundColor Gray
-Write-Host "Done. Auto-lock set to $Minutes minutes." -ForegroundColor Cyan
+Write-Host "`nDone." -ForegroundColor Cyan
