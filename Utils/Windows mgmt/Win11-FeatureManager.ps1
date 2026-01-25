@@ -1,7 +1,11 @@
 <#
 .SYNOPSIS
-    Win11 Feature & Printer Manager (Audit Edition)
-    Includes: System Scan, Privacy, Printer Lock, Maintenance, Services, Firewall.
+    Win11 Feature & Printer Manager (Diamond Edition)
+    Includes: 
+      - GPO Force & Lock (Privacy Fix)
+      - Verbose Update Cleaner
+      - System Scan (Markdown)
+      - Printer Lock/Maintenance
     Runs via: iex (irm "url")
 #>
 #Requires -RunAsAdministrator
@@ -18,31 +22,62 @@ $Menus = [ordered]@{
         Items = [ordered]@{
             # 1. SERVICE (Must be Running)
             "Location Service (lfsvc)" = @{ 
-                Type="Service" 
-                ServiceName="lfsvc"
+                Type="Service"; ServiceName="lfsvc"
                 Check={ (Get-Service "lfsvc").Status -eq "Running" }
                 On={ Set-Service "lfsvc" -StartupType Automatic; Start-Service "lfsvc" }
                 Off={ Stop-Service "lfsvc" -Force; Set-Service "lfsvc" -StartupType Disabled }
             }
-
-            # 2. MASTER POLICY (MODIFIED: "Unmanage" Logic)
-            # Instead of setting to "1", ON now DELETES the key to remove GPO control.
-            "Location GPO Lock"        = @{ 
-                Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors"; 
-                Name="AllowLocation"; 
-                # ON = Delete the key (Release GPO control)
-                On={ Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors" -Name "AllowLocation" -ErrorAction SilentlyContinue; Out-Color " [GPO Released]" "Green" }
-                # OFF = Force Disable (Re-apply GPO Block)
-                Off={ New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors" -Force | Out-Null; Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors" -Name "AllowLocation" -Value 0 }
-                Type="Script" # Changed to Script to handle the Delete logic
-                Check={ (Get-ItemProperty "HKLM:\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors" -Name "AllowLocation" -ErrorAction SilentlyContinue).AllowLocation -ne 0 }
+            # 2. SENSOR LOCK (Hardware Driver)
+            "Sensor Hardware Lock"     = @{ 
+                Path="HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}"; 
+                Name="SensorPermissionState"; On=1; Off=0; RefreshExplorer=$true 
+            }
+            # 3. GPO FORCE & LOCK (The "Ultimate" Fix for Managed Organizations)
+            "Force & Lock GPO (Ultimate)" = @{
+                Type = "Script"
+                Check = { 
+                    $v = (Get-ItemProperty "HKLM:\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors" -Name "DisableLocation" -ErrorAction SilentlyContinue).DisableLocation
+                    $v -eq 0
+                }
+                On = {
+                    $Keys = @(
+                        @{ P="HKLM:\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors"; N="DisableLocation"; V=0 },
+                        @{ P="HKLM:\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors"; N="DisableWindowsLocationProvider"; V=0 },
+                        @{ P="HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy"; N="LetAppsAccessLocation"; V=1 }
+                    )
+                    foreach ($k in $Keys) {
+                        if (!(Test-Path $k.P)) { New-Item -Path $k.P -Force | Out-Null }
+                        Set-ItemProperty -Path $k.P -Name $k.N -Value $k.V -Type DWORD -Force
+                        
+                        # ACL LOCK: Prevent SYSTEM (GPO Service) from overwriting this
+                        $acl = Get-Acl $k.P
+                        $rule = New-Object System.Security.AccessControl.RegistryAccessRule("SYSTEM", "SetValue,Delete,DeleteSubdirectoriesAndFiles", "Deny")
+                        $acl.AddAccessRule($rule)
+                        Set-Acl -Path $k.P -AclObject $acl
+                    }
+                    Out-Color " [GPO Locked]" "Green"
+                }
+                Off = {
+                    # Unlock and Delete
+                    $Keys = @("HKLM:\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors", "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy")
+                    foreach ($p in $Keys) {
+                        if (Test-Path $p) {
+                            $acl = Get-Acl $p
+                            $rules = $acl.GetAccessRules($true, $true, [System.Security.Principal.NTAccount])
+                            foreach ($r in $rules) { if ($r.IdentityReference -eq "NT AUTHORITY\SYSTEM" -and $r.AccessControlType -eq "Deny") { $acl.RemoveAccessRule($r) } }
+                            Set-Acl -Path $p -AclObject $acl
+                            Remove-Item -Path $p -Recurse -Force
+                        }
+                    }
+                    Out-Color " [Locks Removed]" "Yellow"
+                }
             }
             
-            # 3. SYSTEM CONSENT (Forces the Machine Preference)
+            # 4. STANDARD CONSENT
             "Location System Consent"  = @{ Path="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location"; Name="Value"; On="Allow"; Off="Deny"; Type="String" }
-            
-            # 4. USER OVERRIDE (Forces the User Preference)
             "Location User Override"   = @{ Path="HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location"; Name="Value"; On="Allow"; Off="Deny"; Type="String" }
+            "Camera Access"            = @{ Path="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\webcam"; Name="Value"; On="Allow"; Off="Deny"; Type="String" }
+            "Microphone Access"        = @{ Path="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\microphone"; Name="Value"; On="Allow"; Off="Deny"; Type="String" }
         }
     }
     "System Settings" = @{
@@ -119,12 +154,14 @@ function Run-SystemScan {
     $os = Get-CimInstance Win32_OperatingSystem
     $cs = Get-CimInstance Win32_ComputerSystem
     $bios = Get-CimInstance Win32_BIOS
+    $lang = Get-UICulture
     
     $null = $sb.AppendLine("## Host Details")
     $null = $sb.AppendLine("- **Hostname:** $($cs.DNSHostName)")
     $null = $sb.AppendLine("- **Model:** $($cs.Manufacturer) $($cs.Model)")
     $null = $sb.AppendLine("- **Serial:** $($bios.SerialNumber)")
     $null = $sb.AppendLine("- **OS:** $($os.Caption) (Build $($os.BuildNumber))")
+    $null = $sb.AppendLine("- **Display Language:** $($lang.DisplayName) ($($lang.Name))")
     $null = $sb.AppendLine("- **Uptime:** $([math]::Round((New-TimeSpan -Start $os.LastBootUpTime).TotalHours, 1)) Hours")
     $null = $sb.AppendLine("")
 
@@ -155,7 +192,7 @@ function Run-SystemScan {
         $null = $sb.AppendLine("")
     }
 
-    # 4. INSTALLED APPS (Registry Scan for Speed)
+    # 4. INSTALLED APPS
     Write-Host "  - Gathering Installed Applications..." -ForegroundColor Gray
     $null = $sb.AppendLine("## Installed Applications")
     $path1 = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*"
@@ -170,10 +207,50 @@ function Run-SystemScan {
         $null = $sb.AppendLine("- $($app.DisplayName)$ver")
     }
 
-    # COPY TO CLIPBOARD
     $report = $sb.ToString()
     Set-Clipboard -Value $report
     Write-Host "`n [OK] Markdown Report copied to CLIPBOARD!" -ForegroundColor Green
+    Pause
+}
+
+# ============================================================================
+# NEW FEATURE: VERBOSE UPDATE CLEANER
+# ============================================================================
+function Clean-UpdateCache {
+    Write-Host "`n=== WINDOWS UPDATE CLEANER ===" -ForegroundColor Cyan
+    
+    # 1. Stop Service
+    Write-Host " 1. Stopping Windows Update Service (wuauserv)..." -NoNewline
+    Stop-Service wuauserv -Force -ErrorAction SilentlyContinue
+    if ((Get-Service wuauserv).Status -eq 'Stopped') { Write-Host " [STOPPED]" -ForegroundColor Green }
+    else { Write-Host " [FAILED] Service stuck." -ForegroundColor Red; return }
+
+    # 2. Delete Files (Verbose)
+    $path = "C:\Windows\SoftwareDistribution\Download"
+    Write-Host " 2. Cleaning Cache ($path)..." -ForegroundColor Yellow
+    if (Test-Path $path) {
+        $files = Get-ChildItem -Path $path -Recurse -Force
+        if ($files.Count -eq 0) {
+             Write-Host "    - Folder is already empty." -ForegroundColor Green
+        } else {
+            foreach ($f in $files) {
+                try {
+                    Remove-Item $f.FullName -Recurse -Force -ErrorAction Stop
+                    Write-Host "    - Deleted: $($f.Name)" -ForegroundColor Gray
+                } catch {
+                    Write-Host "    - ERROR Deleting: $($f.Name)" -ForegroundColor Red
+                }
+            }
+        }
+    }
+
+    # 3. Restart Service
+    Write-Host " 3. Restarting Service..." -NoNewline
+    Start-Service wuauserv
+    if ((Get-Service wuauserv).Status -eq 'Running') { Write-Host " [RUNNING]" -ForegroundColor Green }
+    else { Write-Host " [WARN] Service did not start." -ForegroundColor Yellow }
+    
+    Write-Host "`n[DONE] Update Cache Cleaned." -ForegroundColor Green
     Pause
 }
 
@@ -302,10 +379,8 @@ function Show-QuickCommands {
         "2"=@{N="Flush DNS";C={ipconfig /flushdns}}
         "3"=@{N="Reset Winsock";C={netsh winsock reset}}
         "4"=@{N="SFC Scan";C={sfc /scannow}}
-        "5"=@{N="Clean Update Cache";C={Stop-Service wuauserv -Force; rm "C:\Windows\SoftwareDistribution\Download\*" -Recurse -Force; Start-Service wuauserv}}
+        "5"=@{N="Clean Update Cache";C={Clean-UpdateCache}}
         "6"=@{N="Restart Explorer";C={Stop-Process -Name explorer -Force}}
-        # NEW COMMAND BELOW
-        "7"=@{N="Reset Local GPO";C={rm "$env:windir\System32\GroupPolicy\Machine\Registry.pol" -Force -ErrorAction SilentlyContinue; gpupdate /force; Write-Host "Local Policies Reset." -ForegroundColor Green}}
     }
     $cmds.Keys | Sort-Object | % { Write-Host " [$_] $($cmds[$_].N)" -ForegroundColor Yellow }
     $c = Read-Host "`n Select (0 to Back)"; if($cmds[$c]){ & $cmds[$c].C; Pause }
