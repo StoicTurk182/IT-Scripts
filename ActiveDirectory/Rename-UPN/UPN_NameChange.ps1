@@ -1,6 +1,6 @@
 #Requires -Modules ActiveDirectory
 
-# --- 1. SETUP LOGGING (Universal) ---
+# --- 1. SETUP LOGGING ---
 $LogDir = "$env:TEMP\ADRenameLogs"
 if (!(Test-Path $LogDir)) { New-Item -Path $LogDir -ItemType Directory -Force | Out-Null }
 $LogFile = "$LogDir\Log_$(Get-Date -Format 'yyyyMMdd_HHmm').txt"
@@ -13,176 +13,141 @@ Function Rename-ADUserSmart {
         [string]$Identity
     )
 
-    # --- HEADER ---
     Write-Host "`n========================================================" -ForegroundColor Cyan
-    Write-Host "            AD IDENTITY UPDATE WIZARD                   " -ForegroundColor Cyan
+    Write-Host "             AD IDENTITY UPDATE WIZARD                  " -ForegroundColor Cyan
     Write-Host "========================================================" -ForegroundColor Cyan
 
     # --- SECTION: SEARCH ---
-    Write-Host "`n[ SEARCH ]" -ForegroundColor Magenta
-    Write-Host "   Target Identity    : " -NoNewline
-    Write-Host "$Identity" -ForegroundColor White
-
+    # Retrieve core naming, messaging, and security attributes [6]
     Try {
-        $User = Get-ADUser -Filter "UserPrincipalName -eq '$Identity' -or SamAccountName -eq '$Identity'" -Properties proxyAddresses, DisplayName, EmailAddress, UserPrincipalName -ErrorAction Stop
+        $User = Get-ADUser -Filter "UserPrincipalName -eq '$Identity' -or SamAccountName -eq '$Identity'" `
+                           -Properties proxyAddresses, DisplayName, EmailAddress, UserPrincipalName, ProtectedFromAccidentalDeletion `
+                           -ErrorAction Stop
     }
     Catch {
-        Write-Warning "`n   [!] Error contacting Active Directory."
-        Return
+        Write-Warning "Error contacting Active Directory: $($_.Exception.Message)"
+        return
     }
 
     if (-not $User) {
-        Write-Host "   Status             : " -NoNewline
-        Write-Host "NOT FOUND" -ForegroundColor Red
-        Write-Warning "   The user '$Identity' could not be located."
-        Return
+        Write-Host "Status: NOT FOUND" -ForegroundColor Red
+        return
     }
     
-    Write-Host "   Status             : " -NoNewline
-    Write-Host "FOUND" -ForegroundColor Green
-    Write-Host "   Current Name       : $($User.Name)"
-    Write-Host "   Current UPN        : $($User.UserPrincipalName)"
+    Write-Host "Status: FOUND" -ForegroundColor Green
+    Write-Host "Current Name: $($User.Name)"
+    Write-Host "Current UPN:  $($User.UserPrincipalName)"
 
-    # --- SECTION: INPUT ---
-    Write-Host "`n[ INPUT DETAILS ]" -ForegroundColor Magenta
-    
+    # --- SECTION: INPUT & VALIDATION ---
     if ($User.UserPrincipalName -match "@") {
         $DomainSuffix = ($User.UserPrincipalName -split "@")[1]
     }
     else {
-        Write-Host "   [!] Domain not detected." -ForegroundColor Yellow
-        $DomainSuffix = Read-Host "   > Enter Domain (e.g. corp.com)"
+        $DomainSuffix = Read-Host "Enter Domain (e.g. corp.com)"
     }
 
-    $NewNamePrefix = Read-Host "   > New Username (e.g. j.doe)   " 
+    $NewNamePrefix = Read-Host "New Username (prefix only)" 
     if ($NewNamePrefix -match "@") {
-        Write-Warning "   [!] Invalid Input: Do not include the '@' symbol."
+        Write-Warning "Invalid Input: Do not include the '@' symbol."
         return
     }
 
-    $NewFirstName = Read-Host "   > New First Name              "
-    $NewLastName  = Read-Host "   > New Last Name               "
+    $NewFirstName = Read-Host "New First Name"
+    $NewLastName  = Read-Host "New Last Name"
     
     $NewUPN = "$NewNamePrefix@$DomainSuffix"
     $NewDisplayName = "$NewFirstName $NewLastName"
     $NewSamAccount = $NewNamePrefix 
 
-    # --- SECTION: CONFIRMATION ---
-    Write-Host "`n[ PROPOSED CHANGES ]" -ForegroundColor Magenta
-    Write-Host "--------------------------------------------------------" -ForegroundColor Gray
-    Write-Host "   ATTRIBUTE        CURRENT VALUE           NEW VALUE" -ForegroundColor Gray
-    Write-Host "   ---------        -------------           ---------" -ForegroundColor Gray
-    Write-Host "   Display Name     $($User.DisplayName)    $NewDisplayName"
-    Write-Host "   SamAccount       $($User.SamAccountName) $NewSamAccount"
-    Write-Host "   UserPrincipal    $($User.UserPrincipalName) $NewUPN"
-    Write-Host "   Email (Gen Tab)  $($User.EmailAddress)   $NewUPN"
-    Write-Host "--------------------------------------------------------" -ForegroundColor Gray
+    # Forest-wide uniqueness check to prevent downstream sync failures [7, 3]
+    $Conflict = Get-ADUser -Filter "SamAccountName -eq '$NewSamAccount' -or UserPrincipalName -eq '$NewUPN'"
+    if ($Conflict) {
+        Write-Warning "CONFLICT: The proposed username or UPN already exists in the directory."
+        return
+    }
+
+    Write-Host "`n" -ForegroundColor Magenta
+    Write-Host "--------------------------------------------------------"
+    Write-Host "Display Name:  $($User.DisplayName) -> $NewDisplayName"
+    Write-Host "SamAccount:    $($User.SamAccountName) -> $NewSamAccount"
+    Write-Host "UserPrincipal: $($User.UserPrincipalName) -> $NewUPN"
+    Write-Host "--------------------------------------------------------"
     
-    Write-Host ""
-    $Confirm = Read-Host "   >>> Type 'Y' to APPLY these changes"
-    if ($Confirm -ne 'Y') { 
-        Write-Host "`n   [ ABORTED ] Operation cancelled by user." -ForegroundColor Yellow
+    if ((Read-Host "Type 'Y' to apply these changes") -ne 'Y') { 
+        Write-Host "Aborted." -ForegroundColor Yellow
         return 
     }
 
+    # --- SECTION: PROXY CALCULATION ---
+    # Using HashSet with OrdinalIgnoreCase to handle case-insensitive deduplication [2, 8]
+    $EmailSet =]::new(::OrdinalIgnoreCase)
+    
+    # 1. Capture all existing addresses and normalize (remove SMTP: prefixes)
+    foreach ($addr in $User.proxyAddresses) {
+        $EmailSet.Add(($addr -replace '^(SMTP|smtp):', '')) | Out-Null
+    }
+    
+    # 2. Ensure the new primary UPN is not in the alias set (it will be added as SMTP:)
+    $EmailSet.Remove($NewUPN) | Out-Null
+    
+    # 3. Build the final array using -Replace best practices [2, 3]
+    $FinalProxies =]::new()
+    $FinalProxies.Add("SMTP:$NewUPN") # The new primary address
+    foreach ($email in $EmailSet) {
+        $FinalProxies.Add("smtp:$email") # All former addresses (including old primary) demoted to aliases
+    }
+
     # --- SECTION: EXECUTION ---
-    Write-Host "`n[ EXECUTION ]" -ForegroundColor Magenta
-
-    # --- FIX START: ROBUST PROXY CALCULATION (Prevents the "Max/Match" Error) ---
-    
-    # 1. Get current list into a modifiable List object
-    $CurrentList = @($User.proxyAddresses)
-    if ($CurrentList -eq $null) { $CurrentList = @() }
-    
-    $NewProxyList = [System.Collections.Generic.List[string]]::new()
-
-    # 2. Identify the Old Primary (Case sensitive 'SMTP:')
-    $OldPrimary = $CurrentList | Where-Object { $_ -cmatch '^SMTP:' } | Select-Object -First 1
-
-    # 3. Build Base List: Add all existing addresses EXCEPT the Old Primary
-    foreach ($addr in $CurrentList) {
-        if ($addr -ne $OldPrimary) {
-            $NewProxyList.Add($addr)
-        }
-    }
-
-    # 4. Add the NEW Primary (SMTP:...)
-    # First, if the new UPN already exists as a lowercase alias (smtp:), remove it to avoid duplicates
-    $ExistingAlias = "smtp:$NewUPN"
-    if ($NewProxyList.Contains($ExistingAlias)) {
-        $NewProxyList.Remove($ExistingAlias)
-    }
-    $NewProxyList.Add("SMTP:$NewUPN")
-
-    # 5. Add the Old Primary as a lowercase alias (smtp:...)
-    if ($OldPrimary) {
-        $OldEmail = $OldPrimary -replace "^SMTP:", ""
-        # Only add if it's different from the new one
-        if ($OldEmail -ne $NewUPN) {
-             # Check if we already have it to avoid duplicates
-             if (-not $NewProxyList.Contains("smtp:$OldEmail")) {
-                 $NewProxyList.Add("smtp:$OldEmail")
-             }
-        }
-    }
-
-    # 6. Convert to Array for the AD Command
-    [string[]]$FinalProxyArray = $NewProxyList.ToArray()
-
-    # --- FIX END ---
-
-    # 2. Update Attributes
     Try {
-        Write-Host "   Updating Attributes ... " -NoNewline
-        
+        # Check and temporarily disable Accidental Deletion Protection if set [4, 5]
+        $WasProtected = $User.ProtectedFromAccidentalDeletion
+        if ($WasProtected) {
+            Write-Host "Unlocking object for structural changes..."
+            Set-ADObject -Identity $User.DistinguishedName -ProtectedFromAccidentalDeletion $false -ErrorAction Stop
+        }
+
+        # Update Naming and Messaging Attributes in a single transaction [2, 3]
         $UserChanges = @{
             GivenName = $NewFirstName
             Surname = $NewLastName
             DisplayName = $NewDisplayName
             SamAccountName = $NewSamAccount
             UserPrincipalName = $NewUPN
-            EmailAddress = $NewUPN  # Updates the General Tab 'mail' attribute
+            EmailAddress = $NewUPN
         }
-
-        # CRITICAL FIX: Use -Replace instead of -Add/-Remove
-        Set-ADUser -Identity $User @UserChanges -Replace @{proxyAddresses = $FinalProxyArray} -ErrorAction Stop
         
+        Write-Host "Updating attributes..." -NoNewline
+        Set-ADUser -Identity $User @UserChanges -Replace @{proxyAddresses = $FinalProxies.ToArray()} -ErrorAction Stop
         Write-Host "[ OK ]" -ForegroundColor Green
+
+        # Structural Rename of the AD Object [9]
+        Write-Host "Renaming AD Object..." -NoNewline
+        Rename-ADObject -Identity $User -NewName $NewDisplayName -ErrorAction Stop
+        Write-Host "[ OK ]" -ForegroundColor Green
+
+        # Restore Accidental Deletion Protection [10]
+        if ($WasProtected) {
+            Write-Host "Restoring protection flag..."
+            # Note: We query by the new SamAccountName as the DistinguishedName has changed
+            Set-ADObject -Identity (Get-ADUser -Identity $NewSamAccount).DistinguishedName `
+                         -ProtectedFromAccidentalDeletion $true -ErrorAction Stop
+        }
+        
+        Write-Host "`n Changes finalized successfully." -ForegroundColor Cyan
     }
     Catch {
         Write-Host "[ FAIL ]" -ForegroundColor Red
-        Write-Error "   Error: $($_.Exception.Message)"
-        Return
+        Write-Error "Error: $($_.Exception.Message)"
     }
-
-    # 3. Rename Object
-    Try {
-        Write-Host "   Renaming AD Object  ... " -NoNewline
-        Rename-ADObject -Identity $User -NewName $NewDisplayName -ErrorAction Stop
-        Write-Host "[ OK ]" -ForegroundColor Green
-    }
-    Catch {
-        Write-Host "[ WARN ]" -ForegroundColor Yellow
-        Write-Warning "   Attributes updated, but object rename failed: $($_.Exception.Message)"
-    }
-    
-    Write-Host "`n   [ COMPLETE ] All operations finished." -ForegroundColor Cyan
-    Write-Host "========================================================" -ForegroundColor Cyan
 }
 
 # --- MAIN EXECUTION ---
 Try {
-    Write-Host "`n"
-    $InputUser = Read-Host "ENTER USERNAME OR EMAIL TO START"
+    $InputUser = Read-Host "ENTER USERNAME OR EMAIL"
     Rename-ADUserSmart -Identity $InputUser
 }
 Finally {
     Stop-Transcript | Out-Null
-    
-    Write-Host "`n--------------------------------------------------" -ForegroundColor Gray
-    Write-Host " LOG FILE: $LogFile" -ForegroundColor Yellow
-    Write-Host " Opening log folder..." -ForegroundColor Gray
-    Write-Host "--------------------------------------------------" -ForegroundColor Gray
-    
+    Write-Host "`nLOG FILE: $LogFile" -ForegroundColor Yellow
     Invoke-Item $LogDir
 }
