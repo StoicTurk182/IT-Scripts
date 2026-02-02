@@ -1,0 +1,47 @@
+# --- CONFIGURATION ---
+$Server = "ORIONVI"
+$Exclusions = @('C', 'Y', 'Z')
+
+Write-Host "--- DEEP SCAN DRIVE AUDIT ---" -ForegroundColor Cyan
+
+# 1. Get all letters currently used by physical disks/USB
+$UsedLetters = [System.IO.DriveInfo]::GetDrives().Name | ForEach-Object { $_[0] }
+
+# 2. Get Network drives using the modern CIM command (with a null check)
+$NetDrives = Get-CimInstance Win32_NetworkConnection -ErrorAction SilentlyContinue
+$NetworkLetters = if ($null -ne $NetDrives) { $NetDrives.LocalName | ForEach-Object { $_[0] } } else { @() }
+
+# 3. Scan Drive Letters (Z down to D)
+90..68 | ForEach-Object { 
+    $LetterChar = [char]$_
+    $Color = "Green"
+    $Status = "[FREE]"
+    
+    if ($UsedLetters -contains $LetterChar -or $NetworkLetters -contains $LetterChar) {
+        $Color = "Red"
+        $Status = "[USED/OCCUPIED]"
+    } 
+    elseif ($Exclusions -contains $LetterChar) {
+        $Color = "Yellow"
+        $Status = "[RESERVED/SKIPPED]"
+    }
+    
+    Write-Host "Letter ${LetterChar}: $Status" -ForegroundColor $Color
+}
+
+# 4. Remote Share Audit (Now correctly pulls $Server variable)
+Write-Host "`n--- REMOTE SHARE AUDIT ($Server) ---" -ForegroundColor Cyan
+
+if (Test-Connection -ComputerName $Server -Count 1 -Quiet) {
+    Write-Host "Connecting to $Server..." -ForegroundColor Gray
+    try {
+        $Shares = Get-SmbShare -CimSession $Server -ErrorAction Stop | Where-Object { $_.Name -notlike "*$" }
+        $Shares | Select-Object @{Name="Share Name"; Expression={$_.Name}}, 
+                                @{Name="Network Path"; Expression={"\\$Server\$($_.Name)"}}, 
+                                Description | Format-Table -AutoSize
+    } catch {
+        Write-Warning "Could not list shares. Check permissions on $Server."
+    }
+} else {
+    Write-Error "Could not reach $Server."
+}

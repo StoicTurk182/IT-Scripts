@@ -2,6 +2,26 @@
 
 PowerShell script for exporting installed Winget packages to a portable, self-documenting JSON format with embedded restore commands.
 
+
+> Utility 
+*adding applications in bulk via BATCH*
+
+
+```batch
+@echo off
+:: Batch script to install multiple applications silently
+echo Starting installation of apps...
+
+winget install --id Google.Chrome -e --silent --accept-source-agreements --accept-package-agreements
+winget install --id VideoLAN.VLC -e --silent
+winget install --id 7zip.7zip -e --silent
+winget install --id Microsoft.VisualStudioCode -e --silent
+
+echo ---------------------------------------
+echo All installations are complete!
+pause
+```
+
 ## Overview
 
 This script creates a complete snapshot of Winget-installed applications on a Windows system and packages them into a JSON file containing both the application list and the exact PowerShell commands needed to restore them on any other machine.

@@ -587,3 +587,19 @@ Install-Module -Name ps2exe -Scope CurrentUser -Force
 - PS2EXE GitHub: https://github.com/MScholtes/PS2EXE
 - PS2EXE PowerShell Gallery: https://www.powershellgallery.com/packages/ps2exe
 - RSAT Installation: https://learn.microsoft.com/en-us/troubleshoot/windows-server/system-management-components/remote-server-administration-tools
+
+
+## EXTRAS 
+
+> Add meta data to the .exe. 
+Invoke-PS2EXE -InputFile ".\Rename-ADUserSmart-Standalone.ps1" `
+              -OutputFile ".\Rename-ADUserSmart.exe" `
+              -IconFile ".\120px-Isis_triglavian.ico" `
+              -Title "AD User Rename Tool" `
+              -Description "Renames AD users with UPN, email, and proxy alias management" `
+              -Company "Informal IT Ltd" `
+              -Product "ADUserTools" `
+              -Version "3.0.0.0" `
+              -Copyright "(c) 2026 Andrew Jones - Informal IT Ltd" `
+              -RequireAdmin `
+              -x64
