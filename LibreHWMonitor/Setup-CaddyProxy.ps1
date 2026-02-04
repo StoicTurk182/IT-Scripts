@@ -329,6 +329,69 @@ function Set-FirewallRule {
 # WORKFLOW FUNCTIONS
 # ============================================================================
 
+function Select-UpstreamIP {
+    Clear-Host
+    Write-Host "`n  ╔═══════════════════════════════════════════════════════╗" -ForegroundColor Cyan
+    Write-Host "  ║           LHM Upstream IP Scanner                     ║" -ForegroundColor Cyan
+    Write-Host "  ╚═══════════════════════════════════════════════════════╝" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "  Scanning local interfaces for Port $UpstreamPort..." -ForegroundColor Gray
+    Write-Host ""
+
+    # 1. Gather all potential IPs (Localhost + LAN IPs)
+    $ipList = @("127.0.0.1")
+    try {
+        $adapters = Get-NetIPAddress -AddressFamily IPv4 -AddressState Preferred | Where-Object { $_.InterfaceAlias -notlike "*Loopback*" }
+        $ipList += $adapters.IPAddress
+    } catch {
+        Write-Log "Could not enumerate network adapters." "WARNING"
+    }
+
+    # 2. Test each IP and display status
+    $validOptions = @()
+    for ($i = 0; $i -lt $ipList.Count; $i++) {
+        $currentIP = $ipList[$i]
+        
+        # Test connection immediately
+        $isResponsive = Test-PortOpen -ComputerName $currentIP -Port $UpstreamPort
+        
+        # Format the output
+        $indexTag = "  [$($i+1)]".PadRight(7)
+        $ipTag    = "$currentIP".PadRight(18)
+        
+        if ($isResponsive) { 
+            Write-Host "$indexTag$ipTag" -NoNewline -ForegroundColor White
+            Write-Host " [FOUND LHM!] " -ForegroundColor Green
+            $validOptions += $currentIP
+        } else {
+            Write-Host "$indexTag$ipTag" -NoNewline -ForegroundColor Gray
+            Write-Host " [No Response] " -ForegroundColor DarkGray
+        }
+    }
+
+    # 3. Handle Selection
+    Write-Host ""
+    if ($validOptions.Count -gt 0) {
+        Write-Host "  LHM was detected on $($validOptions.Count) interface(s)." -ForegroundColor Green
+    } else {
+        Write-Host "  LHM was not detected on any interface." -ForegroundColor Red
+        Write-Host "  Ensure LHM is running and the Web Server is enabled." -ForegroundColor Yellow
+    }
+
+    $choice = Read-Host "  Select IP number to use [1-$($ipList.Count)] or Enter to cancel"
+
+    if ($choice -match '^\d+$' -and $choice -ge 1 -and $choice -le $ipList.Count) {
+        $selected = $ipList[$choice-1]
+        
+        # Update the Script-Scope variable so the rest of the script uses it
+        $Script:UpstreamIP = $selected
+        
+        Write-Host ""
+        Write-Log "Upstream IP updated to: $selected" "SUCCESS"
+        Start-Sleep -Seconds 2
+    }
+}
+
 function Test-Prerequisites {
     Write-Log "Checking prerequisites..." "HEADER"
     
@@ -576,6 +639,7 @@ function Show-InteractiveMenu {
         Write-Host "  [6] Edit Caddyfile"
         Write-Host "  [7] LHM Setup Instructions"
         Write-Host "  [8] Open Install Folder"
+        Write-Host "  [S] Scan/Select Upstream IP"  # <--- NEW OPTION
         Write-Host "  [Q] Quit"
         Write-Host ""
         
@@ -642,6 +706,9 @@ function Show-InteractiveMenu {
                     Read-Host "`n  Press Enter to continue"
                 }
             }
+            "S" {  # <--- NEW SWITCH CASE
+                Select-UpstreamIP
+            } 
             "Q" {
                 return
             }
