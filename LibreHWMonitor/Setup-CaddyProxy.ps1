@@ -148,22 +148,16 @@ function Get-TailscaleIP {
 function Test-PortOpen {
     param (
         [string]$ComputerName,
-        [int]$Port,
-        [int]$Timeout = 2000
+        [int]$Port
     )
     try {
-        $tcp = New-Object System.Net.Sockets.TcpClient
-        $connect = $tcp.BeginConnect($ComputerName, $Port, $null, $null)
-        $wait = $connect.AsyncWaitHandle.WaitOne($Timeout, $false)
-        if ($wait) {
-            $tcp.EndConnect($connect)
-            $tcp.Close()
-            return $true
-        }
-        $tcp.Close()
-        return $false
+        # Using Test-NetConnection is reliable for localhost/loopback
+        $result = Test-NetConnection -ComputerName $ComputerName -Port $Port -WarningAction SilentlyContinue -InformationLevel Quiet
+        return $result
     }
-    catch { return $false }
+    catch { 
+        return $false 
+    }
 }
 
 function Confirm-Action {
