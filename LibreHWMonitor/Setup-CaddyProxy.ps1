@@ -1,10 +1,11 @@
 <#
 .SYNOPSIS
-    Caddy reverse proxy setup for LibreHardwareMonitor via Tailscale.
+    Caddy reverse proxy setup for LibreHardwareMonitor via Tailscale with optional authentication.
 
 .DESCRIPTION
     Installs and configures Caddy as a reverse proxy for LibreHardwareMonitor,
-    binding to your Tailscale IP for secure remote access.
+    binding to your Tailscale IP for secure remote access. Supports HTTP Basic
+    Authentication using Caddy's built-in bcrypt password hashing.
     
     Prerequisites:
     - Tailscale installed and connected
@@ -35,6 +36,18 @@
 .PARAMETER TailscaleIP
     Tailscale IP to bind to (default: auto-detect)
 
+.PARAMETER EnableAuth
+    Enable HTTP Basic Authentication
+
+.PARAMETER AuthUsername
+    Username for basic auth (default: admin)
+
+.PARAMETER FirewallScope
+    Firewall rule scope: TailscaleOnly, LAN, or Any (default: TailscaleOnly)
+
+.PARAMETER AllowedAddresses
+    Comma-separated list of allowed addresses/subnets for LAN scope
+
 .PARAMETER Force
     Skip confirmation prompts
 
@@ -44,18 +57,28 @@
 
 .EXAMPLE
     .\Setup-CaddyProxy.ps1 -Action Install -Force
-    Automated installation with defaults
+    Automated installation with defaults (no auth, Tailscale-only firewall)
 
 .EXAMPLE
-    .\Setup-CaddyProxy.ps1 -Action Install -UpstreamIP 10.1.10.20
-    Install with custom LHM IP
+    .\Setup-CaddyProxy.ps1 -Action Install -EnableAuth -AuthUsername "monitor"
+    Install with authentication enabled (prompts for password)
+
+.EXAMPLE
+    .\Setup-CaddyProxy.ps1 -Action Install -FirewallScope LAN -AllowedAddresses "10.1.10.0/24"
+    Install with LAN access restricted to specified subnet
+
+.EXAMPLE
+    .\Setup-CaddyProxy.ps1 -Action Install -FirewallScope LAN -AllowedAddresses "10.1.10.10,10.1.10.30"
+    Install with LAN access restricted to specific hosts
 
 .NOTES
     Author: Andrew Jones
-    Version: 3.0
-    Date: 2026-02-04
+    Version: 5.0
+    Date: 2026-02-05
     
+    Authentication: Uses Caddy's built-in HTTP Basic Auth with bcrypt hashing
     LibreHardwareMonitor: https://github.com/LibreHardwareMonitor/LibreHardwareMonitor
+    Caddy basicauth: https://caddyserver.com/docs/caddyfile/directives/basicauth
 #>
 
 #Requires -RunAsAdministrator
@@ -83,6 +106,19 @@ param (
     [string]$TailscaleIP,
 
     [Parameter()]
+    [switch]$EnableAuth,
+
+    [Parameter()]
+    [string]$AuthUsername = "admin",
+
+    [Parameter()]
+    [ValidateSet("TailscaleOnly", "LAN", "Any")]
+    [string]$FirewallScope = "TailscaleOnly",
+
+    [Parameter()]
+    [string]$AllowedAddresses,
+
+    [Parameter()]
     [switch]$Force
 )
 
@@ -91,14 +127,26 @@ param (
 # ============================================================================
 
 $Script:Config = @{
-    CaddyDownloadUrl  = "https://caddyserver.com/api/download?os=windows&arch=amd64"
-    CaddyExe          = "caddy.exe"
-    CaddyFile         = "Caddyfile"
-    ServiceName       = "Caddy"
-    FirewallRule      = "Caddy Reverse Proxy"
-    LHMGitHub         = "https://github.com/LibreHardwareMonitor/LibreHardwareMonitor"
-    LHMReleases       = "https://github.com/LibreHardwareMonitor/LibreHardwareMonitor/releases"
+    CaddyDownloadUrl   = "https://caddyserver.com/api/download?os=windows&arch=amd64"
+    CaddyExe           = "caddy.exe"
+    CaddyFile          = "Caddyfile"
+    AuthFile           = "auth.json"
+    FirewallFile       = "firewall.json"
+    ServiceName        = "Caddy"
+    FirewallRuleBase   = "Caddy Reverse Proxy"
+    TailscaleRange     = "100.64.0.0/10"
+    LHMGitHub          = "https://github.com/LibreHardwareMonitor/LibreHardwareMonitor"
+    LHMReleases        = "https://github.com/LibreHardwareMonitor/LibreHardwareMonitor/releases"
 }
+
+# Script-scope auth settings
+$Script:AuthEnabled = $EnableAuth
+$Script:AuthUser = $AuthUsername
+$Script:AuthHash = $null
+
+# Script-scope firewall settings
+$Script:FWScope = $FirewallScope
+$Script:FWAllowedAddresses = $AllowedAddresses
 
 # ============================================================================
 # HELPER FUNCTIONS
@@ -151,7 +199,6 @@ function Test-PortOpen {
         [int]$Port
     )
     try {
-        # Using Test-NetConnection is reliable for localhost/loopback
         $result = Test-NetConnection -ComputerName $ComputerName -Port $Port -WarningAction SilentlyContinue -InformationLevel Quiet
         return $result
     }
@@ -168,19 +215,511 @@ function Confirm-Action {
 }
 
 # ============================================================================
+# FIREWALL FUNCTIONS
+# ============================================================================
+
+function Get-FirewallRules {
+    <#
+    .SYNOPSIS
+        Get all Caddy-related firewall rules
+    #>
+    $rules = Get-NetFirewallRule -DisplayName "$($Script:Config.FirewallRuleBase)*" -ErrorAction SilentlyContinue
+    return $rules
+}
+
+function Show-FirewallStatus {
+    <#
+    .SYNOPSIS
+        Display current firewall rules for Caddy
+    #>
+    $rules = Get-FirewallRules
+    
+    if (-not $rules) {
+        Write-Host "  No Caddy firewall rules found" -ForegroundColor Yellow
+        return
+    }
+    
+    foreach ($rule in $rules) {
+        $portFilter = Get-NetFirewallPortFilter -AssociatedNetFirewallRule $rule
+        $addressFilter = Get-NetFirewallAddressFilter -AssociatedNetFirewallRule $rule
+        
+        Write-Host ""
+        Write-Host "  Rule: " -NoNewline
+        Write-Host $rule.DisplayName -ForegroundColor Cyan
+        Write-Host "  Status: " -NoNewline
+        if ($rule.Enabled -eq "True") {
+            Write-Host "Enabled" -ForegroundColor Green
+        }
+        else {
+            Write-Host "Disabled" -ForegroundColor Red
+        }
+        Write-Host "  Direction: " -NoNewline
+        Write-Host $rule.Direction -ForegroundColor White
+        Write-Host "  Action: " -NoNewline
+        Write-Host $rule.Action -ForegroundColor White
+        Write-Host "  Protocol: " -NoNewline
+        Write-Host $portFilter.Protocol -ForegroundColor White
+        Write-Host "  Port: " -NoNewline
+        Write-Host $portFilter.LocalPort -ForegroundColor White
+        Write-Host "  Remote Addresses: " -NoNewline
+        Write-Host $addressFilter.RemoteAddress -ForegroundColor White
+        Write-Host "  Profile: " -NoNewline
+        Write-Host $rule.Profile -ForegroundColor White
+    }
+}
+
+function Set-FirewallRule {
+    <#
+    .SYNOPSIS
+        Create firewall rule with specified scope
+    .PARAMETER Scope
+        TailscaleOnly, LAN, or Any
+    .PARAMETER Addresses
+        For LAN scope: comma-separated addresses/subnets
+    #>
+    param (
+        [ValidateSet("TailscaleOnly", "LAN", "Any")]
+        [string]$Scope = "TailscaleOnly",
+        
+        [string]$Addresses
+    )
+    
+    Write-Log "Configuring firewall rule (Scope: $Scope)..." "INFO"
+    
+    # Remove existing Caddy rules
+    Remove-FirewallRules -Silent
+    
+    $ruleName = $Script:Config.FirewallRuleBase
+    $ruleParams = @{
+        DisplayName = $ruleName
+        Direction   = "Inbound"
+        Protocol    = "TCP"
+        LocalPort   = $ProxyPort
+        Action      = "Allow"
+        Enabled     = "True"
+    }
+    
+    switch ($Scope) {
+        "TailscaleOnly" {
+            $ruleParams.DisplayName = "$ruleName (Tailscale Only)"
+            $ruleParams.RemoteAddress = $Script:Config.TailscaleRange
+            $ruleParams.Profile = "Any"
+            $ruleParams.Description = "Allow Caddy reverse proxy - Tailscale CGNAT range only (100.64.0.0/10)"
+        }
+        "LAN" {
+            if ([string]::IsNullOrWhiteSpace($Addresses)) {
+                Write-Log "LAN scope requires addresses to be specified" "ERROR"
+                return $false
+            }
+            $ruleParams.DisplayName = "$ruleName (LAN Restricted)"
+            $ruleParams.RemoteAddress = $Addresses -split ',' | ForEach-Object { $_.Trim() }
+            $ruleParams.Profile = "Private,Domain"
+            $ruleParams.Description = "Allow Caddy reverse proxy - Restricted to: $Addresses"
+        }
+        "Any" {
+            $ruleParams.DisplayName = "$ruleName (Any)"
+            $ruleParams.Profile = "Any"
+            $ruleParams.Description = "Allow Caddy reverse proxy - All addresses (least secure)"
+        }
+    }
+    
+    try {
+        New-NetFirewallRule @ruleParams | Out-Null
+        Write-Log "Firewall rule created: $($ruleParams.DisplayName)" "SUCCESS"
+        
+        # Save config
+        Save-FirewallConfig -Scope $Scope -Addresses $Addresses
+        
+        return $true
+    }
+    catch {
+        Write-Log "Failed to create firewall rule: $_" "ERROR"
+        return $false
+    }
+}
+
+function Remove-FirewallRules {
+    <#
+    .SYNOPSIS
+        Remove all Caddy firewall rules
+    #>
+    param (
+        [switch]$Silent
+    )
+    
+    $rules = Get-FirewallRules
+    
+    if ($rules) {
+        foreach ($rule in $rules) {
+            Remove-NetFirewallRule -DisplayName $rule.DisplayName -ErrorAction SilentlyContinue
+            if (-not $Silent) {
+                Write-Log "Removed rule: $($rule.DisplayName)" "SUCCESS"
+            }
+        }
+        
+        # Clear saved config
+        $fwConfigPath = Join-Path $InstallPath $Script:Config.FirewallFile
+        if (Test-Path $fwConfigPath) {
+            Remove-Item $fwConfigPath -Force -ErrorAction SilentlyContinue
+        }
+        
+        return $true
+    }
+    else {
+        if (-not $Silent) {
+            Write-Log "No Caddy firewall rules found" "INFO"
+        }
+        return $false
+    }
+}
+
+function Save-FirewallConfig {
+    <#
+    .SYNOPSIS
+        Save firewall configuration to file
+    #>
+    param (
+        [string]$Scope,
+        [string]$Addresses
+    )
+    
+    $fwConfigPath = Join-Path $InstallPath $Script:Config.FirewallFile
+    
+    $fwConfig = @{
+        Scope     = $Scope
+        Addresses = $Addresses
+        Port      = $ProxyPort
+        Updated   = (Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+    }
+    
+    try {
+        $fwConfig | ConvertTo-Json | Out-File -FilePath $fwConfigPath -Encoding UTF8 -Force
+        return $true
+    }
+    catch {
+        Write-Log "Failed to save firewall config: $_" "WARNING"
+        return $false
+    }
+}
+
+function Read-FirewallConfig {
+    <#
+    .SYNOPSIS
+        Load firewall configuration from file
+    #>
+    $fwConfigPath = Join-Path $InstallPath $Script:Config.FirewallFile
+    
+    if (Test-Path $fwConfigPath) {
+        try {
+            $fwConfig = Get-Content $fwConfigPath -Raw | ConvertFrom-Json
+            $Script:FWScope = $fwConfig.Scope
+            $Script:FWAllowedAddresses = $fwConfig.Addresses
+            return $true
+        }
+        catch {
+            return $false
+        }
+    }
+    return $false
+}
+
+function Show-FirewallMenu {
+    <#
+    .SYNOPSIS
+        Firewall management submenu
+    #>
+    while ($true) {
+        Clear-Host
+        Write-Host ""
+        Write-Host "  ╔═══════════════════════════════════════════════════════╗" -ForegroundColor Cyan
+        Write-Host "  ║          Firewall Rule Management                     ║" -ForegroundColor Cyan
+        Write-Host "  ╚═══════════════════════════════════════════════════════╝" -ForegroundColor Cyan
+        
+        # Show current rules
+        Show-FirewallStatus
+        
+        Write-Host ""
+        Write-Host "  ─────────────────────────────────────────────────────────" -ForegroundColor DarkGray
+        Write-Host ""
+        Write-Host "  [1] Tailscale Only (100.64.0.0/10) - Recommended"
+        Write-Host "  [2] LAN Restricted (specify addresses)"
+        Write-Host "  [3] Any (all addresses) - Least secure"
+        Write-Host "  [4] Remove All Caddy Rules"
+        Write-Host "  [5] Refresh Status"
+        Write-Host "  [B] Back to Main Menu"
+        Write-Host ""
+        
+        $choice = Read-Host "  Select option"
+        
+        switch ($choice.ToUpper()) {
+            "1" {
+                Set-FirewallRule -Scope "TailscaleOnly"
+                Read-Host "`n  Press Enter to continue"
+            }
+            "2" {
+                Write-Host ""
+                Write-Host "  Enter allowed addresses (comma-separated)" -ForegroundColor Cyan
+                Write-Host "  Examples:" -ForegroundColor Gray
+                Write-Host "    Single IP:    10.1.10.10" -ForegroundColor Gray
+                Write-Host "    Multiple IPs: 10.1.10.10,10.1.10.30" -ForegroundColor Gray
+                Write-Host "    Subnet:       10.1.10.0/24" -ForegroundColor Gray
+                Write-Host "    Mixed:        10.1.10.10,192.168.1.0/24" -ForegroundColor Gray
+                Write-Host ""
+                
+                $addresses = Read-Host "  Addresses"
+                
+                if ([string]::IsNullOrWhiteSpace($addresses)) {
+                    Write-Log "No addresses specified" "WARNING"
+                }
+                else {
+                    Set-FirewallRule -Scope "LAN" -Addresses $addresses
+                }
+                Read-Host "`n  Press Enter to continue"
+            }
+            "3" {
+                Write-Host ""
+                Write-Log "Warning: This allows connections from any IP address" "WARNING"
+                if (Confirm-Action "  Create unrestricted firewall rule?") {
+                    Set-FirewallRule -Scope "Any"
+                }
+                Read-Host "`n  Press Enter to continue"
+            }
+            "4" {
+                if (Confirm-Action "  Remove all Caddy firewall rules?") {
+                    Remove-FirewallRules
+                }
+                Read-Host "`n  Press Enter to continue"
+            }
+            "5" {
+                # Just refresh - loop continues
+            }
+            "B" {
+                return
+            }
+        }
+    }
+}
+
+# ============================================================================
+# AUTHENTICATION FUNCTIONS
+# ============================================================================
+
+function Get-CaddyPasswordHash {
+    <#
+    .SYNOPSIS
+        Generate bcrypt password hash using Caddy's hash-password command
+    #>
+    param (
+        [Parameter(Mandatory)]
+        [SecureString]$Password
+    )
+    
+    $exePath = Join-Path $InstallPath $Script:Config.CaddyExe
+    
+    if (-not (Test-Path $exePath)) {
+        Write-Log "Caddy not installed. Install Caddy first." "ERROR"
+        return $null
+    }
+    
+    $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($Password)
+    $plainPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
+    [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($BSTR)
+    
+    try {
+        $hash = $plainPassword | & $exePath hash-password 2>$null
+        
+        if ($hash -and $hash -match '^\$2[aby]?\$') {
+            return $hash.Trim()
+        }
+        else {
+            Write-Log "Failed to generate password hash" "ERROR"
+            return $null
+        }
+    }
+    catch {
+        Write-Log "Error generating hash: $_" "ERROR"
+        return $null
+    }
+    finally {
+        $plainPassword = $null
+        [System.GC]::Collect()
+    }
+}
+
+function Request-AuthCredentials {
+    <#
+    .SYNOPSIS
+        Prompt user for authentication credentials
+    #>
+    Write-Host ""
+    Write-Host "  ╔═══════════════════════════════════════════════════════╗" -ForegroundColor Cyan
+    Write-Host "  ║           Authentication Setup                        ║" -ForegroundColor Cyan
+    Write-Host "  ╚═══════════════════════════════════════════════════════╝" -ForegroundColor Cyan
+    Write-Host ""
+    
+    $defaultUser = $Script:AuthUser
+    $inputUser = Read-Host "  Username [$defaultUser]"
+    if ([string]::IsNullOrWhiteSpace($inputUser)) {
+        $Script:AuthUser = $defaultUser
+    }
+    else {
+        $Script:AuthUser = $inputUser.Trim()
+    }
+    
+    $passwordMatch = $false
+    $attempts = 0
+    
+    while (-not $passwordMatch -and $attempts -lt 3) {
+        Write-Host ""
+        $password1 = Read-Host "  Password" -AsSecureString
+        $password2 = Read-Host "  Confirm Password" -AsSecureString
+        
+        $BSTR1 = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($password1)
+        $BSTR2 = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($password2)
+        $plain1 = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR1)
+        $plain2 = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR2)
+        [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($BSTR1)
+        [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($BSTR2)
+        
+        if ($plain1 -eq $plain2) {
+            if ($plain1.Length -lt 8) {
+                Write-Log "Password must be at least 8 characters" "WARNING"
+                $attempts++
+            }
+            else {
+                $passwordMatch = $true
+                
+                Write-Host ""
+                Write-Log "Generating password hash..." "INFO"
+                $Script:AuthHash = Get-CaddyPasswordHash -Password $password1
+                
+                if ($Script:AuthHash) {
+                    Write-Log "Password hash generated" "SUCCESS"
+                    $Script:AuthEnabled = $true
+                    return $true
+                }
+                else {
+                    return $false
+                }
+            }
+        }
+        else {
+            Write-Log "Passwords do not match" "WARNING"
+            $attempts++
+        }
+        
+        $plain1 = $null
+        $plain2 = $null
+        [System.GC]::Collect()
+    }
+    
+    if (-not $passwordMatch) {
+        Write-Log "Too many failed attempts" "ERROR"
+        return $false
+    }
+    
+    return $false
+}
+
+function Save-AuthConfig {
+    <#
+    .SYNOPSIS
+        Save authentication configuration to file
+    #>
+    $authPath = Join-Path $InstallPath $Script:Config.AuthFile
+    
+    $authConfig = @{
+        Enabled  = $Script:AuthEnabled
+        Username = $Script:AuthUser
+        Hash     = $Script:AuthHash
+        Updated  = (Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+    }
+    
+    try {
+        $authConfig | ConvertTo-Json | Out-File -FilePath $authPath -Encoding UTF8 -Force
+        
+        $acl = Get-Acl $authPath
+        $acl.SetAccessRuleProtection($true, $false)
+        $adminRule = New-Object System.Security.AccessControl.FileSystemAccessRule(
+            "BUILTIN\Administrators", "FullControl", "Allow"
+        )
+        $systemRule = New-Object System.Security.AccessControl.FileSystemAccessRule(
+            "NT AUTHORITY\SYSTEM", "FullControl", "Allow"
+        )
+        $acl.SetAccessRule($adminRule)
+        $acl.SetAccessRule($systemRule)
+        Set-Acl -Path $authPath -AclObject $acl
+        
+        Write-Log "Auth config saved: $authPath" "SUCCESS"
+        return $true
+    }
+    catch {
+        Write-Log "Failed to save auth config: $_" "ERROR"
+        return $false
+    }
+}
+
+function Read-AuthConfig {
+    <#
+    .SYNOPSIS
+        Load authentication configuration from file
+    #>
+    $authPath = Join-Path $InstallPath $Script:Config.AuthFile
+    
+    if (Test-Path $authPath) {
+        try {
+            $authConfig = Get-Content $authPath -Raw | ConvertFrom-Json
+            $Script:AuthEnabled = $authConfig.Enabled
+            $Script:AuthUser = $authConfig.Username
+            $Script:AuthHash = $authConfig.Hash
+            return $true
+        }
+        catch {
+            Write-Log "Failed to read auth config: $_" "WARNING"
+            return $false
+        }
+    }
+    return $false
+}
+
+function Remove-AuthConfig {
+    <#
+    .SYNOPSIS
+        Remove authentication and regenerate Caddyfile without auth
+    #>
+    $Script:AuthEnabled = $false
+    $Script:AuthUser = "admin"
+    $Script:AuthHash = $null
+    
+    $authPath = Join-Path $InstallPath $Script:Config.AuthFile
+    if (Test-Path $authPath) {
+        Remove-Item $authPath -Force -ErrorAction SilentlyContinue
+    }
+    
+    New-Caddyfile
+    
+    $service = Get-Service -Name $Script:Config.ServiceName -ErrorAction SilentlyContinue
+    if ($service -and $service.Status -eq "Running") {
+        Restart-Service -Name $Script:Config.ServiceName -Force
+        Write-Log "Authentication disabled and service restarted" "SUCCESS"
+    }
+    else {
+        Write-Log "Authentication disabled" "SUCCESS"
+    }
+}
+
+# ============================================================================
 # CADDY FUNCTIONS
 # ============================================================================
 
 function Install-Caddy {
     Write-Log "Installing Caddy..." "HEADER"
     
-    # Create directory
     if (-not (Test-Path $InstallPath)) {
         New-Item -ItemType Directory -Path $InstallPath -Force | Out-Null
         Write-Log "Created directory: $InstallPath" "SUCCESS"
     }
     
-    # Create subdirectories
     @("data", "logs") | ForEach-Object {
         $subDir = Join-Path $InstallPath $_
         if (-not (Test-Path $subDir)) {
@@ -188,7 +727,6 @@ function Install-Caddy {
         }
     }
     
-    # Download
     $exePath = Join-Path $InstallPath $Script:Config.CaddyExe
     Write-Log "Downloading Caddy..." "INFO"
     try {
@@ -200,7 +738,6 @@ function Install-Caddy {
         return $false
     }
     
-    # Verify
     $version = & $exePath version 2>$null
     if ($version) {
         Write-Log "Caddy version: $version" "SUCCESS"
@@ -218,13 +755,27 @@ function New-Caddyfile {
     
     $caddyfilePath = Join-Path $InstallPath $Script:Config.CaddyFile
     
+    $authBlock = ""
+    if ($Script:AuthEnabled -and $Script:AuthHash) {
+        $authBlock = @"
+
+    # HTTP Basic Authentication
+    basicauth {
+        $($Script:AuthUser) $($Script:AuthHash)
+    }
+"@
+    }
+    
+    $authStatus = if ($Script:AuthEnabled) { "Enabled (User: $($Script:AuthUser))" } else { "Disabled" }
+    
     $caddyfileContent = @"
 # Caddy Reverse Proxy for LibreHardwareMonitor
 # Generated: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
 # Tailscale IP: $($Script:TailscaleIP)
 # Upstream: $($UpstreamIP):$($UpstreamPort)
+# Authentication: $authStatus
 
-$($Script:TailscaleIP):$ProxyPort {
+$($Script:TailscaleIP):$ProxyPort {$authBlock
     reverse_proxy $($UpstreamIP):$($UpstreamPort)
     tls internal
 }
@@ -253,7 +804,6 @@ function Install-CaddyService {
     $configPath = Join-Path $InstallPath $Script:Config.CaddyFile
     $serviceName = $Script:Config.ServiceName
     
-    # Remove existing
     $existingService = Get-Service -Name $serviceName -ErrorAction SilentlyContinue
     if ($existingService) {
         Write-Log "Removing existing service..." "INFO"
@@ -262,7 +812,6 @@ function Install-CaddyService {
         Start-Sleep -Seconds 2
     }
     
-    # Create service
     $binPath = "`"$exePath`" run --config `"$configPath`""
     
     $result = & sc.exe create $serviceName start= auto binPath= $binPath 2>&1
@@ -272,12 +821,10 @@ function Install-CaddyService {
     }
     Write-Log "Created service: $serviceName" "SUCCESS"
     
-    # Configure recovery
     & sc.exe failure $serviceName reset= 86400 actions= restart/60000/restart/60000/restart/60000 2>$null | Out-Null
     & sc.exe description $serviceName "Caddy reverse proxy for LibreHardwareMonitor via Tailscale" 2>$null | Out-Null
     Write-Log "Configured auto-restart on failure" "SUCCESS"
     
-    # Start service
     Write-Log "Starting service..." "INFO"
     try {
         Start-Service -Name $serviceName -ErrorAction Stop
@@ -298,33 +845,6 @@ function Install-CaddyService {
     }
 }
 
-function Set-FirewallRule {
-    Write-Log "Configuring firewall rule..." "INFO"
-    
-    $exePath = Join-Path $InstallPath $Script:Config.CaddyExe
-    $ruleName = $Script:Config.FirewallRule
-    
-    # Remove existing
-    Remove-NetFirewallRule -DisplayName "$ruleName*" -ErrorAction SilentlyContinue
-    Remove-NetFirewallRule -DisplayName "Caddy*" -ErrorAction SilentlyContinue
-    
-    try {
-        New-NetFirewallRule -DisplayName $ruleName `
-            -Direction Inbound `
-            -Program $exePath `
-            -Action Allow `
-            -Profile Any `
-            -Description "Allow Caddy reverse proxy for Tailscale access" | Out-Null
-        
-        Write-Log "Firewall rule created" "SUCCESS"
-        return $true
-    }
-    catch {
-        Write-Log "Failed to create firewall rule: $_" "ERROR"
-        return $false
-    }
-}
-
 # ============================================================================
 # WORKFLOW FUNCTIONS
 # ============================================================================
@@ -338,42 +858,39 @@ function Select-UpstreamIP {
     Write-Host "  Scanning local interfaces for Port $UpstreamPort..." -ForegroundColor Gray
     Write-Host ""
 
-    # 1. Gather all potential IPs (Localhost + LAN IPs)
     $ipList = @("127.0.0.1")
     try {
         $adapters = Get-NetIPAddress -AddressFamily IPv4 -AddressState Preferred | Where-Object { $_.InterfaceAlias -notlike "*Loopback*" }
         $ipList += $adapters.IPAddress
-    } catch {
+    }
+    catch {
         Write-Log "Could not enumerate network adapters." "WARNING"
     }
 
-    # 2. Test each IP and display status
     $validOptions = @()
     for ($i = 0; $i -lt $ipList.Count; $i++) {
         $currentIP = $ipList[$i]
-        
-        # Test connection immediately
         $isResponsive = Test-PortOpen -ComputerName $currentIP -Port $UpstreamPort
         
-        # Format the output
         $indexTag = "  [$($i+1)]".PadRight(7)
-        $ipTag    = "$currentIP".PadRight(18)
+        $ipTag = "$currentIP".PadRight(18)
         
         if ($isResponsive) { 
             Write-Host "$indexTag$ipTag" -NoNewline -ForegroundColor White
             Write-Host " [FOUND LHM!] " -ForegroundColor Green
             $validOptions += $currentIP
-        } else {
+        }
+        else {
             Write-Host "$indexTag$ipTag" -NoNewline -ForegroundColor Gray
             Write-Host " [No Response] " -ForegroundColor DarkGray
         }
     }
 
-    # 3. Handle Selection
     Write-Host ""
     if ($validOptions.Count -gt 0) {
         Write-Host "  LHM was detected on $($validOptions.Count) interface(s)." -ForegroundColor Green
-    } else {
+    }
+    else {
         Write-Host "  LHM was not detected on any interface." -ForegroundColor Red
         Write-Host "  Ensure LHM is running and the Web Server is enabled." -ForegroundColor Yellow
     }
@@ -381,14 +898,61 @@ function Select-UpstreamIP {
     $choice = Read-Host "  Select IP number to use [1-$($ipList.Count)] or Enter to cancel"
 
     if ($choice -match '^\d+$' -and $choice -ge 1 -and $choice -le $ipList.Count) {
-        $selected = $ipList[$choice-1]
-        
-        # Update the Script-Scope variable so the rest of the script uses it
+        $selected = $ipList[$choice - 1]
         $Script:UpstreamIP = $selected
-        
         Write-Host ""
         Write-Log "Upstream IP updated to: $selected" "SUCCESS"
         Start-Sleep -Seconds 2
+    }
+}
+
+function Select-FirewallScope {
+    <#
+    .SYNOPSIS
+        Interactive firewall scope selection during install
+    #>
+    Write-Host ""
+    Write-Host "  ╔═══════════════════════════════════════════════════════╗" -ForegroundColor Cyan
+    Write-Host "  ║           Firewall Scope Selection                    ║" -ForegroundColor Cyan
+    Write-Host "  ╚═══════════════════════════════════════════════════════╝" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "  [1] Tailscale Only (100.64.0.0/10)" -ForegroundColor Green
+    Write-Host "      Recommended - Only Tailscale devices can connect" -ForegroundColor Gray
+    Write-Host ""
+    Write-Host "  [2] LAN Restricted (specify addresses)"
+    Write-Host "      Allow specific IPs or subnets" -ForegroundColor Gray
+    Write-Host ""
+    Write-Host "  [3] Any (all addresses)" -ForegroundColor Yellow
+    Write-Host "      Least secure - allows all connections" -ForegroundColor Gray
+    Write-Host ""
+    
+    $choice = Read-Host "  Select scope [1]"
+    
+    switch ($choice) {
+        "2" {
+            Write-Host ""
+            Write-Host "  Enter allowed addresses (comma-separated)" -ForegroundColor Cyan
+            Write-Host "  Example: 10.1.10.0/24 or 10.1.10.10,10.1.10.30" -ForegroundColor Gray
+            $addresses = Read-Host "  Addresses"
+            
+            if ([string]::IsNullOrWhiteSpace($addresses)) {
+                Write-Log "No addresses specified, defaulting to Tailscale Only" "WARNING"
+                $Script:FWScope = "TailscaleOnly"
+                $Script:FWAllowedAddresses = $null
+            }
+            else {
+                $Script:FWScope = "LAN"
+                $Script:FWAllowedAddresses = $addresses
+            }
+        }
+        "3" {
+            $Script:FWScope = "Any"
+            $Script:FWAllowedAddresses = $null
+        }
+        default {
+            $Script:FWScope = "TailscaleOnly"
+            $Script:FWAllowedAddresses = $null
+        }
     }
 }
 
@@ -397,7 +961,6 @@ function Test-Prerequisites {
     
     $passed = $true
     
-    # Check Tailscale
     if (Test-TailscaleInstalled) {
         $Script:TailscaleIP = if ($TailscaleIP) { $TailscaleIP } else { Get-TailscaleIP }
         if ($Script:TailscaleIP) {
@@ -413,7 +976,6 @@ function Test-Prerequisites {
         $passed = $false
     }
     
-    # Check LHM upstream
     Write-Log "Checking LibreHardwareMonitor at $($UpstreamIP):$($UpstreamPort)..." "INFO"
     if (Test-PortOpen -ComputerName $UpstreamIP -Port $UpstreamPort) {
         Write-Log "LibreHardwareMonitor responding" "SUCCESS"
@@ -436,11 +998,30 @@ function Invoke-Installation {
     }
     
     if (-not (Install-Caddy)) { return $false }
+    
+    # Handle authentication setup
+    if ($EnableAuth -or $Script:AuthEnabled) {
+        if (-not $Script:AuthHash) {
+            if (-not (Request-AuthCredentials)) {
+                Write-Log "Authentication setup cancelled. Proceeding without auth." "WARNING"
+                $Script:AuthEnabled = $false
+            }
+        }
+        
+        if ($Script:AuthEnabled) {
+            Save-AuthConfig
+        }
+    }
+    
     if (-not (New-Caddyfile)) { return $false }
-    if (-not (Set-FirewallRule)) { return $false }
+    
+    # Handle firewall setup
+    if (-not (Set-FirewallRule -Scope $Script:FWScope -Addresses $Script:FWAllowedAddresses)) {
+        Write-Log "Firewall rule creation failed - continuing anyway" "WARNING"
+    }
+    
     if (-not (Install-CaddyService)) { return $false }
     
-    # Final verification
     Test-Installation
     
     return $true
@@ -456,7 +1037,6 @@ function Invoke-Uninstall {
         }
     }
     
-    # Stop and remove service
     $service = Get-Service -Name $Script:Config.ServiceName -ErrorAction SilentlyContinue
     if ($service) {
         Write-Log "Removing service..." "INFO"
@@ -465,12 +1045,8 @@ function Invoke-Uninstall {
         Write-Log "Service removed" "SUCCESS"
     }
     
-    # Remove firewall rules
-    Remove-NetFirewallRule -DisplayName "$($Script:Config.FirewallRule)*" -ErrorAction SilentlyContinue
-    Remove-NetFirewallRule -DisplayName "Caddy*" -ErrorAction SilentlyContinue
-    Write-Log "Firewall rules removed" "SUCCESS"
+    Remove-FirewallRules
     
-    # Remove files
     if (Test-Path $InstallPath) {
         Remove-Item -Path $InstallPath -Recurse -Force -ErrorAction SilentlyContinue
         Write-Log "Removed directory: $InstallPath" "SUCCESS"
@@ -485,7 +1061,6 @@ function Test-Installation {
     
     $allPassed = $true
     
-    # Check Caddy Service
     $service = Get-Service -Name $Script:Config.ServiceName -ErrorAction SilentlyContinue
     Write-Host "  Caddy Service:   " -NoNewline
     if ($service -and $service.Status -eq "Running") {
@@ -496,7 +1071,6 @@ function Test-Installation {
         $allPassed = $false
     }
     
-    # Check Caddy Port
     Write-Host "  Proxy Port:      " -NoNewline
     if ($Script:TailscaleIP -and (Test-PortOpen -ComputerName $Script:TailscaleIP -Port $ProxyPort)) {
         Write-Host "Listening ($($Script:TailscaleIP):$ProxyPort)" -ForegroundColor Green
@@ -506,7 +1080,6 @@ function Test-Installation {
         $allPassed = $false
     }
     
-    # Check LHM Upstream
     Write-Host "  LHM Upstream:    " -NoNewline
     if (Test-PortOpen -ComputerName $UpstreamIP -Port $UpstreamPort) {
         Write-Host "Responding ($($UpstreamIP):$($UpstreamPort))" -ForegroundColor Green
@@ -515,7 +1088,25 @@ function Test-Installation {
         Write-Host "Not Responding" -ForegroundColor Yellow
     }
     
-    # Summary
+    Write-Host "  Authentication:  " -NoNewline
+    if ($Script:AuthEnabled) {
+        Write-Host "Enabled (User: $($Script:AuthUser))" -ForegroundColor Green
+    }
+    else {
+        Write-Host "Disabled" -ForegroundColor Yellow
+    }
+    
+    # Firewall status
+    Write-Host "  Firewall:        " -NoNewline
+    $fwRules = Get-FirewallRules
+    if ($fwRules) {
+        $ruleName = ($fwRules | Select-Object -First 1).DisplayName
+        Write-Host $ruleName -ForegroundColor Green
+    }
+    else {
+        Write-Host "No rules configured" -ForegroundColor Yellow
+    }
+    
     if ($allPassed) {
         Write-Host ""
         Write-Log "Installation verified!" "SUCCESS"
@@ -531,6 +1122,9 @@ function Test-Installation {
         Write-Host "  ╚═══════════════════════════════════════════════════════╝" -ForegroundColor Green
         Write-Host ""
         Write-Host "  Note: Accept the self-signed certificate warning" -ForegroundColor Yellow
+        if ($Script:AuthEnabled) {
+            Write-Host "  Login: $($Script:AuthUser) / [your password]" -ForegroundColor Yellow
+        }
     }
     else {
         Write-Log "Some components failed verification" "WARNING"
@@ -542,13 +1136,15 @@ function Test-Installation {
 function Show-Status {
     $Script:TailscaleIP = if ($TailscaleIP) { $TailscaleIP } else { Get-TailscaleIP }
     
+    Read-AuthConfig | Out-Null
+    Read-FirewallConfig | Out-Null
+    
     Write-Host ""
     Write-Host "  ╔═══════════════════════════════════════════════════════╗" -ForegroundColor Cyan
     Write-Host "  ║          Caddy Proxy Status                           ║" -ForegroundColor Cyan
     Write-Host "  ╚═══════════════════════════════════════════════════════╝" -ForegroundColor Cyan
     Write-Host ""
     
-    # Tailscale
     Write-Host "  Tailscale IP:    " -NoNewline
     if ($Script:TailscaleIP) {
         Write-Host $Script:TailscaleIP -ForegroundColor Green
@@ -557,7 +1153,6 @@ function Show-Status {
         Write-Host "Not Connected" -ForegroundColor Red
     }
     
-    # Caddy Service
     $service = Get-Service -Name $Script:Config.ServiceName -ErrorAction SilentlyContinue
     Write-Host "  Caddy Service:   " -NoNewline
     if ($service) {
@@ -568,7 +1163,6 @@ function Show-Status {
         Write-Host "Not Installed" -ForegroundColor Red
     }
     
-    # Caddy Port
     Write-Host "  Proxy Port:      " -NoNewline
     if ($Script:TailscaleIP -and (Test-PortOpen -ComputerName $Script:TailscaleIP -Port $ProxyPort)) {
         Write-Host "Listening (:$ProxyPort)" -ForegroundColor Green
@@ -577,7 +1171,6 @@ function Show-Status {
         Write-Host "Not Responding" -ForegroundColor Red
     }
     
-    # LHM Upstream
     Write-Host "  LHM Upstream:    " -NoNewline
     if (Test-PortOpen -ComputerName $UpstreamIP -Port $UpstreamPort) {
         Write-Host "Responding ($($UpstreamIP):$($UpstreamPort))" -ForegroundColor Green
@@ -586,7 +1179,26 @@ function Show-Status {
         Write-Host "Not Responding" -ForegroundColor Yellow
     }
     
-    # Access URL
+    Write-Host "  Authentication:  " -NoNewline
+    if ($Script:AuthEnabled) {
+        Write-Host "Enabled (User: $($Script:AuthUser))" -ForegroundColor Green
+    }
+    else {
+        Write-Host "Disabled" -ForegroundColor Yellow
+    }
+    
+    # Firewall status
+    Write-Host "  Firewall:        " -NoNewline
+    $fwRules = Get-FirewallRules
+    if ($fwRules) {
+        $ruleName = ($fwRules | Select-Object -First 1).DisplayName
+        $shortName = $ruleName -replace "^Caddy Reverse Proxy ", ""
+        Write-Host $shortName -ForegroundColor Green
+    }
+    else {
+        Write-Host "No rules" -ForegroundColor Yellow
+    }
+    
     if ($Script:TailscaleIP -and $service -and $service.Status -eq "Running") {
         Write-Host ""
         Write-Host "  Access URL:      " -NoNewline
@@ -618,12 +1230,159 @@ function Show-LHMSetup {
     Write-Host "Your LAN IP" -ForegroundColor Yellow
     Write-Host "     (Avoid Hyper-V IPs like 172.x.x.x)" -ForegroundColor DarkGray
     Write-Host ""
-    Write-Host "  6. (Optional) Disable Authentication:" -ForegroundColor White
-    Write-Host "     Caddy + Tailscale provides security layer" -ForegroundColor Gray
+    Write-Host "  6. (Optional) Disable LHM Authentication:" -ForegroundColor White
+    Write-Host "     Caddy + Tailscale + basicauth provides security" -ForegroundColor Gray
     Write-Host ""
 }
 
+function Show-AuthMenu {
+    <#
+    .SYNOPSIS
+        Authentication management submenu
+    #>
+    while ($true) {
+        Clear-Host
+        Write-Host ""
+        Write-Host "  ╔═══════════════════════════════════════════════════════╗" -ForegroundColor Cyan
+        Write-Host "  ║          Authentication Management                    ║" -ForegroundColor Cyan
+        Write-Host "  ╚═══════════════════════════════════════════════════════╝" -ForegroundColor Cyan
+        Write-Host ""
+        
+        Write-Host "  Current Status:  " -NoNewline
+        if ($Script:AuthEnabled) {
+            Write-Host "Enabled" -ForegroundColor Green
+            Write-Host "  Username:        " -NoNewline
+            Write-Host $Script:AuthUser -ForegroundColor Cyan
+        }
+        else {
+            Write-Host "Disabled" -ForegroundColor Yellow
+        }
+        
+        Write-Host ""
+        Write-Host "  ─────────────────────────────────────────────────────────" -ForegroundColor DarkGray
+        Write-Host ""
+        Write-Host "  [1] Enable/Update Authentication"
+        Write-Host "  [2] Change Password"
+        Write-Host "  [3] Disable Authentication"
+        Write-Host "  [B] Back to Main Menu"
+        Write-Host ""
+        
+        $choice = Read-Host "  Select option"
+        
+        switch ($choice.ToUpper()) {
+            "1" {
+                $exePath = Join-Path $InstallPath $Script:Config.CaddyExe
+                if (-not (Test-Path $exePath)) {
+                    Write-Log "Caddy not installed. Install Caddy first." "ERROR"
+                    Read-Host "`n  Press Enter to continue"
+                    continue
+                }
+                
+                if (Request-AuthCredentials) {
+                    Save-AuthConfig
+                    New-Caddyfile
+                    
+                    $service = Get-Service -Name $Script:Config.ServiceName -ErrorAction SilentlyContinue
+                    if ($service -and $service.Status -eq "Running") {
+                        Restart-Service -Name $Script:Config.ServiceName -Force
+                        Write-Log "Service restarted with new auth settings" "SUCCESS"
+                    }
+                }
+                Read-Host "`n  Press Enter to continue"
+            }
+            "2" {
+                if (-not $Script:AuthEnabled) {
+                    Write-Log "Authentication not enabled" "WARNING"
+                    Read-Host "`n  Press Enter to continue"
+                    continue
+                }
+                
+                $exePath = Join-Path $InstallPath $Script:Config.CaddyExe
+                if (-not (Test-Path $exePath)) {
+                    Write-Log "Caddy not installed" "ERROR"
+                    Read-Host "`n  Press Enter to continue"
+                    continue
+                }
+                
+                Write-Host ""
+                Write-Host "  Changing password for user: $($Script:AuthUser)" -ForegroundColor Cyan
+                
+                $passwordMatch = $false
+                $attempts = 0
+                
+                while (-not $passwordMatch -and $attempts -lt 3) {
+                    Write-Host ""
+                    $password1 = Read-Host "  New Password" -AsSecureString
+                    $password2 = Read-Host "  Confirm Password" -AsSecureString
+                    
+                    $BSTR1 = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($password1)
+                    $BSTR2 = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($password2)
+                    $plain1 = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR1)
+                    $plain2 = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR2)
+                    [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($BSTR1)
+                    [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($BSTR2)
+                    
+                    if ($plain1 -eq $plain2) {
+                        if ($plain1.Length -lt 8) {
+                            Write-Log "Password must be at least 8 characters" "WARNING"
+                            $attempts++
+                        }
+                        else {
+                            $passwordMatch = $true
+                            Write-Host ""
+                            Write-Log "Generating password hash..." "INFO"
+                            $Script:AuthHash = Get-CaddyPasswordHash -Password $password1
+                            
+                            if ($Script:AuthHash) {
+                                Save-AuthConfig
+                                New-Caddyfile
+                                
+                                $service = Get-Service -Name $Script:Config.ServiceName -ErrorAction SilentlyContinue
+                                if ($service -and $service.Status -eq "Running") {
+                                    Restart-Service -Name $Script:Config.ServiceName -Force
+                                    Write-Log "Password changed and service restarted" "SUCCESS"
+                                }
+                                else {
+                                    Write-Log "Password changed" "SUCCESS"
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        Write-Log "Passwords do not match" "WARNING"
+                        $attempts++
+                    }
+                    
+                    $plain1 = $null
+                    $plain2 = $null
+                    [System.GC]::Collect()
+                }
+                
+                Read-Host "`n  Press Enter to continue"
+            }
+            "3" {
+                if (-not $Script:AuthEnabled) {
+                    Write-Log "Authentication already disabled" "INFO"
+                    Read-Host "`n  Press Enter to continue"
+                    continue
+                }
+                
+                if (Confirm-Action "Disable authentication?") {
+                    Remove-AuthConfig
+                }
+                Read-Host "`n  Press Enter to continue"
+            }
+            "B" {
+                return
+            }
+        }
+    }
+}
+
 function Show-InteractiveMenu {
+    Read-AuthConfig | Out-Null
+    Read-FirewallConfig | Out-Null
+    
     while ($true) {
         Clear-Host
         Show-Status
@@ -639,7 +1398,9 @@ function Show-InteractiveMenu {
         Write-Host "  [6] Edit Caddyfile"
         Write-Host "  [7] LHM Setup Instructions"
         Write-Host "  [8] Open Install Folder"
-        Write-Host "  [S] Scan/Select Upstream IP"  # <--- NEW OPTION
+        Write-Host "  [A] Authentication Settings"
+        Write-Host "  [F] Firewall Settings"
+        Write-Host "  [S] Scan/Select Upstream IP"
         Write-Host "  [Q] Quit"
         Write-Host ""
         
@@ -647,6 +1408,19 @@ function Show-InteractiveMenu {
         
         switch ($choice.ToUpper()) {
             "1" {
+                # Ask about auth during install
+                Write-Host ""
+                $enableAuthChoice = Read-Host "  Enable password authentication? (Y/N)"
+                if ($enableAuthChoice -match '^[Yy]') {
+                    $Script:AuthEnabled = $true
+                }
+                else {
+                    $Script:AuthEnabled = $false
+                }
+                
+                # Ask about firewall scope
+                Select-FirewallScope
+                
                 Invoke-Installation
                 Read-Host "`n  Press Enter to continue"
             }
@@ -706,9 +1480,15 @@ function Show-InteractiveMenu {
                     Read-Host "`n  Press Enter to continue"
                 }
             }
-            "S" {  # <--- NEW SWITCH CASE
+            "A" {
+                Show-AuthMenu
+            }
+            "F" {
+                Show-FirewallMenu
+            }
+            "S" {
                 Select-UpstreamIP
-            } 
+            }
             "Q" {
                 return
             }
