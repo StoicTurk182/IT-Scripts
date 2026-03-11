@@ -305,6 +305,80 @@ Then re-run the script.
 
 ---
 
+## Retention Tag Types and Outlook Visibility
+
+### Why the Right-Click Menu Shows No Policy Options
+
+The script creates tags using `-Type All`, which designates them as **Default Policy Tags (DPT)**. DPTs are applied automatically by the Managed Folder Assistant and are intentionally invisible to end users — they do not appear in the Outlook right-click "Assign Policy" menu.
+
+The right-click menu only surfaces **Personal Tags** (`-Type Personal`). These are opt-in tags that users can manually apply to any folder or individual item.
+
+This is not a bug or a configuration error. It is by design.
+
+### Tag Type Reference
+
+| Tag Type | Parameter | Applied By | Right-Click Visible | Scope |
+|----------|-----------|------------|---------------------|-------|
+| Default Policy Tag | `-Type All` | Automatically (MFA) | No | Entire mailbox |
+| Retention Policy Tag | `-Type RecoverableItems` etc. | Automatically (MFA) | No | Specific default folders only |
+| Personal Tag | `-Type Personal` | User manually | Yes | Any folder or item |
+
+### Adding a Personal Tag for User-Visible Right-Click Assignment
+
+If users need to manually assign an archive policy to specific folders or items, a Personal Tag must be created and linked to the existing policy alongside the Default Policy Tag.
+
+```powershell
+# Create the personal tag
+New-RetentionPolicyTag -Name "Archive - 1 Year (Manual)" `
+    -Type Personal `
+    -AgeLimitForRetention 365 `
+    -RetentionAction MoveToArchive
+
+# Link both tags to the existing policy
+Set-RetentionPolicy -Identity "Archive Policy - 1 Year" `
+    -RetentionPolicyTagLinks "Archive - 1 Year", "Archive - 1 Year (Manual)"
+```
+
+After `Start-ManagedFolderAssistant` processes the mailbox, the Personal Tag will appear under right-click > **Assign Policy** in Outlook desktop.
+
+> Note: Both tags can coexist in the same policy. The DPT (`-Type All`) continues to handle automatic archiving across the whole mailbox, while the Personal Tag gives users manual control over specific items.
+
+---
+
+## Viewing and Modifying Policies in Microsoft 365
+
+### Admin Portal Locations
+
+The new Exchange Admin Centre has limited MRM visibility. The **Classic EAC** must be used for full policy and tag management.
+
+| Portal | URL | Capability |
+|--------|-----|------------|
+| Classic EAC | `https://outlook.office365.com/ecp/` | Full MRM policy and tag management — use this |
+| New EAC | `https://admin.exchange.microsoft.com` | Mailbox-level policy assignment only — limited |
+| Microsoft Purview | `https://compliance.microsoft.com` | Microsoft 365 retention labels only — separate system |
+
+### Navigating the Classic EAC
+
+- **Compliance Management > Retention Policies** — view, edit, and delete MRM retention policies; see which tags are linked to each policy
+- **Compliance Management > Retention Tags** — view all tags, their type, age limit, and action; edit or delete individual tags
+
+### MRM vs Microsoft Purview Retention Labels
+
+These are two distinct and separate systems. They are managed in different portals and have different enforcement mechanisms.
+
+| Attribute | MRM Retention Policies | Purview Retention Labels |
+|-----------|----------------------|--------------------------|
+| Created with | `New-RetentionPolicy` / `New-RetentionPolicyTag` | Purview compliance portal |
+| Managed in | Classic EAC | `compliance.microsoft.com` |
+| Applied via | Managed Folder Assistant | Compliance engine |
+| Visible in Outlook | Personal Tags only (right-click) | Yes, via sensitivity/label bar |
+| Scope | Mailbox-level (Exchange) | Cross-workload (Exchange, SharePoint, Teams) |
+| Use case | Mailbox archiving, deletion | Regulatory compliance, legal hold |
+
+The script in this guide creates **MRM Retention Policies** only. If your organisation uses Purview retention labels, those are configured entirely separately and are not affected by this script.
+
+---
+
 ## References
 
 - [New-RetentionPolicyTag - Microsoft Learn](https://learn.microsoft.com/en-us/powershell/module/exchange/new-retentionpolicytag)
