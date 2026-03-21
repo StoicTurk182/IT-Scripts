@@ -3,12 +3,12 @@ $DNSServer = "8.8.8.8"
 
 # Define the list of records to verify
 $Checks = @(
-    [PSCustomObject]@{ Name = "";                       Type = "TXT"   }
-    [PSCustomObject]@{ Name = "";                       Type = "MX"    }
-    [PSCustomObject]@{ Name = "";                       Type = "CNAME" }
-    [PSCustomObject]@{ Name = "";                       Type = "CNAME" }
-    [PSCustomObject]@{ Name = "";                       Type = "TXT"   }
-    [PSCustomObject]@{ Name = "";                       Type = "NS"    }
+    [PSCustomObject]@{ Name = "toast-group.com";                       Type = "TXT"   }
+    [PSCustomObject]@{ Name = "toast-group.com";                       Type = "MX"    }
+    [PSCustomObject]@{ Name = "toast-group.com";                       Type = "CNAME" }
+    [PSCustomObject]@{ Name = "toast-group.com";                       Type = "CNAME" }
+    [PSCustomObject]@{ Name = "toast-group.com";                       Type = "TXT"   }
+    [PSCustomObject]@{ Name = "toast-group.com";                       Type = "NS"    }
 )
 
 Write-Host "Starting DNS Verification using Server: $DNSServer" -ForegroundColor Cyan

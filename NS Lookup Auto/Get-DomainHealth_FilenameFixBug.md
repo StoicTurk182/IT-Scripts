@@ -103,5 +103,15 @@ try {
 ## References
 
 - Microsoft Docs - Naming Files, Paths, and Namespaces: https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file
+
 - PowerShell `Out-File`: https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/out-file
+
 - PowerShell `-replace` operator (regex): https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_comparison_operators
+
+
+
+
+
+
+
+
