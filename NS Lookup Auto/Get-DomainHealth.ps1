@@ -633,31 +633,36 @@ Add-ReportSection "13. Microsoft 365 Tenant Discovery"
 Add-ReportLine "| Check | Value | Status |"
 Add-ReportLine "|-------|-------|--------|"
 
-# MS verification record
+# MS= verification record - informational only
+# This record is a one-time ownership token and is typically removed post-verification
+# It is NOT a reliable indicator of whether a domain is claimed by a tenant
 $msRecord = $null
 if ($txtRecords) {
     $msRecord = $txtRecords | Where-Object { $_.Strings -match "^MS=" }
 }
 if ($msRecord) {
     $msValue = ($msRecord.Strings | Where-Object { $_ -match "^MS=" })
-    Write-Log "MS Verification: $msValue (domain claimed by a tenant)" -Level "WARNING"
-    Add-ReportEntry -Label "MS Verification" -Value $msValue -Status "CLAIMED"
+    Write-Log "MS Verification Record: $msValue (present - may still be pending cleanup)" -Level "INFO"
+    Add-ReportEntry -Label "MS Verification Record" -Value $msValue -Status "INFO"
 } else {
-    Write-Log "MS Verification: No MS= record found" -Level "INFO"
-    Add-ReportEntry -Label "MS Verification" -Value "Not found" -Status "UNCLAIMED"
+    Write-Log "MS Verification Record: Not present (expected post-verification)" -Level "INFO"
+    Add-ReportEntry -Label "MS Verification Record" -Value "Not found" -Status "INFO"
 }
 
-# Tenant ID via OpenID
+# Tenant ID via OpenID - authoritative claimed/unclaimed signal
 try {
     $openId = Invoke-RestMethod "https://login.microsoftonline.com/$Domain/.well-known/openid-configuration" -ErrorAction Stop
     if ($openId.token_endpoint -match '/([a-f0-9-]{36})/') {
         $tenantId = $Matches[1]
-        Write-Log "Tenant ID: $tenantId" -Level "INFO"
-        Add-ReportEntry -Label "Tenant ID" -Value $tenantId -Status "FOUND"
+        Write-Log "Tenant ID: $tenantId - domain is claimed by an M365 tenant" -Level "INFO"
+        Add-ReportEntry -Label "Tenant ID" -Value $tenantId -Status "CLAIMED"
+    } else {
+        Write-Log "Tenant ID: OpenID endpoint responded but no tenant ID could be parsed" -Level "WARNING"
+        Add-ReportEntry -Label "Tenant ID" -Value "Parse failed" -Status "WARNING"
     }
 } catch {
-    Write-Log "Tenant ID: Could not retrieve (domain may not be in Azure AD)" -Level "INFO"
-    Add-ReportEntry -Label "Tenant ID" -Value "Not found" -Status "INFO"
+    Write-Log "Tenant ID: No M365 tenant found for this domain" -Level "WARNING"
+    Add-ReportEntry -Label "Tenant ID" -Value "Not found" -Status "UNCLAIMED"
 }
 
 # --------------------------------------------------
