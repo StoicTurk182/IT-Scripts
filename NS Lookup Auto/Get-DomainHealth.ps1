@@ -650,6 +650,10 @@ if ($msRecord) {
 }
 
 # Tenant ID via OpenID - authoritative claimed/unclaimed signal
+
+        $tenantId = $null
+
+# Tenant ID via OpenID - authoritative claimed/unclaimed signal
 try {
     $openId = Invoke-RestMethod "https://login.microsoftonline.com/$Domain/.well-known/openid-configuration" -ErrorAction Stop
     if ($openId.token_endpoint -match '/([a-f0-9-]{36})/') {
@@ -683,15 +687,14 @@ $summary = @{
     "Autodiscover" = if ($autodiscover) { "FOUND" } else { "MISSING" }
     "MTA-STS"      = if ($mtasts -and ($mtasts | Where-Object { $_.Strings -match "v=STSv1" })) { "FOUND" } else { "NOT CONFIGURED" }
     "DNSSEC"       = if ($dnssec) { "ENABLED" } else { "NOT ENABLED" }
-    "M365 Tenant"  = if ($msRecord) { "CLAIMED" } else { "UNCLAIMED" }
+    "M365 Tenant"  = if ($tenantId) { "CLAIMED" } else { "UNCLAIMED" }
 }
 
 foreach ($item in $summary.GetEnumerator() | Sort-Object Name) {
     $statusColor = switch -Regex ($item.Value) {
-        "FOUND|ENABLED"         { "SUCCESS" }
-        "MISSING|ERROR"         { "ERROR" }
-        "CLAIMED"               { "WARNING" }
-        default                 { "INFO" }
+        "FOUND|ENABLED|CLAIMED"   { "SUCCESS" }
+        "MISSING|ERROR|UNCLAIMED" { "ERROR" }
+        default                   { "INFO" }
     }
     Write-Log "$($item.Name): $($item.Value)" -Level $statusColor
     Add-ReportLine "| $($item.Name) | $($item.Value) |"
