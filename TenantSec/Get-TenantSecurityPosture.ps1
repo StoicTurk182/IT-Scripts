@@ -108,7 +108,11 @@ function Write-TableRow {
 # CONNECT
 # ============================================================================
 
+# Disable WAM to prevent hidden popup issues in embedded terminals
+Set-MgGraphOption -DisableLoginByWAM $true
+
 Write-Host "Connecting to Microsoft Graph..." -ForegroundColor Cyan
+Write-Host "A device code will be shown below - visit https://microsoft.com/devicelogin and enter it." -ForegroundColor Yellow
 try {
     Connect-MgGraph -Scopes @(
         "Policy.Read.All",
@@ -118,7 +122,7 @@ try {
         "Reports.Read.All",
         "AuditLog.Read.All",
         "UserAuthenticationMethod.Read.All"
-    ) -ErrorAction Stop
+    ) -UseDeviceAuthentication -ErrorAction Stop
     Write-Host "Graph connected." -ForegroundColor Green
 }
 catch {
@@ -127,8 +131,9 @@ catch {
 }
 
 Write-Host "Connecting to Exchange Online..." -ForegroundColor Cyan
+Write-Host "A second device code will be shown below for Exchange Online." -ForegroundColor Yellow
 try {
-    Connect-ExchangeOnline -UserPrincipalName $UPN -ShowBanner:$false -ErrorAction Stop
+    Connect-ExchangeOnline -UserPrincipalName $UPN -ShowBanner:$false -Device -ErrorAction Stop
     Write-Host "Exchange Online connected." -ForegroundColor Green
 }
 catch {
