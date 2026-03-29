@@ -133,7 +133,7 @@ catch {
 Write-Host "Connecting to Exchange Online..." -ForegroundColor Cyan
 Write-Host "A second device code will be shown below for Exchange Online." -ForegroundColor Yellow
 try {
-    Connect-ExchangeOnline -UserPrincipalName $UPN -ShowBanner:$false -Device -ErrorAction Stop
+    Connect-ExchangeOnline -ShowBanner:$false -Device -ErrorAction Stop
     Write-Host "Exchange Online connected." -ForegroundColor Green
 }
 catch {
