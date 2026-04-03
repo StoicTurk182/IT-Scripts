@@ -2,10 +2,6 @@
 
 Covers checking folder sizes and safely clearing `%TEMP%`, `C:\Windows\Temp`, and `C:\Windows\Prefetch` via PowerShell. The full script prompts before clearing each folder individually.
 
-# On liner option
-
-@("$env:TEMP","C:\Windows\Temp","C:\Windows\Prefetch") | ForEach-Object { Remove-Item "$_\*" -Recurse -Force -ErrorAction SilentlyContinue }
-
 ---
 
 ## Folder Reference
