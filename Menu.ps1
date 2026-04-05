@@ -30,7 +30,7 @@ $Script:MenuStructure = [ordered]@{
         @{ Name = "Export App JSON"; Path = "Utils/Export App JSON/App Export_JSON.ps1";                             Description = "Export list of installed applications to a text file" }
         @{ Name = "Windows mgmt"; Path = "Utils/Windows mgmt/Win11-FeatureManager.ps1";                       Description = "Manage Windows 11 features and settings" }
         @{ Name = "Set Loc"; Path = "Utils\Set Loc\Set-Region.ps1";                                     Description = "mgmt-Tools general purpose" }
-        @{ Name = "Backup-Bookmarks"; Path = "Utils/Backup_Bookmarks/Backup_Bookmarks.ps1"; Description = "Backup bookmarks to a file" }
+        @{ Name = "Backup Bookmarks"; Path = "Utils/Bookmark_mgmt/Backup-Bookmarks.ps1"; Description = "Backup Edge bookmarks with auto-retention (keeps last 10)" }
     )
 
     "Windows Autopilot Deployment_WINhome" = @(
