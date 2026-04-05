@@ -66,7 +66,7 @@ if (-not $BookmarkPath) {
 }
 
 if (-not $OutputPath) {
-    $def = "$env:USERPROFILE\Desktop\bookmarks-export-$(Get-Date -Format 'yyyyMMdd-HHmm').html"
+    $def = "$([Environment]::GetFolderPath('Desktop'))\bookmarks-export-$(Get-Date -Format 'yyyyMMdd-HHmm').html"
     Write-Host "`n[2/2] HTML output path"
     Write-Host "  Default    : $def"
     Write-Host "  Running as : $env:USERNAME"
@@ -177,3 +177,4 @@ Write-Host "`nImport into Chrome:" -ForegroundColor Cyan
 Write-Host "  chrome://bookmarks > three-dot menu > Import bookmarks"
 Write-Host "  Select: $OutputPath"
 Write-Host ""
+

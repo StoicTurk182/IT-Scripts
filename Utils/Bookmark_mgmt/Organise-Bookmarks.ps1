@@ -91,7 +91,7 @@ if (-not $RemoveOutcomes -or $RemoveOutcomes.Count -eq 0) {
     $RemoveOutcomes = if ($i) { $i -split ',' | ForEach-Object { $_.Trim() } } else { @('DEAD','ERROR') }
 }
 
-if (-not $ReportPath) { $ReportPath = "$env:USERPROFILE\Desktop\bookmark-cleanup-report.csv" }
+if (-not $ReportPath) { $ReportPath = "$([Environment]::GetFolderPath('Desktop'))\bookmark-cleanup-report.csv" }
 
 Write-Host ""
 
@@ -578,3 +578,4 @@ Write-Host "Final      : $($unique.Count)"
 Write-Host "Overrides  : $($script:FolderOverride.Count) applied"
 if (-not $WhatIf) { Write-Host "Backup     : $backupPath" }
 Write-Host ""
+

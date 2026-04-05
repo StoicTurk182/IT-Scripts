@@ -249,9 +249,10 @@ if ($issueFlags.Count -eq 0) {
 
 # ---- Export ----
 if ($ExportResults -and $exportRows.Count -gt 0) {
-    $exportPath = "$env:USERPROFILE\Desktop\TDR-Report-$(Get-Date -Format 'yyyyMMdd-HHmmss').csv"
+    $exportPath = "$([Environment]::GetFolderPath('Desktop'))\TDR-Report-$(Get-Date -Format 'yyyyMMdd-HHmmss').csv"
     $exportRows | Export-Csv $exportPath -NoTypeInformation
     Write-Host "`n  Report exported to: $exportPath" -ForegroundColor Cyan
 }
 
 Write-Host "`n$('=' * 60)`n" -ForegroundColor DarkGray
+

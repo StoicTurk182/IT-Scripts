@@ -41,7 +41,7 @@ if (-not $AuditOnly -and -not $AutoRemove) {
 }
 
 if (-not $ReportPath) {
-    $def = "$env:USERPROFILE\Desktop\app-audit-$(Get-Date -Format 'yyyyMMdd-HHmm').csv"
+    $def = "$([Environment]::GetFolderPath('Desktop'))\app-audit-$(Get-Date -Format 'yyyyMMdd-HHmm').csv"
     Write-Host "`nReport output path"
     Write-Host "  Default    : $def"
     Write-Host "  Running as : $env:USERNAME"
@@ -597,3 +597,4 @@ Write-Host "Anomalies found   : $($anomalies.Count)"
 Write-Host "Report saved      : $ReportPath"
 if ($m365) { Write-Host "M365 Companions   : startup suppressed - disable Admin Center toggle to prevent reinstall" -ForegroundColor Yellow }
 Write-Host ""
+

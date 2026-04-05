@@ -89,7 +89,7 @@ if ($TimeoutSec -lt 1) {
 }
 
 if (-not $ReportPath) {
-    $def = "$env:USERPROFILE\Desktop\bookmark-audit-$(Get-Date -Format 'yyyyMMdd-HHmm').csv"
+    $def = "$([Environment]::GetFolderPath('Desktop'))\bookmark-audit-$(Get-Date -Format 'yyyyMMdd-HHmm').csv"
     Write-Host "`nReport output path"
     Write-Host "  Default : $def"
     Write-Host "  Running as : $env:USERNAME"
@@ -247,3 +247,4 @@ Write-Host "Server errors : $($serverErr.Count)"
 Write-Host "Dead          : $($dead.Count)"
 Write-Host "Errors        : $($errors.Count)"
 Write-Host ""
+
