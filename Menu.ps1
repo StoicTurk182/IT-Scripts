@@ -31,8 +31,8 @@ $Script:MenuStructure = [ordered]@{
         @{ Name = "Windows mgmt"; Path = "Utils/Windows mgmt/Win11-FeatureManager.ps1";                       Description = "Manage Windows 11 features and settings" }
         @{ Name = "Set Loc"; Path = "Utils\Set Loc\Set-Region.ps1";                                     Description = "mgmt-Tools general purpose" }
         @{ Name = "Bookmark_mgmt"; Path = "Utils\Bookmark_mgmt\Bookmark_Organiser_Revised\Check-Bookmarks-Parallel.ps1";                   Description = "Retrieve Bookmarks for script ingestion" }
-        @{ Name = "Bookmark_mgmt"; Path = "Utils\Bookmark_mgmt\Bookmark_Organiser_Revised\Organize-Bookmarks.ps1";                   Description = "Retrieve Bookmarks for script ingestion" }
-        @{name= "backup bookmarks"; Path = "Utils\Bookmark_mgmt\Bookmark_Organiser_Revised\Backup-Bookmarks.ps1"; Description = "Backup Bookmarks to a file" }
+        @{ Name = "Bookmark_mgmt"; Path = "Utils\Bookmark_mgmt\Bookmark_Organiser_Revised\Organize-Bookmarks.ps1";                   Description = "Organise Bookmarks" }
+        @{ Name = "Backup Bookmarks"; Path = "Utils/Bookmark_mgmt/Bookmark_Organiser_Revised/Backup_Bookmarks.ps1"; Description = "Backup bookmarks to a file" }
     )
 
     "Windows Autopilot Deployment_WINhome" = @(
