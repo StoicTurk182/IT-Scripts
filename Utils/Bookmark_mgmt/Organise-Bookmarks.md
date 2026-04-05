@@ -1,0 +1,185 @@
+# Organise-Bookmarks.ps1
+
+Automated Edge/Chrome bookmark cleanup and folder organisation script. Processes your full bookmark store in one pass: removes dead links, deduplicates, and rebuilds the folder structure by category.
+
+Script: `Organise-Bookmarks.ps1`
+
+---
+
+## What It Does
+
+| Step | Action |
+|------|--------|
+| 1 | Creates a timestamped backup of the Bookmarks JSON file |
+| 2 | Flattens all bookmarks from all three roots (Bookmark Bar, Other, Synced) |
+| 3 | Removes confirmed dead URLs from the audit report (exact match list) |
+| 4 | Removes Brave/Google saved search URLs and `chrome://` internal pages (regex match) |
+| 5 | Removes duplicate URLs, keeping first occurrence |
+| 6 | Categorises remaining bookmarks into named folders by URL pattern matching |
+| 7 | Writes rebuilt JSON back to disk |
+| 8 | Exports a CSV report of every action taken |
+
+---
+
+## Output Folder Structure
+
+The script rebuilds the bookmark bar into these folders (in order):
+
+```
+[Bookmark Bar]
+├── Microsoft 365 and Admin
+├── Intune and Endpoint Management
+├── Azure and Entra
+├── Microsoft Docs and Learn
+├── PowerShell and Scripting
+├── Networking and CCNA
+├── Security and Pentesting
+├── Homelab and Virtualisation
+├── EVE Online
+├── Programming and Development
+├── Video and Media Production
+├── Gaming
+├── Personal
+├── Tools and Utilities
+└── Uncategorised
+```
+
+The `Other Bookmarks` and `Synced` roots are consolidated into the Bookmark Bar and cleared.
+
+---
+
+## Requirements
+
+- PowerShell 5.1 or later
+- Microsoft Edge (default) or any Chromium-based browser
+- Browser must be closed before running
+
+---
+
+## Usage
+
+### Basic Run (Edge default profile)
+
+```powershell
+.\Organise-Bookmarks.ps1
+```
+
+### Preview Mode (no changes written)
+
+```powershell
+.\Organise-Bookmarks.ps1 -WhatIf
+```
+
+### Target Chrome Instead of Edge
+
+```powershell
+.\Organise-Bookmarks.ps1 -BrowserPath "$env:LOCALAPPDATA\Google\Chrome\User Data\Default\Bookmarks"
+```
+
+### Custom Report Output Path
+
+```powershell
+.\Organise-Bookmarks.ps1 -ReportPath "C:\Reports\bookmarks.csv"
+```
+
+---
+
+## Backup and Recovery
+
+A timestamped backup is created automatically before any changes:
+
+```
+%LOCALAPPDATA%\Microsoft\Edge\User Data\Default\Bookmarks.backup-20260404-143022
+```
+
+To restore manually:
+
+```powershell
+$original = "$env:LOCALAPPDATA\Microsoft\Edge\User Data\Default\Bookmarks"
+$backup   = "$original.backup-20260404-143022"   # adjust timestamp
+
+# Browser must be closed
+Copy-Item $backup $original -Force
+Write-Host "Restored."
+```
+
+---
+
+## Categorisation Logic
+
+Bookmarks are categorised by checking the URL against an ordered set of regex patterns. The first matching rule wins. If no rule matches, the bookmark goes to `Uncategorised`.
+
+YouTube bookmarks are handled separately: the bookmark name is checked for IT/EVE/gaming/media keywords to determine the correct folder, since the domain alone carries no category information.
+
+GitHub bookmarks fall back to `Programming and Development` unless the name or URL matches a more specific rule (e.g. EVE-related repos go to EVE Online).
+
+### Adding New Rules
+
+Open the script and find the `$CategoryRules` ordered hashtable. Each folder key contains an array of regex patterns checked against the bookmark URL:
+
+```powershell
+'Networking and CCNA' = @(
+    'cisco\.com'
+    'ipxe\.org'
+    # Add new pattern here
+    'my-new-networking-site\.com'
+)
+```
+
+Rules are checked top-to-bottom within the hashtable (not within each folder). More specific folders should appear before more general ones.
+
+### Adding to the Dead URL List
+
+Add exact URLs to the `$ConfirmedDeadUrls` array:
+
+```powershell
+$ConfirmedDeadUrls = [System.Collections.Generic.HashSet[string]]@(
+    'https://dead-site.example.com/page'
+    # ... existing entries
+)
+```
+
+### Adding Pattern-Based Removal Rules
+
+For URL patterns you want to remove in bulk, add regex strings to `$RemoveIfUrlMatchesPattern`:
+
+```powershell
+$RemoveIfUrlMatchesPattern = @(
+    'search\.brave\.com/search\?'
+    'my-expired-domain\.com'  # Add here
+)
+```
+
+---
+
+## CSV Report
+
+The script writes a CSV to `%USERPROFILE%\Desktop\bookmark-cleanup-report.csv` with these columns:
+
+| Column | Values |
+|--------|--------|
+| Action | `Removed-Dead`, `Removed-Junk`, `Removed-Dupe`, `Kept` |
+| Name | Bookmark display name |
+| URL | Full URL |
+| NewFolder | Destination folder (blank if removed) |
+| OriginalFolder | Where the bookmark came from before reorganisation |
+
+---
+
+## Known Limitations
+
+| Limitation | Detail |
+|------------|--------|
+| Browser must be closed | Edge overwrites the Bookmarks file on exit, discarding any changes made while it was open |
+| Sync overwrite | If Edge account sync is active, the cloud may overwrite local changes within seconds of the browser opening |
+| Checksum field | The `checksum` field in the JSON is regenerated by Edge on next open. Stale checksums do not cause errors |
+| Pattern precision | URL pattern matching is heuristic. Some bookmarks may land in `Uncategorised` if their domain is not covered by a rule. Review that folder after running and add rules as needed |
+| YouTube categorisation | Based on bookmark title keywords. Titles that do not contain IT/EVE/gaming keywords default to `Video and Media Production` |
+
+---
+
+## References
+
+- Chromium Bookmark JSON Format: https://chromium.googlesource.com/chromium/src/+/refs/heads/main/components/bookmarks/browser/bookmark_codec.cc
+- PowerShell ConvertFrom-Json: https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/convertfrom-json
+- PowerShell HashSet: https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.hashset-1
