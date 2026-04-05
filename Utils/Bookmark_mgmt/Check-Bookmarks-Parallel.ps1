@@ -89,8 +89,13 @@ if ($TimeoutSec -lt 1) {
 }
 
 if (-not $ReportPath) {
-    $ReportPath = "$env:USERPROFILE\Desktop\bookmark-audit-$(Get-Date -Format 'yyyyMMdd-HHmm').csv"
+    $def = "$env:USERPROFILE\Desktop\bookmark-audit-$(Get-Date -Format 'yyyyMMdd-HHmm').csv"
+    Write-Host "`nReport output path"
+    Write-Host "  Default: $def"
+    $i = (Read-Host "  Press Enter for default or paste a different path").Trim()
+    $ReportPath = if ($i) { $i } else { $def }
 }
+
 
 Write-Host ""
 
