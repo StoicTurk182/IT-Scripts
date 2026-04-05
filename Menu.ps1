@@ -30,9 +30,7 @@ $Script:MenuStructure = [ordered]@{
         @{ Name = "Export App JSON"; Path = "Utils/Export App JSON/App Export_JSON.ps1";                             Description = "Export list of installed applications to a text file" }
         @{ Name = "Windows mgmt"; Path = "Utils/Windows mgmt/Win11-FeatureManager.ps1";                       Description = "Manage Windows 11 features and settings" }
         @{ Name = "Set Loc"; Path = "Utils\Set Loc\Set-Region.ps1";                                     Description = "mgmt-Tools general purpose" }
-        @{ Name = "Check-Bookmarks-Parallel"; Path = "Utils\Bookmark_mgmt\Bookmark_Organiser_Revised\Check-Bookmarks-Parallel.ps1";                   Description = "Retrieve Bookmarks for script ingestion" }
-        @{ Name = "Organise-Bookmarks"; Path = "Utils\Bookmark_mgmt\Bookmark_Organiser_Revised\Organize-Bookmarks.ps1";                   Description = "Organise Bookmarks" }
-        @{ Name = "Backup_Bookmarks"; Path = "Utils/Bookmark_mgmt/Bookmark_Organiser_Revised/Backup_Bookmarks.ps1"; Description = "Backup bookmarks to a file" }
+        @{ Name = "Backup-Bookmarks"; Path = "Utils/Backup_Bookmarks/Backup_Bookmarks.ps1"; Description = "Backup bookmarks to a file" }
     )
 
     "Windows Autopilot Deployment_WINhome" = @(

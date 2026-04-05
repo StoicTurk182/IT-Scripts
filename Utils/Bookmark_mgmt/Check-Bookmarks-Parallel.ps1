@@ -185,11 +185,13 @@ $results = $allBookmarks | ForEach-Object -Parallel {
     }
 
     [PSCustomObject]@{
-        Outcome = $outcome
-        Status  = $status
-        Name    = $bm.Name
-        URL     = $bm.URL
-        Note    = $note
+        Outcome        = $outcome
+        Status         = $status
+        Name           = $bm.Name
+        URL            = $bm.URL
+        Note           = $note
+        FolderOverride = ''   # Optional: fill in a folder name to override auto-categorisation
+        DeleteFlag     = ''   # Optional: set to Y to force removal regardless of outcome
     }
 
 } -ThrottleLimit $ThrottleLimit
