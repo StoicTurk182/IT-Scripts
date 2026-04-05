@@ -1,0 +1,2605 @@
+﻿{
+  "checksum": "ff0c14f3073a0d889ac3256ae5d04c01",
+  "roots": {
+    "bookmark_bar": {
+      "children": [
+        {
+          "children": [
+            {
+              "date_added": "13329319321000000",
+              "guid": "ca78486d-c455-40c3-bb43-3d467e051c35",
+              "id": "500",
+              "name": "Home | Microsoft 365",
+              "type": "url",
+              "url": "https://www.office.com/?auth=2"
+            },
+            {
+              "date_added": "13329319324000000",
+              "guid": "99333c7c-8823-4b0c-89d2-e796f585d9df",
+              "id": "501",
+              "name": "Mail - Andrew Jones - Outlook",
+              "type": "url",
+              "url": "https://outlook.office.com/mail/"
+            },
+            {
+              "date_added": "13361801848876317",
+              "guid": "ffebeaff-c9ba-4d33-8eab-6ae026d673bc",
+              "id": "502",
+              "name": "(7) Azure Active Directory: Secure Identity and Access Management: Creating an Azure AD Trial Tenant - YouTube",
+              "type": "url",
+              "url": "https://www.youtube.com/watch?v=yF5b563CbZE&list=PL5oyXP-xEiGCqYGIHZ-njGaf6pxDikdVv"
+            },
+            {
+              "date_added": "13409937362098504",
+              "guid": "42ee8ede-e964-4cc2-bb9b-1a56099fb328",
+              "id": "503",
+              "name": "admin.microsoft.com/?login_hint=andrew%40ajolnet.com&source=applauncher#/homepage",
+              "type": "url",
+              "url": "https://admin.microsoft.com/?login_hint=andrew%40ajolnet.com&source=applauncher#/homepage"
+            }
+          ],
+          "date_added": "1.34198669471779E+16",
+          "date_modified": "1.34198669471779E+16",
+          "guid": "9eae8912-34f0-431b-a1c7-77c4e77e1447",
+          "id": "504",
+          "name": "Microsoft 365 and Admin",
+          "type": "folder"
+        },
+        {
+          "children": [
+            {
+              "date_added": "13397267196762880",
+              "guid": "d5d6b405-d849-42f1-ab7f-9db9d8087216",
+              "id": "505",
+              "name": "Endpoint security - Microsoft Intune admin center",
+              "type": "url",
+              "url": "https://intune.microsoft.com/#view/Microsoft_Intune_Workflows/SecurityManagementMenu/~/accountprotection"
+            },
+            {
+              "date_added": "13410213447416799",
+              "guid": "a7235527-b510-45bf-8d0f-922f3396b7e1",
+              "id": "506",
+              "name": "Local administrator password - Microsoft Intune admin center",
+              "type": "url",
+              "url": "https://intune.microsoft.com/?ref=AdminCenter#view/Microsoft_Intune_Devices/DeviceSettingsMenuBlade/~/localAdminPassword/mdmDeviceId/26d7f694-e5b3-49ae-9036-d6ecd03f1429"
+            },
+            {
+              "date_added": "13411772720882710",
+              "guid": "1b7dcb7b-873e-4101-8e92-6e9781b79e00",
+              "id": "507",
+              "name": "Live response command examples - Microsoft Defender for Endpoint | Microsoft Learn",
+              "type": "url",
+              "url": "https://learn.microsoft.com/en-us/defender-endpoint/live-response-command-examples"
+            },
+            {
+              "date_added": "13411776751019111",
+              "guid": "de686af7-0023-4875-8a53-ac988b66285d",
+              "id": "508",
+              "name": "intune.microsoft.com/auth/login/#",
+              "type": "url",
+              "url": "https://intune.microsoft.com/auth/login/"
+            },
+            {
+              "date_added": "13413162004434345",
+              "guid": "a2aa827a-1e55-4b29-a988-ebc5660e5aa8",
+              "id": "509",
+              "name": "Andrew J IT Labs - Microsoft Intune admin center",
+              "type": "url",
+              "url": "https://intune.microsoft.com/?ref=AdminCenter#home"
+            }
+          ],
+          "date_added": "1.34198669471784E+16",
+          "date_modified": "1.34198669471784E+16",
+          "guid": "844daa55-e98c-40fb-9871-a7c491a937d5",
+          "id": "510",
+          "name": "Intune and Endpoint Management",
+          "type": "folder"
+        },
+        {
+          "children": [
+            {
+              "date_added": "13351545408250604",
+              "guid": "b5244b0e-f017-4216-ab51-92e03762d875",
+              "id": "511",
+              "name": "Virtual machines - Microsoft Azure",
+              "type": "url",
+              "url": "https://portal.azure.com/#view/HubsExtension/BrowseResource/resourceType/Microsoft.Compute%2FVirtualMachines"
+            },
+            {
+              "date_added": "13351554380000000",
+              "guid": "5887e213-68b1-4d55-9977-a1b093380515",
+              "id": "512",
+              "name": "Home - Microsoft Azure",
+              "type": "url",
+              "url": "https://portal.azure.com/#home"
+            },
+            {
+              "date_added": "13415962899122913",
+              "guid": "d9640973-b43e-447e-8656-e80e7d9cac0c",
+              "id": "513",
+              "name": "entra.microsoft.com/auth/login/#",
+              "type": "url",
+              "url": "https://entra.microsoft.com/auth/login/"
+            }
+          ],
+          "date_added": "1.34198669471788E+16",
+          "date_modified": "1.34198669471788E+16",
+          "guid": "66ee9e05-04a8-4cd7-9d24-686cc6fd2433",
+          "id": "514",
+          "name": "Azure and Entra",
+          "type": "folder"
+        },
+        {
+          "children": [
+            {
+              "date_added": "13350362877000000",
+              "guid": "eccfe7cb-0ea5-4e37-8926-f682eecf2014",
+              "id": "515",
+              "name": "Install WSL | Microsoft Learn",
+              "type": "url",
+              "url": "https://learn.microsoft.com/en-us/windows/wsl/install"
+            },
+            {
+              "date_added": "13359141529483564",
+              "guid": "0b288d63-8440-4a4b-9fe4-c4df598f7a7b",
+              "id": "516",
+              "name": "Deploy graphics devices by using Discrete Device Assignment | Microsoft Learn",
+              "type": "url",
+              "url": "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/deploy/deploying-graphics-devices-using-dda"
+            },
+            {
+              "date_added": "13342992560000000",
+              "guid": "91cd5986-0b89-4f83-b497-9f5183e44d85",
+              "id": "517",
+              "name": "Sysinternals - Sysinternals | Microsoft Learn",
+              "type": "url",
+              "url": "https://learn.microsoft.com/en-us/sysinternals/"
+            },
+            {
+              "date_added": "13342992621000000",
+              "guid": "ce1c5330-6604-48bc-895a-0b5cdeaa5a17",
+              "id": "518",
+              "name": "Sysinternals Suite - Sysinternals | Microsoft Learn",
+              "type": "url",
+              "url": "https://learn.microsoft.com/en-us/sysinternals/downloads/sysinternals-suite"
+            },
+            {
+              "date_added": "13351909464000000",
+              "guid": "19568f30-99c4-46ef-a4e4-e3b3aec69000",
+              "id": "519",
+              "name": "Mapped network drive may fail to reconnect in Windows 10, version 1809 - Windows Client | Microsoft Learn",
+              "type": "url",
+              "url": "https://learn.microsoft.com/en-us/troubleshoot/windows-client/networking/mapped-network-drive-fail-reconnect"
+            }
+          ],
+          "date_added": "1.34198669471793E+16",
+          "date_modified": "1.34198669471793E+16",
+          "guid": "a19db182-33fa-4de0-b665-0afe266f93ed",
+          "id": "520",
+          "name": "Microsoft Docs and Learn",
+          "type": "folder"
+        },
+        {
+          "children": [
+            {
+              "date_added": "13350428734000000",
+              "guid": "bd915430-761e-41c0-adac-9214138c60bc",
+              "id": "521",
+              "name": "Get started with OpenSSH for Windows | Microsoft Learn",
+              "type": "url",
+              "url": "https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse?tabs=powershell#connect-to-openssh-server"
+            },
+            {
+              "date_added": "13350439708000000",
+              "guid": "bdb376a6-f492-45a0-a7e8-c8ba8b7e0dae",
+              "id": "522",
+              "name": "Get started with OpenSSH for Windows | Microsoft Learn",
+              "type": "url",
+              "url": "https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse?tabs=powershell"
+            },
+            {
+              "date_added": "13350447809000000",
+              "guid": "2fd9e407-624e-40b2-a4ab-8434ae0733a5",
+              "id": "523",
+              "name": "Write-Output (Microsoft.PowerShell.Utility) - PowerShell | Microsoft Learn",
+              "type": "url",
+              "url": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/write-output?view=powershell-7.3"
+            },
+            {
+              "date_added": "13344562399000000",
+              "guid": "4b346058-91dc-4579-a479-1d030c3fd9f5",
+              "id": "524",
+              "name": "A simple python script to generate random names. Â· GitHub",
+              "type": "url",
+              "url": "https://gist.github.com/noxan/5845351"
+            },
+            {
+              "date_added": "13349569324000000",
+              "guid": "8ad3d479-013b-44cf-be0f-17bb0a0ad8ed",
+              "id": "525",
+              "name": "VBA Cheat Sheet + PDF | Zero To Mastery",
+              "type": "url",
+              "url": "https://zerotomastery.io/cheatsheets/vba-cheat-sheet/"
+            },
+            {
+              "date_added": "13371308028784244",
+              "guid": "932215d8-b724-4565-a65a-719c585454bf",
+              "id": "526",
+              "name": "How to send a Wake-on-LAN magic packet with PowerShell | PDQ",
+              "type": "url",
+              "url": "https://www.pdq.com/blog/wake-on-lan-wol-magic-packet-powershell/"
+            },
+            {
+              "date_added": "13371312512957899",
+              "guid": "94dfd218-5300-45d3-b99a-5163bc1798d8",
+              "id": "527",
+              "name": "steviecoaster/PSSysadminToolkit: A collection of Powershell scripts to make life as a sysadmin just a tiny bit more bearable",
+              "type": "url",
+              "url": "https://github.com/steviecoaster/PSSysadminToolkit"
+            },
+            {
+              "date_added": "13351909464000000",
+              "guid": "2878d697-fdef-4a25-9103-b10922afd288",
+              "id": "528",
+              "name": "PowerShell Gallery | Packages matching sophia script Displaying results 1 to 20 of 1654",
+              "type": "url",
+              "url": "https://www.powershellgallery.com/packages?q=sophia+script"
+            },
+            {
+              "date_added": "13351909464000000",
+              "guid": "07f39f1b-2ee3-42b3-8c1f-307299c4e415",
+              "id": "529",
+              "name": "Release 02.02.2024 Â· farag2/Sophia-Script-for-Windows Â· GitHub",
+              "type": "url",
+              "url": "https://github.com/farag2/Sophia-Script-for-Windows/releases/tag/6.6.0"
+            },
+            {
+              "date_added": "13351909464000000",
+              "guid": "658ec8d7-5404-448a-9586-bfa3b44b9cc3",
+              "id": "530",
+              "name": "The PowerShell Gallery - PowerShell | Microsoft Learn",
+              "type": "url",
+              "url": "https://learn.microsoft.com/en-us/powershell/scripting/gallery/overview?view=powershell-7.4"
+            },
+            {
+              "date_added": "13371306445616965",
+              "guid": "578de0dc-fa97-4ae5-a228-73085d2df932",
+              "id": "531",
+              "name": "Getting Started with Microsoft PowerShell | Microsoft Learn",
+              "type": "url",
+              "url": "https://learn.microsoft.com/en-us/shows/getting-started-with-microsoft-powershell/?l=r54irowy_2304984382"
+            },
+            {
+              "date_added": "13373565319757377",
+              "guid": "7f9ddfc7-9d8f-49e8-96c3-355f58636768",
+              "id": "532",
+              "name": "Get-AzEnvironment (Az.Accounts) | Microsoft Learn",
+              "type": "url",
+              "url": "https://learn.microsoft.com/en-us/powershell/module/az.accounts/get-azenvironment?view=azps-12.4.0&tryIt=true#code-try-1"
+            }
+          ],
+          "date_added": "1.34198669471798E+16",
+          "date_modified": "1.34198669471798E+16",
+          "guid": "37fd0834-ea00-473c-9636-e7905b7b0ae2",
+          "id": "533",
+          "name": "PowerShell and Scripting",
+          "type": "folder"
+        },
+        {
+          "children": [
+            {
+              "date_added": "13342821338000000",
+              "guid": "cd605fc1-2592-436c-84e4-9d68b33c3ae5",
+              "id": "534",
+              "name": "How to setup configure TFTP Server, DHCP Server, PXE TFTPD32 / TFTPD64 in Windows #Part 2 - YouTube",
+              "type": "url",
+              "url": "https://www.youtube.com/watch?v=y2jOZ5tCmSU"
+            },
+            {
+              "date_added": "13342829178000000",
+              "guid": "00b44bcb-92a7-4870-98cf-d54f21f6648c",
+              "id": "535",
+              "name": "045 â€“ HOW TO PXE BOOT GRUB4DOS OR WINPE (FROM A WINDOWS 7 PC) USING TFTPD - RMPrepUSB",
+              "type": "url",
+              "url": "https://rmprepusb.com/tutorials/045-how-to-pxe-boot-grub4dos-or-winpe-from-a-windows-7-pc-using-tftpd/"
+            },
+            {
+              "date_added": "13342831975000000",
+              "guid": "5f147093-7757-4e02-847b-b0c0851f673b",
+              "id": "536",
+              "name": "How to setup configure TFTP Server, DHCP Server, PXE TFTPD32 / TFTPD64 in Windows #Part 2 - YouTube",
+              "type": "url",
+              "url": "https://www.youtube.com/watch?v=y2jOZ5tCmSU&t=246s"
+            },
+            {
+              "date_added": "13343424048000000",
+              "guid": "4822a8c4-7635-4da1-809f-636986f4b79d",
+              "id": "537",
+              "name": "Layer 2 vs Layer 3 Switch: Which One Do You Need? | FS Community",
+              "type": "url",
+              "url": "https://community.fs.com/article/layer-2-switch-vs-layer-3-switch-which-one-do-you-need.html"
+            },
+            {
+              "date_added": "13343440952000000",
+              "guid": "78b3118f-4f60-4ac6-9b7a-b077e8cff1bf",
+              "id": "538",
+              "name": "iPXE - open source boot firmware [howto:winpe]",
+              "type": "url",
+              "url": "https://ipxe.org/howto/winpe"
+            },
+            {
+              "date_added": "13343446057000000",
+              "guid": "c96dee4f-3839-4557-9ce1-dddead156108",
+              "id": "539",
+              "name": "Ventoy Forums",
+              "type": "url",
+              "url": "https://forums.ventoy.net/"
+            },
+            {
+              "date_added": "13343519195000000",
+              "guid": "87d8faa8-722b-4d84-983c-cf689f79e220",
+              "id": "540",
+              "name": "winpe - Etherboot/gPXE Wiki",
+              "type": "url",
+              "url": "http://etherboot.org/wiki/winpe"
+            },
+            {
+              "date_added": "13343588202000000",
+              "guid": "83a58ca4-6af8-4de2-866b-f665c8caf718",
+              "id": "541",
+              "name": "RMPrepUSB - 69 - Boot over the internet with iPXE",
+              "type": "url",
+              "url": "https://sites.google.com/rmprepusb.com/www/tutorials/ipxe"
+            },
+            {
+              "date_added": "13343589075000000",
+              "guid": "dcff6fe1-88ee-49e8-a793-b42ccfd5ceb9",
+              "id": "542",
+              "name": "RMPrepUSB - 76 - Quickly setup PXE booting to install any Windows OS or PXE boot linux, etc. with SERVA!",
+              "type": "url",
+              "url": "https://sites.google.com/rmprepusb.com/www/tutorials/serva"
+            },
+            {
+              "date_added": "13343598324000000",
+              "guid": "4b5ea7d2-e6fc-4a1a-886e-ad76c96ea29c",
+              "id": "543",
+              "name": "PXE Server on Existing Network (DHCP Proxy) with Ubuntu | manski's blog",
+              "type": "url",
+              "url": "https://manski.net/2016/09/pxe-server-on-existing-network-dhcp-proxy-on-ubuntu/"
+            },
+            {
+              "date_added": "13330795183000000",
+              "guid": "0171aee4-c86f-4dbc-bf13-08adb351ac85",
+              "id": "544",
+              "name": "Free CCNA | Connecting Devices | Day 2 Lab | CCNA 200-301 Complete Course - YouTube",
+              "type": "url",
+              "url": "https://www.youtube.com/watch?v=K6Qt23sY68Y&list=PLxbwE86jKRgMpuZuLBivzlM8s2Dk5lXBQ&index=5"
+            },
+            {
+              "date_added": "13331651234000000",
+              "guid": "eab13775-3d62-4e4b-8846-30bc748be69b",
+              "id": "545",
+              "name": "(1) Free CCNA | Intro to the CLI | Day 4 | CCNA 200-301 Complete Course - YouTube",
+              "type": "url",
+              "url": "https://www.youtube.com/watch?v=IYbtai7Nu2g&list=PLxbwE86jKRgMpuZuLBivzlM8s2Dk5lXBQ&index=8"
+            },
+            {
+              "date_added": "13349732620000000",
+              "guid": "f3746315-81df-47d5-948f-6ab7f69dff71",
+              "id": "546",
+              "name": "Switch ports roles - Cisco Community",
+              "type": "url",
+              "url": "https://community.cisco.com/t5/routing/switch-ports-roles/td-p/876391"
+            },
+            {
+              "date_added": "13349753599000000",
+              "guid": "55db1bf4-b0ad-4b0f-9815-c9fbf343ae45",
+              "id": "547",
+              "name": "Using the Command-Line Interface - Cisco",
+              "type": "url",
+              "url": "https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst3850/software/release/3se/consolidated_guide/b_consolidated_3850_3se_cg_chapter_01.html"
+            },
+            {
+              "date_added": "13349756405000000",
+              "guid": "61de680c-45a8-4b78-8775-c13a73edbbc9",
+              "id": "548",
+              "name": "HTTP/HTTPS Services Configuration Guide, Cisco IOS Release 15SY - Cisco",
+              "type": "url",
+              "url": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/https/configuration/15-sy/https-15-sy-book.html"
+            },
+            {
+              "date_added": "13349758012000000",
+              "guid": "158aadbb-dea2-45b3-bfbc-ff1e34003f9e",
+              "id": "549",
+              "name": "Upgrade Firmware on a Switch through the Command Line Interface (CLI) - Cisco",
+              "type": "url",
+              "url": "https://www.cisco.com/c/en/us/support/docs/smb/switches/cisco-550x-series-stackable-managed-switches/smb5566-upgrade-firmware-on-a-switch-through-the-command-line-interf.html"
+            },
+            {
+              "date_added": "13349758179000000",
+              "guid": "b9350691-61e9-4dff-a0d9-b13683cd2093",
+              "id": "550",
+              "name": "Cisco Tech Talk: CBS Firmware Update via CLI and TFTP - YouTube",
+              "type": "url",
+              "url": "https://www.youtube.com/watch?v=1q0dzHYE62c"
+            },
+            {
+              "date_added": "13349819456000000",
+              "guid": "4892d21e-c132-4335-af29-3432489b2119",
+              "id": "551",
+              "name": "Configure Port to VLAN Interface Settings on a Switch through the CLI - Cisco",
+              "type": "url",
+              "url": "https://www.cisco.com/c/en/us/support/docs/smb/switches/cisco-small-business-300-series-managed-switches/smb5653-configure-port-to-vlan-interface-settings-on-a-switch-throug.html"
+            },
+            {
+              "date_added": "13349823579000000",
+              "guid": "ccb0c781-a780-499c-9097-fc0115963afd",
+              "id": "552",
+              "name": "Upgrade Access Routers Software - Cisco",
+              "type": "url",
+              "url": "https://www.cisco.com/c/en/us/support/docs/routers/3800-series-integrated-services-routers/49044-sw-upgrade-proc-ram.html"
+            },
+            {
+              "date_added": "13349826313000000",
+              "guid": "7a0b1991-5025-47d6-9e58-cf9abc08f1db",
+              "id": "553",
+              "name": "How to Setup and Configure TFTP Server using Tftpd64/Tftpd32 on Windows 10 - YouTube",
+              "type": "url",
+              "url": "https://www.youtube.com/watch?v=GigPU3ge6pE"
+            },
+            {
+              "date_added": "13349839753000000",
+              "guid": "69f5fdf3-7ab6-4e56-a46f-bb0456a39213",
+              "id": "554",
+              "name": "Switch command ip default-gateway - Cisco Community",
+              "type": "url",
+              "url": "https://community.cisco.com/t5/switching/switch-command-ip-default-gateway/td-p/2671737"
+            },
+            {
+              "date_added": "13349840359000000",
+              "guid": "bead174d-d879-41eb-8fd1-267505702923",
+              "id": "555",
+              "name": "how do I set password for switch? - Cisco Community",
+              "type": "url",
+              "url": "https://community.cisco.com/t5/switching/how-do-i-set-password-for-switch/td-p/916599"
+            },
+            {
+              "date_added": "13349843749000000",
+              "guid": "b4a5a902-38e9-4dfb-a196-b6a68e9226cd",
+              "id": "556",
+              "name": "Default gateway command",
+              "type": "url",
+              "url": "https://learningnetwork.cisco.com/s/question/0D53i00000Kt35KCAR/default-gateway-command"
+            },
+            {
+              "date_added": "13349844017000000",
+              "guid": "751eb62f-c812-44c6-8993-536aad1c3ca3",
+              "id": "557",
+              "name": "Configure IPv4 Static Routes Settings on a Switch through the CLI - Cisco",
+              "type": "url",
+              "url": "https://www.cisco.com/c/en/us/support/docs/smb/switches/cisco-small-business-300-series-managed-switches/smb5724-configure-ipv4-static-routes-settings-on-a-switch-through-th.html"
+            },
+            {
+              "date_added": "13350008340000000",
+              "guid": "1f52513d-ff38-4b19-aeb8-0828a2b4017e",
+              "id": "558",
+              "name": "Configure InterVLAN Routing on Layer 3 Switches - Cisco",
+              "type": "url",
+              "url": "https://www.cisco.com/c/en/us/support/docs/lan-switching/inter-vlan-routing/41860-howto-L3-intervlanrouting.html#:~:text=VLANs%20divide%20broadcast%20domains%20in,virtual%20interfaces%20(SVIs)%20)."
+            },
+            {
+              "date_added": "13350009097000000",
+              "guid": "7bb4b936-ce61-49fe-8f52-4637d714dcda",
+              "id": "559",
+              "name": "Trunk port configuration (Cisco) - Grandmetric",
+              "type": "url",
+              "url": "https://www.grandmetric.com/knowledge-base/design_and_configure/trunk-port-configuration/"
+            },
+            {
+              "date_added": "13350009438000000",
+              "guid": "ec504b8e-1bb8-4263-90fc-de4627522bd4",
+              "id": "560",
+              "name": "How To Configure InterVLAN Routing On Layer 3 Switches - Cisco Community",
+              "type": "url",
+              "url": "https://community.cisco.com/t5/networking-videos/how-to-configure-intervlan-routing-on-layer-3-switches/ba-p/3103792"
+            },
+            {
+              "date_added": "13350013979000000",
+              "guid": "29e965b8-6b27-4956-b3df-3505a67b667b",
+              "id": "561",
+              "name": "How to switch off and on POE on a device - Cisco Community",
+              "type": "url",
+              "url": "https://community.cisco.com/t5/switching/how-to-switch-off-and-on-poe-on-a-device/td-p/4584984"
+            },
+            {
+              "date_added": "13350016556000000",
+              "guid": "e22d5c5f-2aaa-40d4-8b43-bfc45aa6bebb",
+              "id": "562",
+              "name": "Configuring Cisco Discovery Protocol on Cisco Routers and Switches Running Cisco IOS - Cisco",
+              "type": "url",
+              "url": "https://www.cisco.com/c/en/us/support/docs/network-management/discovery-protocol-cdp/43485-cdponios43485.html"
+            },
+            {
+              "date_added": "13350943612000000",
+              "guid": "88aac071-3be7-428c-aede-4ee4c1071924",
+              "id": "563",
+              "name": "How to downgrade your Samsung Phone to older firmware | Get Network Band Selection | ODIN Tutorial - YouTube",
+              "type": "url",
+              "url": "https://www.youtube.com/watch?v=laRuK8QCwJE"
+            },
+            {
+              "date_added": "13361993257278875",
+              "guid": "c5cb0b61-b1b2-495e-8570-60560ecb64e7",
+              "id": "564",
+              "name": "Broadcast address | What is a broadcast IP and how does it work? - IONOS",
+              "type": "url",
+              "url": "https://www.ionos.co.uk/digitalguide/server/know-how/broadcast-address/"
+            },
+            {
+              "date_added": "13329794101000000",
+              "guid": "ac1848ad-2f4e-4705-b4c2-d3df05238f12",
+              "id": "565",
+              "name": "Free CCNA | Network Devices | Day 1 | CCNA 200-301 Complete Course - YouTube",
+              "type": "url",
+              "url": "https://m.youtube.com/watch?v=H8W9oMNSuwo&feature=youtu.be"
+            },
+            {
+              "date_added": "13342900711000000",
+              "guid": "5f1a0d40-9073-43ba-bd22-bbff244dd58d",
+              "id": "566",
+              "name": "Setup PXE Boot Server(Network Boot Server) on Windows 10-Network Boot Windows 10-PXE Boot Windows 10 - YouTube",
+              "type": "url",
+              "url": "https://m.youtube.com/watch?si=No9ThxMO5UUwECKO&v=XFgeX0NofMw&feature=youtu.be"
+            },
+            {
+              "date_added": "13343447897000000",
+              "guid": "7544c725-ecf0-4aab-bd49-126fffef07a7",
+              "id": "567",
+              "name": "All About Routers: Types of Routers, Routing Table and IP Routing",
+              "type": "url",
+              "url": "https://www.softwaretestinghelp.com/types-of-routers-routing-table/"
+            },
+            {
+              "date_added": "13348243038000000",
+              "guid": "b0f56015-d028-4b10-ba1b-4bd1185efc98",
+              "id": "568",
+              "name": "Guide to Subnet Mask (Subnetting) & IP Subnet Calculator",
+              "type": "url",
+              "url": "https://www.softwaretestinghelp.com/subnet-mask-and-network-classes/"
+            },
+            {
+              "date_added": "13348311248000000",
+              "guid": "c142c068-ecb3-41c0-9884-430af8fa18fe",
+              "id": "569",
+              "name": "What is the block size in subnetting?",
+              "type": "url",
+              "url": "https://www.psychz.net/client/question/en/what-is-the-block-size-in-subnetting.html"
+            },
+            {
+              "date_added": "13348775612000000",
+              "guid": "bda213d2-9640-4f3a-9b26-13efc8619041",
+              "id": "570",
+              "name": "The SSH Commands Cheat Sheet Youâ€™ll Regret Missing Out On",
+              "type": "url",
+              "url": "https://www.stationx.net/ssh-commands-cheat-sheet/"
+            },
+            {
+              "date_added": "13348779068000000",
+              "guid": "21f166a1-3705-49cc-b9bc-b2bf573ad315",
+              "id": "571",
+              "name": "Block Allocation of IP address Create subnets from block of IP address - YouTube",
+              "type": "url",
+              "url": "https://m.youtube.com/watch?v=kHb2aeRfyzw"
+            },
+            {
+              "date_added": "13349014684000000",
+              "guid": "1dca698d-fc18-4b6c-8053-d6c7dfc4e035",
+              "id": "572",
+              "name": "What is IPv6, and why is adoption taking so long? | Network World",
+              "type": "url",
+              "url": "https://www.networkworld.com/article/965192/what-is-ipv6-and-why-aren-t-we-there-yet.html"
+            },
+            {
+              "date_added": "13349015365000000",
+              "guid": "f453e658-71a0-49b0-9de2-3884f976d556",
+              "id": "573",
+              "name": "Broadcasts in computer networks - Homenet Howto",
+              "type": "url",
+              "url": "https://www.homenethowto.com/switching/broadcasts/"
+            },
+            {
+              "date_added": "13349015829000000",
+              "guid": "72ca74fe-898a-4665-9fc1-b7f399b2fb86",
+              "id": "574",
+              "name": "Determining Network and Broadcast Address Using IP Address and Subnet Mask | Baeldung on Computer Science",
+              "type": "url",
+              "url": "https://www.baeldung.com/cs/ip-address-subnet-mask"
+            },
+            {
+              "date_added": "13349319710000000",
+              "guid": "6bf0b0cd-8eed-4d10-8d29-a39ebbf337a2",
+              "id": "575",
+              "name": "Cisco 3560 Configuration - Cisco Layer 3 Switch VLAN Routing | Configuring Cisco",
+              "type": "url",
+              "url": "https://deltaconfig.com/configure-cisco-3560-switch/"
+            },
+            {
+              "date_added": "13349548347000000",
+              "guid": "804b5d30-06ec-4192-8d32-145a5d7d6355",
+              "id": "576",
+              "name": "CompTIA Network+ Cheat Sheet (Updated for Latest Exam)",
+              "type": "url",
+              "url": "https://www.stationx.net/comptia-network-cheat-sheet/"
+            },
+            {
+              "date_added": "13349548816000000",
+              "guid": "8cbc4962-16c9-45fa-828c-12c93b16a404",
+              "id": "577",
+              "name": "Single Mode vs Multimode Fiber: Whatâ€™s the difference?",
+              "type": "url",
+              "url": "https://patchbox.com/blog/single-mode-vs-multimode-fiber-difference/"
+            }
+          ],
+          "date_added": "1.34198669471811E+16",
+          "date_modified": "1.34198669471811E+16",
+          "guid": "497e8858-b9fa-455f-8445-67cb89d2fd13",
+          "id": "578",
+          "name": "Networking and CCNA",
+          "type": "folder"
+        },
+        {
+          "children": [
+            {
+              "date_added": "13343678498000000",
+              "guid": "b4ed41e9-4e2f-4025-ad33-563c8ad65ef0",
+              "id": "579",
+              "name": "ChapterÂ 6.Â Working With Captured Packets",
+              "type": "url",
+              "url": "https://www.wireshark.org/docs/wsug_html_chunked/ChapterWork.html"
+            },
+            {
+              "date_added": "13349030430000000",
+              "guid": "62e48796-ee91-41ae-9603-6b251d88ac1b",
+              "id": "580",
+              "name": "Inject your code to a Portable Executable file",
+              "type": "url",
+              "url": "https://www.ntcore.com/files/inject2exe.htm"
+            },
+            {
+              "date_added": "13349034134000000",
+              "guid": "b6fe0aa7-f89b-48ce-b799-3e9b5fe98684",
+              "id": "581",
+              "name": "How to Reset Windows 10 Local Password with Kali Linux Live USB",
+              "type": "url",
+              "url": "https://www.top-password.com/knowledge/reset-windows-10-password-with-kali-linux.html"
+            },
+            {
+              "date_added": "13350601031000000",
+              "guid": "b12abe96-70f9-4dc9-aba0-6905f4228413",
+              "id": "582",
+              "name": "Installing Docker on Kali Linux | Kali Linux Documentation",
+              "type": "url",
+              "url": "https://www.kali.org/docs/containers/installing-docker-on-kali/"
+            },
+            {
+              "date_added": "13350610556000000",
+              "guid": "d3cbd78e-ad47-406e-9939-a30a80ba41b2",
+              "id": "583",
+              "name": "NetHunter Rootless | Kali Linux Documentation",
+              "type": "url",
+              "url": "https://www.kali.org/docs/nethunter/nethunter-rootless/"
+            },
+            {
+              "date_added": "13350611616000000",
+              "guid": "d93254e1-c1bd-4858-87b4-1e9c61bc97c7",
+              "id": "584",
+              "name": "Nethunter kex connection faild or error Â· Issue #168 Â· Hax4us/Nethunter-In-Termux Â· GitHub",
+              "type": "url",
+              "url": "https://github.com/Hax4us/Nethunter-In-Termux/issues/168#issuecomment-911707568"
+            },
+            {
+              "date_added": "13350621179000000",
+              "guid": "d145a653-a461-4e28-b928-867305360405",
+              "id": "585",
+              "name": "GitHub - aioont/kex: Kex not working , fix kex , kex error , win kex , win-kex , fix error in kex , no matching vnc server , Kali linux rootless nethunter program and kex client program for managing vnc connection.",
+              "type": "url",
+              "url": "https://github.com/aioont/kex"
+            }
+          ],
+          "date_added": "1.34198669471816E+16",
+          "date_modified": "1.34198669471816E+16",
+          "guid": "381222fb-6979-41b8-b8c1-2d6c380cb296",
+          "id": "586",
+          "name": "Security and Pentesting",
+          "type": "folder"
+        },
+        {
+          "children": [
+            {
+              "date_added": "13343661203000000",
+              "guid": "3c9ad79d-64cd-4b84-b770-9e4439d479d5",
+              "id": "587",
+              "name": "Nano Server by Microsoft | Docker Hub",
+              "type": "url",
+              "url": "https://hub.docker.com/_/microsoft-windows-nanoserver"
+            },
+            {
+              "date_added": "13350955313000000",
+              "guid": "be791d2f-3ef7-4cfb-9369-cda96527f1bd",
+              "id": "588",
+              "name": "Using EFI instead of BIOS in VM = slow ... why? - VMware Technology Network VMTN",
+              "type": "url",
+              "url": "https://communities.vmware.com/t5/VMware-Workstation-Pro/Using-EFI-instead-of-BIOS-in-VM-slow-why/td-p/2758077"
+            },
+            {
+              "date_added": "13351574887000000",
+              "guid": "fe1ef84e-d6ab-4263-bf69-9fb3cd000b39",
+              "id": "589",
+              "name": "orionisumbra.com | orionisumbra.com | Andrewmail.box.ajj@googlemail.com's Account | Cloudflare",
+              "type": "url",
+              "url": "https://dash.cloudflare.com/b55ab25623beecdef61a29b87bcafc9c/orionisumbra.com"
+            },
+            {
+              "date_added": "13351739544000000",
+              "guid": "8e469c46-b09a-4339-a96a-83ad260e265b",
+              "id": "590",
+              "name": "NoMachine - How to set up key based authentication with SSH protocol â€“ Knowledge Base",
+              "type": "url",
+              "url": "https://kb.nomachine.com/AR06O00932"
+            },
+            {
+              "date_added": "13351739709000000",
+              "guid": "a89eb253-754d-460b-b339-4f46c7301d37",
+              "id": "591",
+              "name": "NoMachine - How to set up key based authentication with NX protocol â€“ Knowledge Base",
+              "type": "url",
+              "url": "https://kb.nomachine.com/AR02L00785"
+            },
+            {
+              "date_added": "13351739899000000",
+              "guid": "5bfd70db-cde2-46a4-aa75-2a8364c1c85c",
+              "id": "592",
+              "name": "NoMachine - How to use a SSH private key when connecting from NoMachine client â€“ Knowledge Base",
+              "type": "url",
+              "url": "https://kb.nomachine.com/AR11O00948"
+            },
+            {
+              "date_added": "13352171376000000",
+              "guid": "ceb6e095-507e-40b7-b59e-e0bfb3ff0fcc",
+              "id": "593",
+              "name": "How to Install Windows 11 on ESXi? | Step By Step. â€“ GetLabsDone",
+              "type": "url",
+              "url": "https://getlabsdone.com/how-to-install-windows-11-on-esxi-step-by-step/"
+            },
+            {
+              "date_added": "13351699232856038",
+              "guid": "c54c41c5-3c2e-485a-97bf-52267e32afe5",
+              "id": "594",
+              "name": "Account | Computers | RealVNC Connect",
+              "type": "url",
+              "url": "https://manage.realvnc.com/en/teams/7sXOUfNiBZ5JAk5PhE7/computers"
+            },
+            {
+              "date_added": "13358518490144323",
+              "guid": "d998a937-afd9-4988-8eb2-14ea7273bd37",
+              "id": "595",
+              "name": "GitHub - aaalgo/hyperv2hosts",
+              "type": "url",
+              "url": "https://github.com/aaalgo/hyperv2hosts"
+            },
+            {
+              "date_added": "13358518716895916",
+              "guid": "0ca7f61b-0138-459f-865d-b97c93d7a47c",
+              "id": "596",
+              "name": "2 independent users on one PC via Parsec : r/ParsecGaming",
+              "type": "url",
+              "url": "https://www.reddit.com/r/ParsecGaming/comments/s7lm52/2_independent_users_on_one_pc_via_parsec/"
+            },
+            {
+              "date_added": "13358519165409788",
+              "guid": "d9d7b457-c828-4057-8d67-f31303de4180",
+              "id": "597",
+              "name": "Two Gamers, One GPU from your Windows PC! Hyper-V Paravirtualization Build and Tutorial - YouTube",
+              "type": "url",
+              "url": "https://www.youtube.com/watch?v=XLLcc29EZ_8&ab_channel=CraftComputing"
+            },
+            {
+              "date_added": "13351545386000000",
+              "guid": "959ec10a-5e40-494a-a909-b1604554c033",
+              "id": "598",
+              "name": "RDP Â· Cloudflare Zero Trust docs",
+              "type": "url",
+              "url": "https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/use-cases/rdp/"
+            },
+            {
+              "date_added": "13351551813000000",
+              "guid": "bd7b1552-6685-4751-9bbd-07c109878566",
+              "id": "599",
+              "name": "Cloudflare",
+              "type": "url",
+              "url": "https://dash.cloudflare.com/argotunnel?aud=&callback=https%3A%2F%2Flogin.cloudflareaccess.org%2FERDZHM8Tu3kd1z39fiJq94LlUDY_setiK05hIIIOfXk%3D&rzsSearchName=Orion"
+            },
+            {
+              "date_added": "13351553141000000",
+              "guid": "cdd65780-62e1-4226-a524-f01dfb4f8de2",
+              "id": "600",
+              "name": "Downloads Â· Cloudflare Zero Trust docs",
+              "type": "url",
+              "url": "https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/"
+            },
+            {
+              "date_added": "13351553204000000",
+              "guid": "68ba252c-81c5-40ce-a013-10389125ddcb",
+              "id": "601",
+              "name": "Create a locally-managed tunnel (CLI) Â· Cloudflare Zero Trust docs",
+              "type": "url",
+              "url": "https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/get-started/create-local-tunnel/"
+            },
+            {
+              "date_added": "13351554317000000",
+              "guid": "1587552c-80f2-40e8-a8d2-766c1a21fc58",
+              "id": "602",
+              "name": "Cloudflare | Web Performance & Security",
+              "type": "url",
+              "url": "https://dash.cloudflare.com/login?redirect_uri=https%3A%2F%2Fone.dash.cloudflare.com%2Fb55ab25623beecdef61a29b87bcafc9c%2Fnetworks%2Ftunnels%2Fadd&state=4e7c6ec1-592a-40b6-8df9-b0fbf38160b5|https://one.dash.cloudflare.com/b55ab25623beecdef61a29b87bcafc9c/networks/tunnels/add"
+            },
+            {
+              "date_added": "13351905383000000",
+              "guid": "685bd5c9-b0f6-4616-9fc0-95eae28bf737",
+              "id": "603",
+              "name": "store.nomachine.com",
+              "type": "url",
+              "url": "https://store.nomachine.com/product/nomachine-enterprise-desktop-subscription/"
+            },
+            {
+              "date_added": "13400174079538185",
+              "guid": "352133fc-253a-4dbe-a099-444de766b7e6",
+              "id": "604",
+              "name": "Machines - Tailscale",
+              "type": "url",
+              "url": "https://login.tailscale.com/admin/machines"
+            }
+          ],
+          "date_added": "1.34198669471822E+16",
+          "date_modified": "1.34198669471822E+16",
+          "guid": "b2777760-561d-4d00-a91f-388f24d0c510",
+          "id": "605",
+          "name": "Homelab and Virtualisation",
+          "type": "folder"
+        },
+        {
+          "children": [
+            {
+              "date_added": "13343174546000000",
+              "guid": "1a510029-b43b-427b-8033-918cbd18b123",
+              "id": "606",
+              "name": "Create and run your first project | PyCharm Documentation",
+              "type": "url",
+              "url": "https://www.jetbrains.com/help/pycharm/creating-and-running-your-first-python-project.html#creating-simple-project"
+            },
+            {
+              "date_added": "13343434884000000",
+              "guid": "65b2737e-de2e-4f4c-926b-32c72109bdc7",
+              "id": "607",
+              "name": "GitHub - ipxe/wimboot: WIM bootloader",
+              "type": "url",
+              "url": "https://github.com/ipxe/wimboot"
+            },
+            {
+              "date_added": "13343520045000000",
+              "guid": "1ad686c8-ed80-4915-aea9-1bf09054a744",
+              "id": "608",
+              "name": "Boot Windows 10 and WinPE from PXE (IPXE) Â· GitHub",
+              "type": "url",
+              "url": "https://gist.github.com/rikka0w0/987d3e03c6f133802318669e85836870"
+            },
+            {
+              "date_added": "13344120031000000",
+              "guid": "74daba3c-b7a2-4f47-bb84-69c94f10ec13",
+              "id": "609",
+              "name": "Bulk File Renaming Tool Project in Python - YouTube",
+              "type": "url",
+              "url": "https://www.youtube.com/watch?v=p7VDLy0_o1A"
+            },
+            {
+              "date_added": "13345069799000000",
+              "guid": "ff1ef044-3996-433d-a39e-305f0302b3a0",
+              "id": "610",
+              "name": "GitHub - tobiohlala/Asciify: Convert Images to ASCII Pictures",
+              "type": "url",
+              "url": "https://github.com/tobiohlala/Asciify"
+            },
+            {
+              "date_added": "13357162045882052",
+              "guid": "6254d281-56d7-4372-b519-2b40f4f4ea5b",
+              "id": "611",
+              "name": "Chat Blackbox: AI Code Generation, Code Chat, Code Search - Blackbox",
+              "type": "url",
+              "url": "https://www.blackbox.ai/"
+            },
+            {
+              "date_added": "13357252100825720",
+              "guid": "b0087e63-694d-4f21-8b8f-391157a7372b",
+              "id": "612",
+              "name": "How to Install PyInstaller â€” PyInstaller 6.5.0 documentation",
+              "type": "url",
+              "url": "https://www.pyinstaller.org/en/stable/installation.html"
+            },
+            {
+              "date_added": "13359141529483220",
+              "guid": "347ff615-a589-4a83-9eb5-bad09f5011b2",
+              "id": "613",
+              "name": "Support for installing Drivers Â· Issue #684 Â· microsoft/winget-cli Â· GitHub",
+              "type": "url",
+              "url": "https://github.com/microsoft/winget-cli/issues/684"
+            },
+            {
+              "date_added": "13351545389000000",
+              "guid": "4aef648f-c81a-4c9f-b2c6-a68b57e2d4ae",
+              "id": "614",
+              "name": "Google Cloud Platform",
+              "type": "url",
+              "url": "https://accounts.google.com/v3/signin/identifier?continue=https%3A%2F%2Fconsole.cloud.google.com%2F&followup=https%3A%2F%2Fconsole.cloud.google.com%2F&ifkv=ASKXGp0wA_nqJPUTM3OAGXeaUIbErUB21OdZq2qbrEITiWj-H7NwQj1HM2N9RKyJcjm-vftinA-69A&osid=1&passive=1209600&service=cloudconsole&flowName=GlifWebSignIn&flowEntry=ServiceLogin&dsh=S-838459748%3A1707071746432531&theme=glif"
+            },
+            {
+              "date_added": "13343102694000000",
+              "guid": "4e9de22d-8c9d-4343-9bc1-beef3003737e",
+              "id": "615",
+              "name": "futurecoder: learn python from scratch",
+              "type": "url",
+              "url": "https://futurecoder.io/"
+            },
+            {
+              "date_added": "13343102735000000",
+              "guid": "a93680a7-d4bd-4a77-b655-0ebb261d0003",
+              "id": "616",
+              "name": "futurecoder",
+              "type": "url",
+              "url": "https://futurecoder.io/course/#IntroducingTheShell"
+            },
+            {
+              "date_added": "13344512507000000",
+              "guid": "a54542d2-3e51-4d8b-a018-7452d18e95a1",
+              "id": "617",
+              "name": "How to Automate Excel Tasks with Python",
+              "type": "url",
+              "url": "https://www.freecodecamp.org/news/automate-excel-tasks-with-python/"
+            },
+            {
+              "date_added": "13348461744000000",
+              "guid": "ae1f5b4e-da0b-47f6-8eec-945d2f0f165f",
+              "id": "618",
+              "name": "Python Machine Learning",
+              "type": "url",
+              "url": "https://www.w3schools.com/python/python_ml_getting_started.asp"
+            },
+            {
+              "date_added": "13348896166000000",
+              "guid": "2843f926-d35a-4c2c-8855-038de7b7bdf0",
+              "id": "619",
+              "name": "Welcome â€“ My First Project â€“ Google Cloud console",
+              "type": "url",
+              "url": "https://console.cloud.google.com/welcome?project=proven-catcher-301612"
+            },
+            {
+              "date_added": "13412335862963865",
+              "guid": "dd99b2eb-84d0-45ce-a036-515efa697aa9",
+              "id": "620",
+              "name": "How to Use Microsoft Defender for Endpoint Advanced Hunting With WDAC App Control Â· HotCakeX/Harden-Windows-Security Wiki Â· GitHub",
+              "type": "url",
+              "url": "https://github.com/HotCakeX/Harden-Windows-Security/wiki/How-to-Use-Microsoft-Defender-for-Endpoint-Advanced-Hunting-With-WDAC-App-Control/2c3e721be086ed3ca4b04c96add7745fcb048b84"
+            },
+            {
+              "date_added": "13370381910301981",
+              "guid": "c77b94a6-a12c-45b2-ae0f-437c87684d64",
+              "id": "621",
+              "name": "0xrsydn/cover-letter-gen: Cover letter generation made easy with a user-friendly Gradio interface.",
+              "type": "url",
+              "url": "https://github.com/0xrsydn/cover-letter-gen?tab=readme-ov-file"
+            },
+            {
+              "date_added": "13373112505406060",
+              "guid": "ec27199a-cbd2-4ac4-a83e-9fc9ebf17063",
+              "id": "622",
+              "name": "CRAZY Text Disintegration Effect FULL TUTORIAL - Trapcode After Effects Tutorial - YouTube",
+              "type": "url",
+              "url": "https://www.youtube.com/watch?v=pwzvOJCaqrU"
+            }
+          ],
+          "date_added": "1.34198669471829E+16",
+          "date_modified": "1.34198669471829E+16",
+          "guid": "55d85b55-de3e-485d-9ba3-570f3853b00f",
+          "id": "623",
+          "name": "Programming and Development",
+          "type": "folder"
+        },
+        {
+          "children": [
+            {
+              "date_added": "13340336867000000",
+              "guid": "3cf1f53a-f119-4aed-ab0b-e8bdc8d0bd2c",
+              "id": "624",
+              "name": "How to use \"Trim Paths\" in After Effects | Tutorial - YouTube",
+              "type": "url",
+              "url": "https://www.youtube.com/watch?v=nF2s21NHz5I"
+            },
+            {
+              "date_added": "13340383366000000",
+              "guid": "12842fdb-22e6-45d6-9ed1-0a94beea1922",
+              "id": "625",
+              "name": "How to use Trim Paths on Vector Layers from Illustrator - After Effects Tutorial - YouTube",
+              "type": "url",
+              "url": "https://www.youtube.com/watch?v=wTGuWpJFWn4"
+            },
+            {
+              "date_added": "13332722219000000",
+              "guid": "48303835-8415-4335-91bb-77084a227776",
+              "id": "626",
+              "name": "How to add VIDEO inside TEXT in ADOBE PREMIERE PRO (as seen in the 1917 trailer) - YouTube",
+              "type": "url",
+              "url": "https://www.youtube.com/watch?v=0Glr2P0JX_s"
+            },
+            {
+              "date_added": "13332794223000000",
+              "guid": "975d9d60-9982-457f-a725-0fcf39e8967f",
+              "id": "627",
+              "name": "After Effects Tutorial: Particles Logo & Text Animation | Simple Way - YouTube",
+              "type": "url",
+              "url": "https://www.youtube.com/watch?v=em91RAQCW1M"
+            },
+            {
+              "date_added": "13350128476000000",
+              "guid": "38fc66b3-161e-4ad2-a1e0-d58d67819579",
+              "id": "628",
+              "name": "Humanity's Last Breath - Instill - YouTube",
+              "type": "url",
+              "url": "https://m.youtube.com/watch?v=K6XCQ2QrMkk"
+            },
+            {
+              "date_added": "13350594645000000",
+              "guid": "a2b9907b-b069-4ed8-8b2c-4f0a876d8ab2",
+              "id": "629",
+              "name": "IV - YouTube",
+              "type": "url",
+              "url": "https://m.youtube.com/watch?v=sCcOr-I8Yb0&list=OLAK5uy_mThvQNJjqnkSk1lJz8efXKmFru8TkE23w&index=4"
+            },
+            {
+              "date_added": "13351570632000000",
+              "guid": "4cf64e8b-3111-43c7-b63c-9b8dceef0374",
+              "id": "630",
+              "name": "Cloudflare Tunnel Setup Guide - Self-Hosting for EVERYONE - YouTube",
+              "type": "url",
+              "url": "https://m.youtube.com/watch?v=hrwoKO7LMzk"
+            },
+            {
+              "date_added": "13351739114000000",
+              "guid": "d3d33365-e711-4088-b902-3c873befb1a6",
+              "id": "631",
+              "name": "Creating and using SSH keys - YouTube",
+              "type": "url",
+              "url": "https://www.youtube.com/watch?v=DDjSjC4SAYM"
+            },
+            {
+              "date_added": "13352427356000000",
+              "guid": "a7f709d7-00bb-4f03-acab-7ff8bff3ed1f",
+              "id": "632",
+              "name": "Partiboi69 - Ketamine Dreams - YouTube",
+              "type": "url",
+              "url": "https://m.youtube.com/watch?v=DRfidJNts6U&pp=ygUNS2V0YW1pbmUgd2Fsaw%3D%3D"
+            },
+            {
+              "date_added": "13353865656000000",
+              "guid": "638fb22c-2bb0-45da-a912-93f5ead94165",
+              "id": "633",
+              "name": "They got away with this?? - YouTube",
+              "type": "url",
+              "url": "https://m.youtube.com/watch?v=KGQSTDm5ois&feature=youtu.be"
+            },
+            {
+              "date_added": "13356192168000000",
+              "guid": "50dfd1ee-948e-4b37-a7fb-c2b1f60fe4a0",
+              "id": "634",
+              "name": "MSI Z790i EDGE WIFI: Load Line Calibration and Vcore regulation - YouTube",
+              "type": "url",
+              "url": "https://www.youtube.com/watch?v=C_JMHLZivcU"
+            },
+            {
+              "date_added": "13361802339568446",
+              "guid": "d5af4855-1c39-430c-ae20-8d545dc9f7ad",
+              "id": "635",
+              "name": "How to install and setup iSCSI step by step guide (Windows Server 2022) - YouTube",
+              "type": "url",
+              "url": "https://www.youtube.com/watch?v=g0BgLynXeFs"
+            },
+            {
+              "date_added": "13332808439000000",
+              "guid": "f46af834-ed30-45c4-8471-7004244302a8",
+              "id": "636",
+              "name": "The Secret to Easy Particle Effects in Premiere Pro - YouTube",
+              "type": "url",
+              "url": "https://www.youtube.com/watch?v=29NcBIpuB-c"
+            },
+            {
+              "date_added": "13332969067000000",
+              "guid": "3e569c65-0149-4cf8-a706-458b37dd6729",
+              "id": "637",
+              "name": "THIS Is How You Get Fast Smooth Selections In Photoshop! Best Tools Explained - YouTube",
+              "type": "url",
+              "url": "https://www.youtube.com/watch?v=Ddfq_wzDVqA"
+            },
+            {
+              "date_added": "13333057058000000",
+              "guid": "39f961b0-cc34-49b9-9b06-35ca10318910",
+              "id": "638",
+              "name": "Audio Visualizer in After Effects - After Effects Tutorial (No Plugins) - YouTube",
+              "type": "url",
+              "url": "https://www.youtube.com/watch?v=Jj26FbNHlsw"
+            },
+            {
+              "date_added": "13332127751000000",
+              "guid": "145c88a8-088f-440c-9d19-2f001ebdf5de",
+              "id": "639",
+              "name": "Britain's Got Talent 2023 WINNER Viggo Venn - All Performances! - YouTube",
+              "type": "url",
+              "url": "https://m.youtube.com/watch?v=Gd53BJGox5s"
+            },
+            {
+              "date_added": "13336173960000000",
+              "guid": "98bc1149-6885-4f8b-9b91-8933591caf4f",
+              "id": "640",
+              "name": "Oliver Cromwell - The King Killer Documentary - YouTube",
+              "type": "url",
+              "url": "https://m.youtube.com/watch?v=BeZZnndtck0&pp=ygUcaHR0cHM6Ly95b3V0dS5iZS9CZVpabm5kdGNrMA%3D%3D"
+            },
+            {
+              "date_added": "13342519707000000",
+              "guid": "a98c496b-2332-4ee1-9cc0-5ae206d9837c",
+              "id": "641",
+              "name": "Departure to Destruction - YouTube",
+              "type": "url",
+              "url": "https://m.youtube.com/watch?v=TWnzazIvXI8&list=RDEMy7QrMnv4vwQbW6LMFAQmzg&index=11&pp=8AUB"
+            },
+            {
+              "date_added": "13345238092000000",
+              "guid": "ed27b057-730e-47fc-a6ce-1f3b7042d8b9",
+              "id": "642",
+              "name": "Andrew Hulshult - Goroth (DOOM Eternal Gamerip - From 'Quake Champions') - YouTube",
+              "type": "url",
+              "url": "https://www.youtube.com/watch?v=jvTOVmdMnyA"
+            },
+            {
+              "date_added": "13346200669000000",
+              "guid": "fcea42a9-a3ee-4685-982d-9c0d635b3cb8",
+              "id": "643",
+              "name": "Your Life Meaningless? Choose Nothingness! (ENGLISH from 02:01) - YouTube",
+              "type": "url",
+              "url": "https://m.youtube.com/watch?v=XCo5XWKkjw4&pp=ygUhU2FtIHZha25pbSB0aGUgZnV0dXJlIG9mIGh1bWFuaXR5"
+            },
+            {
+              "date_added": "13346412755000000",
+              "guid": "31799a0b-636e-413e-a91b-31e35ae49da2",
+              "id": "644",
+              "name": "Switchblade Symphony \"Serpentine Gallery\" (FULL ALBUM STREAM) [Official] - YouTube",
+              "type": "url",
+              "url": "https://www.youtube.com/watch?v=Bxn6E-_TNA8"
+            },
+            {
+              "date_added": "13346792167000000",
+              "guid": "22ae95a1-711c-4354-aa7b-4b23237afbc6",
+              "id": "645",
+              "name": "The 1996 Disaster Â· STORM OVER EVEREST Â· PBS Documentary - YouTube",
+              "type": "url",
+              "url": "https://m.youtube.com/watch?v=So3vH9FY2H4"
+            },
+            {
+              "date_added": "13346843656000000",
+              "guid": "97e55cc1-0501-4e52-ac2d-43aac1a3a2e2",
+              "id": "646",
+              "name": "Mass Effect 2 OST - Samara - YouTube",
+              "type": "url",
+              "url": "https://m.youtube.com/watch?v=2U9FW0fY0cI&pp=ygUYTWFzcyBlZmZlY3QgdGhlbWUgc2FtYXJh"
+            },
+            {
+              "date_added": "13346965994000000",
+              "guid": "4827a08b-78da-4f3d-98ee-6be39d0176bc",
+              "id": "647",
+              "name": "Andrew Hulshult - Goroth (Quake Champions Original Soundtrack) - YouTube",
+              "type": "url",
+              "url": "https://m.youtube.com/watch?v=fj21GFbEQog&pp=QAFIAQ%3D%3D"
+            },
+            {
+              "date_added": "13347654655000000",
+              "guid": "5aa0ff06-9e6b-4cb4-910f-7c64b6fec71f",
+              "id": "648",
+              "name": "The Ruins Of Beverast - The Thule Grimoires (full album) - YouTube",
+              "type": "url",
+              "url": "https://m.youtube.com/watch?v=Nd2EOKgxV_M"
+            },
+            {
+              "date_added": "13348367132000000",
+              "guid": "ea7bbdf3-a537-4df8-9a0a-e56eec6ee1e2",
+              "id": "649",
+              "name": "Ignoring this will WRECK your flexibility - YouTube",
+              "type": "url",
+              "url": "https://m.youtube.com/watch?v=VuKQezeo3X4"
+            },
+            {
+              "date_added": "13348422339000000",
+              "guid": "64bcab3a-3290-46a5-8daa-2677cdf2a506",
+              "id": "650",
+              "name": "Terence Mckenna | People are Asleep | No One is in Control - YouTube",
+              "type": "url",
+              "url": "https://m.youtube.com/watch?v=EOlRS_bOy4c"
+            },
+            {
+              "date_added": "13348688989000000",
+              "guid": "d9ce9b96-0916-4328-8c51-7a0d99b34af7",
+              "id": "651",
+              "name": "III - YouTube",
+              "type": "url",
+              "url": "https://m.youtube.com/watch?v=M6V7dbUyfXA&list=OLAK5uy_mThvQNJjqnkSk1lJz8efXKmFru8TkE23w&index=3&pp=8AUB"
+            },
+            {
+              "date_added": "13348864346000000",
+              "guid": "ecb352d2-866e-4cbc-b733-c2f82712c5a8",
+              "id": "652",
+              "name": "Baphomet - YouTube",
+              "type": "url",
+              "url": "https://m.youtube.com/watch?v=Xzuts3wJnRY&list=PL-9P4Hyc78Tm7GmqL-W3SKhYoW7ZKF-Pt&index=1&pp=iAQB8AUB"
+            },
+            {
+              "date_added": "13399927272430461",
+              "guid": "7f9047c7-b9e8-42ff-83ba-5457b9b0658f",
+              "id": "653",
+              "name": "pfSense Configuration Guide - Zero to Hero! - YouTube",
+              "type": "url",
+              "url": "https://www.youtube.com/watch?v=he3ENpMLMsc"
+            },
+            {
+              "date_added": "13337366454000000",
+              "guid": "a78b0ec5-5d9c-4d0c-91a4-3c92c7cfaecd",
+              "id": "654",
+              "name": "Home - YouTube",
+              "type": "url",
+              "url": "https://m.youtube.com/"
+            }
+          ],
+          "date_added": "1.34198669471837E+16",
+          "date_modified": "1.34198669471837E+16",
+          "guid": "fa588565-f7a6-494c-8983-612d375184fa",
+          "id": "655",
+          "name": "Video and Media Production",
+          "type": "folder"
+        },
+        {
+          "children": [
+            {
+              "date_added": "13351699232856082",
+              "guid": "f85c45cd-d337-461f-a378-d0f399f7c0dd",
+              "id": "656",
+              "name": "Inbox (815) - andrewmailbox.ajj@googlemail.com - Gmail",
+              "type": "url",
+              "url": "https://mail.google.com/mail/u/0/#inbox"
+            },
+            {
+              "date_added": "13330522793000000",
+              "guid": "f2d4b754-9682-4ff8-8e8c-55dd2c7e2e59",
+              "id": "657",
+              "name": "User Profile | Apply4U",
+              "type": "url",
+              "url": "https://www.apply4u.co.uk/users/andrew-jones-lab-tech-in-london-2893012"
+            },
+            {
+              "date_added": "13334399430000000",
+              "guid": "7cfd5fcf-7b81-4999-93ac-fb7345a67a44",
+              "id": "658",
+              "name": "https://weather.com/en-GB/weather/today/l/f7734a6d111fef1b9f4dbbae0229a21b635e6426083c0a78fa7fe9e43af22531?cm_ven=home&par=samsung_widget&temp=c",
+              "type": "url",
+              "url": "https://weather.com/en-GB/weather/today/l/f7734a6d111fef1b9f4dbbae0229a21b635e6426083c0a78fa7fe9e43af22531?cm_ven=home&par=samsung_widget&temp=c"
+            },
+            {
+              "date_added": "13349399614000000",
+              "guid": "b793dfdd-208c-4504-88c7-8dca8fd2d4d6",
+              "id": "659",
+              "name": "Random postcode generator",
+              "type": "url",
+              "url": "https://www.doogal.co.uk/PostcodeGenerator"
+            },
+            {
+              "date_added": "13349704986000000",
+              "guid": "e6440d8c-52d9-43ee-a79e-525ee9ea127c",
+              "id": "660",
+              "name": "Important - andrewmailbox.ajj@googlemail.com - Gmail",
+              "type": "url",
+              "url": "https://mail.google.com/mail/u/0/#imp"
+            },
+            {
+              "date_added": "13369962088519413",
+              "guid": "7da7ab76-a62b-49a6-9121-107090bb3919",
+              "id": "661",
+              "name": "Markee Dragon Game Codes - Eve Online",
+              "type": "url",
+              "url": "https://store.markeedragon.com/?cat=4"
+            },
+            {
+              "date_added": "13397589806631479",
+              "guid": "79ae60a9-72e9-4fa8-86a6-66def4b5fa5e",
+              "id": "662",
+              "name": "SK hynix Platinum P41 1TB PCIe NVMe Gen4 M.2 2280 PS5 Internal SSD | Up to 7,000MB/S | Gaming Drive with 176-Layer NAND Flash : Amazon.co.uk: Computers & Accessories",
+              "type": "url",
+              "url": "https://www.amazon.co.uk/SK-Platinum-Internal-Compact-Factor/dp/B09QX6SL2Y?ie=UTF8&th=1"
+            },
+            {
+              "date_added": "13397590918825115",
+              "guid": "092cad28-57c7-405d-afa1-4889986b3725",
+              "id": "663",
+              "name": "CORSAIR K55 RGB PRO Membrane Wired Gaming Keyboard â€“ IP42 Dust and Spill-Resistant â€“ 6 Macro Keys with Elgato Integration â€“ iCUE Compatible â€“ QWERTY UK â€“ PC, Mac, Xbox â€“ Black : Amazon.co.uk: Computers & Accessories",
+              "type": "url",
+              "url": "https://www.amazon.co.uk/Corsair-Wired-Membrane-Gaming-Keyboard/dp/B08XJQG1T7?crid=2A6KAMZN4VOZQ&dib=eyJ2IjoiMSJ9.y5emiGMKRNGyOVGt-CANDaSNHUuyYqE5BLx-jNINi5F38gB2BzPcTAg46-zh37wHS9vZh5Fi7s45LVeG2YqHjs4IkRPwgcUXNi2jKGoYugbqiUg0-oDyY16IRkiKGd6iLExxbPFCMC7QxHo3G5Ce84UKuim9cBcgOUj9j5cEQbi07fcSnCvMe5OLNgu-ccPkzr_E0VOsqUEdXxEYKxKjPbaKyMyzvUQYkxC1XX5OxAgh7p5rekMtZgcSZ42TYsGV0Q5B37v3AshD-YtYPPdtJjQxA-k5DdmWJsTPvmJqNII.pKoOQJ1p-kblvZl18-PL1EWEfT4mBlVG8i0Komq09u4&dib_tag=se&keywords=corsair+keyboard&qid=1753117303&s=computers&sprefix=corsair+keyboard%2Ccomputers%2C74&sr=1-5&ufe=app_do%3Aamzn1.fos.7bbc1e72-d5e0-4378-81de-b15e5f172cd1"
+            },
+            {
+              "date_added": "13400617558677924",
+              "guid": "6a6d00f0-b293-4ca4-ae7e-57e1b007e0f8",
+              "id": "664",
+              "name": "Cable Matters [VESA Certified] 80Gbps DisplayPort 2.1 Cable 2m, DP80 Cable with 16K 60Hz, 8K 240Hz, 4K 240Hz in Black with FreeSync, G-SYNC and HDR for Gaming Monitor, PC, RTX 4080/4090, RX 7900 : Amazon.co.uk: Musical Instruments & DJ",
+              "type": "url",
+              "url": "https://www.amazon.co.uk/Cable-Matters-Certified-DisplayPort-FreeSync/dp/B0DK5WYV8X?crid=1HJ7GUPLI9K22&dib=eyJ2IjoiMSJ9.rS-pVbfMyd3crN3anl3pHIbwaUZI9ydIGqRRrT37Mse9KPM6FUzIFJL7iD7S8OJBaNOdfiQg6CNqnIImePSgvz64OR0sXlNbYrYQmKyq10oh3VoaNcRYZpk3muzp-fvS3b6cocBm0yCLLT0SwOngdNB6MJzvpN0hVYv9PfHK5SvvJh70APAdhBYuqHXv-c82kMo95qWNaA-LqqGX4EKeAU0oOInVV1KUawirg9wfFFk.hJRtNtCJPXqIJ9914EICFvRDxKGOR5Fgef532CSy2XQ&dib_tag=se&keywords=cable%2Bmatters%2Bdisplay%2Bport&qid=1756143946&sprefix=cable%2Bmatters%2Bdisplay%2Bport%2B%2Caps%2C75&sr=8-4&th=1"
+            },
+            {
+              "date_added": "13400617864633763",
+              "guid": "9c10dcd2-2ae9-4f58-8b53-8903dcf6afec",
+              "id": "665",
+              "name": "Cable Matters 48Gbps Ultra HD 8K Right Angle HDMI Cable 2m (270 Degree HDMI Cable): Amazon.co.uk: Electronics & Photo",
+              "type": "url",
+              "url": "https://www.amazon.co.uk/Cable-Matters-48Gbps-Ultra-Degree/dp/B094JYT41X?crid=1II91VFSY9IBV&dib=eyJ2IjoiMSJ9.fuA4daq5yl-8D3jlBSlXObF-V3pL9PiI_ZlnEcX8FeFKzZQ6eV7z0fAChgsHicsvMDI1ntQH7EzxLLJewdjnH-fubG__hXmVFPFfMKG7V2d2AWwYyWK4Pg385xNg4hV1Pw4BgT6Ils_oOjdSlPj0ip6_3tmtZjR06WmdarfE03w1yYltliZY7c2hV9I6AdTnQ2Lpy8UVtqpC0JYpIMthV3PG0_n1OOMY5Ddb_whSsFln7u4iIwNbAyGXkua73hxhcVSiXkTsbBFw9ewYScZ85ZnlJEoOIe-X1m1v_E1L5A8.rG6huIP4QL44lhTy1Wr0Vc8Hfg6eFn3qO-jt51iztiQ&dib_tag=se&keywords=cable%2Bmatters%2Bhdmi%2B3.0&m=A2HI77ZYQGGRR3&qid=1756144237&refinements=p_6%3AA2HI77ZYQGGRR3&rnid=419151031&s=electronics&sprefix=cable%2Bmatters%2Bhdmi%2B3.%2Caps%2C82&sr=1-7&th=1"
+            },
+            {
+              "date_added": "13370026622673951",
+              "guid": "8a2e6e1d-6161-4d02-9565-95044faa125c",
+              "id": "666",
+              "name": "Login | Vodafone",
+              "type": "url",
+              "url": "https://login.vodafone.co.uk/accounts?ReturnUrl=%2Fconnect%2Fauthorize%2Fcallback%3Fclient_id%3Decare-auth-prod1%26scope%3Dopenid%2520vf-profile%2520vf-account%2520vf-subscription%2520vf-contact%26response_type%3Dcode%26redirect_uri%3Dhttps%253A%252F%252Fmyaccount.vodafone.co.uk%252Fauth%252Flogin%252Fcallback%26state%3D%257B%2522successReturnUrl%2522%253A%2522%252Faccount%252Fsummary%253Ficmp%253Duk~1_consumer~topnav~useractions~1_my_vodafone%2526linkpos%253Dtopnav~1~1%2522,%2522errorReturnUrl%2522%253A%2522https%253A%252F%252Fwww.vodafone.co.uk%252F%2522%257D%26acr_values%3DLOA%253A2.5"
+            },
+            {
+              "date_added": "13370027228289872",
+              "guid": "a3b7f8fc-cfd2-4615-b9ec-b27aa3029597",
+              "id": "667",
+              "name": "Activate your ConnectWise account login - andrewmailbox.ajj@googlemail.com - Gmail",
+              "type": "url",
+              "url": "https://mail.google.com/mail/u/0/#inbox/WhctKLbFdGXxzLHbWQRjktzpKShGvdVjXMWCdkmJXhlZjqbCJCZQSfNvTmcHPVzSGZVwJLB"
+            },
+            {
+              "date_added": "13370103519138374",
+              "guid": "dc563f07-b679-4e7e-9cb5-61659d3652cc",
+              "id": "668",
+              "name": "Profile - reed.co.uk",
+              "type": "url",
+              "url": "https://www.reed.co.uk/candidate-profile"
+            }
+          ],
+          "date_added": "1.34198669471842E+16",
+          "date_modified": "1.34198669471842E+16",
+          "guid": "03d47ae6-1ea8-4970-82c2-27c5ee53e2ce",
+          "id": "669",
+          "name": "Personal",
+          "type": "folder"
+        },
+        {
+          "children": [
+            {
+              "date_added": "13351475558000000",
+              "guid": "7e06288a-3de6-4003-81d6-cd05f38bd8ca",
+              "id": "670",
+              "name": "Quick Start Â· ScoopInstaller/Scoop Wiki Â· GitHub",
+              "type": "url",
+              "url": "https://github.com/ScoopInstaller/Scoop/wiki/Quick-Start"
+            },
+            {
+              "date_added": "13351478658000000",
+              "guid": "935dd123-59d0-458f-8507-df84c5e7e678",
+              "id": "671",
+              "name": "SSH on Windows Â· ScoopInstaller/Scoop Wiki Â· GitHub",
+              "type": "url",
+              "url": "https://github.com/ScoopInstaller/Scoop/wiki/SSH-on-Windows"
+            },
+            {
+              "date_added": "13353990107000000",
+              "guid": "5bf1f4ee-1869-46c7-b005-2a954d69ee34",
+              "id": "672",
+              "name": "2.5: Logical Fallacies - How to Spot Them and Avoid Making Them - Humanities LibreTexts",
+              "type": "url",
+              "url": "https://human.libretexts.org/Courses/City_College_of_San_Francisco/Writing_Reading_and_College_Success:_A_First-Year_Composition_Course_for_All_Learners_(Kashyap_and_Dyquisto)/02:_Writing_and_the_Art_of_Rhetoric/2.05:_Logical_Fallacies_-_How_to_Spot_Them_and_Avoid_Making_Them"
+            },
+            {
+              "date_added": "13354542091000000",
+              "guid": "5b7100af-4dcd-4544-a07d-a25258b25eb7",
+              "id": "673",
+              "name": "Kinetic energy | Definition, Formula, Units, Examples, & Facts | Britannica",
+              "type": "url",
+              "url": "https://www.britannica.com/science/kinetic-energy"
+            },
+            {
+              "date_added": "13355311085000000",
+              "guid": "3f309fe1-8f61-4aeb-b9ef-6983d37870ff",
+              "id": "674",
+              "name": "Expressing one number as a % of another number - Percentages - AQA - GCSE Maths Revision - AQA - BBC Bitesize",
+              "type": "url",
+              "url": "https://www.bbc.co.uk/bitesize/guides/z9sgdxs/revision/3"
+            },
+            {
+              "date_added": "13355311404000000",
+              "guid": "36b5b9a9-552e-4f21-a095-140bb7017411",
+              "id": "675",
+              "name": "Increase and decrease an amount by a percentage - Percentages - AQA - GCSE Maths Revision - AQA - BBC Bitesize",
+              "type": "url",
+              "url": "https://www.bbc.co.uk/bitesize/guides/z9sgdxs/revision/2"
+            },
+            {
+              "date_added": "13346295850000000",
+              "guid": "fda33561-8231-4f82-ad1e-044fa168103e",
+              "id": "676",
+              "name": "Multiplication Tips and Tricks",
+              "type": "url",
+              "url": "https://www.mathsisfun.com/multiplication-tips-tricks.html"
+            },
+            {
+              "date_added": "13347323379000000",
+              "guid": "68059b42-31c1-4df8-a90d-221119911934",
+              "id": "677",
+              "name": "Special Symbols â€“ The Physics Hypertextbook",
+              "type": "url",
+              "url": "https://physics.info/symbols/"
+            },
+            {
+              "date_added": "13372358424136999",
+              "guid": "c897bc64-9fe6-4aab-88d2-7983bbc0a283",
+              "id": "678",
+              "name": "WaqasZafar9/VPN-For-Remote-Access: Virtual Private Network Using Cisco Packet Tracer",
+              "type": "url",
+              "url": "https://github.com/WaqasZafar9/VPN-For-Remote-Access"
+            },
+            {
+              "date_added": "13397266468101185",
+              "guid": "d9bb54e6-e978-4e4f-b16e-b21a8ad62baa",
+              "id": "679",
+              "name": "Rclone downloads",
+              "type": "url",
+              "url": "https://rclone.org/downloads/"
+            },
+            {
+              "date_added": "13413820563445811",
+              "guid": "64cac74c-5f1a-410a-97e9-ff04d9b56e38",
+              "id": "680",
+              "name": "Winutil Documentation",
+              "type": "url",
+              "url": "https://winutil.christitus.com/"
+            },
+            {
+              "date_added": "13418870884714661",
+              "guid": "dd06cbbb-3ee3-4ada-ba41-8b9862cee024",
+              "id": "681",
+              "name": "Browser Extension Getting Started | Bitwarden",
+              "type": "url",
+              "url": "https://bitwarden.com/browser-start/"
+            },
+            {
+              "date_added": "13370700454914704",
+              "guid": "5926564e-2d94-48b1-816b-de16e183b8f8",
+              "id": "682",
+              "name": "Plain Text Tables generator â€“ TablesGenerator.com",
+              "type": "url",
+              "url": "https://www.tablesgenerator.com/text_tables#"
+            },
+            {
+              "date_added": "13369929821212160",
+              "guid": "e140a5f2-1b76-4732-a4cd-1beee58f47d0",
+              "id": "683",
+              "name": "Releases Â· AnalogJ/hatchet",
+              "type": "url",
+              "url": "https://github.com/AnalogJ/hatchet?tab=readme-ov-file"
+            }
+          ],
+          "date_added": "1.34198669471847E+16",
+          "date_modified": "1.34198669471847E+16",
+          "guid": "bb17a4f1-df58-40ae-9da6-5d00c4891f3e",
+          "id": "684",
+          "name": "Tools and Utilities",
+          "type": "folder"
+        },
+        {
+          "children": [
+            {
+              "date_added": "13346982210000000",
+              "guid": "3270a162-e2fb-4baa-8701-b5ba3cefba6e",
+              "id": "685",
+              "name": "Ethos, Pathos & Logos: Definition and Examples of Persuasive Advertising Techniques (2023)",
+              "type": "url",
+              "url": "https://www.studiobinder.com/blog/ethos-pathos-logos/"
+            },
+            {
+              "date_added": "13346298146000000",
+              "guid": "19f7faed-d7b9-4f70-bcd4-b47b4d12a2ea",
+              "id": "686",
+              "name": "Multiplication Tables and Charts upto 1000 - PDF & Printable",
+              "type": "url",
+              "url": "https://www.mymathtables.com/multiplication-table-chart/multiplication-table-chart-upto-1000-pdf-printable.html?myOper=mul&tables=1&tables1=20&submit=Generate&sel_opt="
+            },
+            {
+              "date_added": "13329319305000000",
+              "guid": "7a775dd4-becc-4f22-b1a5-3b9ddbc07025",
+              "id": "687",
+              "name": "Learn | Customer Champions League May 2023 - Month in Focus",
+              "type": "url",
+              "url": "https://www.specsaverspeople.com/learn/#/course/f58c64c4-b005-4098-91a9-ffff2a9795ac"
+            },
+            {
+              "date_added": "13329319317000000",
+              "guid": "a51655ff-4622-43bb-a5db-7df0d4b7c0a9",
+              "id": "688",
+              "name": "Learn | Customer Champions League April 2023 - Month in Focus",
+              "type": "url",
+              "url": "https://www.specsaverspeople.com/learn/#/course/27136381-2f44-48e1-b92b-d2b0e7e9286d"
+            },
+            {
+              "date_added": "13329319319000000",
+              "guid": "003d661f-1712-438e-b39b-fa6a8abacb71",
+              "id": "689",
+              "name": "How does it work?",
+              "type": "url",
+              "url": "https://specsavers.sharepoint.com/sites/customer-experience-UK-Ireland/SitePages/How-does-it-work-.aspx"
+            },
+            {
+              "date_added": "13341118969000000",
+              "guid": "cc2cb169-395a-4811-98d9-97ba7124d760",
+              "id": "690",
+              "name": "Create Virtual Machine Returns \"Not Found\" Error : r/HyperV",
+              "type": "url",
+              "url": "https://www.reddit.com/r/HyperV/comments/9thubc/create_virtual_machine_returns_not_found_error/?rdt=65455"
+            },
+            {
+              "date_added": "13343620991000000",
+              "guid": "a0b2ea75-f803-422f-9147-1c45086bfabd",
+              "id": "691",
+              "name": "3 commands to reboot Linux (plus 4 more ways to do it safely) | Opensource.com",
+              "type": "url",
+              "url": "https://opensource.com/article/19/7/reboot-linux"
+            },
+            {
+              "date_added": "13329934175000000",
+              "guid": "11eb801f-6f08-4797-8c11-f0a24e45fa78",
+              "id": "692",
+              "name": "How to Install RSAT Active Directory in Windows 11? - Technoresult",
+              "type": "url",
+              "url": "https://technoresult.com/how-to-install-rsat-active-directory-in-windows-11/"
+            },
+            {
+              "date_added": "13329938343000000",
+              "guid": "a2c8b406-4e0c-43f7-9a45-1412f60b00a0",
+              "id": "693",
+              "name": "How to Install Docker on Windows 10 and 11",
+              "type": "url",
+              "url": "https://www.makeuseof.com/how-to-install-docker-windows-10-11/"
+            },
+            {
+              "date_added": "13330028818000000",
+              "guid": "1ee4773d-732a-4948-980c-f2eba7107889",
+              "id": "694",
+              "name": "Windows 11 Run Commands List",
+              "type": "url",
+              "url": "https://allthings.how/windows-11-run-commands-list/"
+            },
+            {
+              "date_added": "13330284358000000",
+              "guid": "2d22fdcc-d038-4964-8dff-ddbccd95928d",
+              "id": "695",
+              "name": "Creating a template in Dreamweaver | Using Dreamweaver",
+              "type": "url",
+              "url": "http://www.using-dreamweaver.com/building-a-website-using-dreamweaver/creating-a-template-in-dreamweaver.html"
+            },
+            {
+              "date_added": "13379798128565230",
+              "guid": "0c5c5f89-6c7f-4f08-a96f-56f5866c0508",
+              "id": "696",
+              "name": "How to Enable and Configure SSH Server on Windows with OpenSSH | Windows OS Hub",
+              "type": "url",
+              "url": "https://woshub.com/connect-to-windows-via-ssh/#:~:text=You%20need%20to%20change%20the%20startup%20type%20of,a%20new%20inbound%20rule%20using%20the%20New-NetFirewallRule%20cmdlet%3A"
+            },
+            {
+              "date_added": "13382475929382912",
+              "guid": "8dffb5f8-cb89-4f4f-b68e-73ab31426041",
+              "id": "697",
+              "name": "chatgpt - Search",
+              "type": "url",
+              "url": "https://www.bing.com/search?q=chatgpt%20&form=ANSPH1"
+            },
+            {
+              "date_added": "13382475936073500",
+              "guid": "d2a0ba65-3aec-475d-a02b-883274885a75",
+              "id": "698",
+              "name": "ChatGPT",
+              "type": "url",
+              "url": "https://chatgpt.com/"
+            },
+            {
+              "date_added": "13382476667810765",
+              "guid": "3f69c018-c59a-4ec4-ab16-113f0c14087f",
+              "id": "699",
+              "name": "Does F7 not work in Powershell 7 to show command history? - Super User",
+              "type": "url",
+              "url": "https://superuser.com/questions/1716464/does-f7-not-work-in-powershell-7-to-show-command-history"
+            },
+            {
+              "date_added": "13386372853078502",
+              "guid": "988c4a88-b84c-4ea9-bfc5-f107fdfd7192",
+              "id": "700",
+              "name": "Installing OpenSSH on Windows 10",
+              "type": "url",
+              "url": "https://dejulia489.github.io/2017-05-07-InstallingOpenSSHOnWindows10/"
+            },
+            {
+              "date_added": "13388707500618335",
+              "guid": "a60bd1cf-4d48-4e25-abe5-69030fe1e259",
+              "id": "701",
+              "name": "vmwareauthorisation service - Search",
+              "type": "url",
+              "url": "https://www.bing.com/search?q=vmwareauthorisation+service&form=ANNNB1&refig=E8F90BC15D714ABC8B72258FBF49B2E5&pc=U531&ucpdpc=UCPD"
+            },
+            {
+              "date_added": "13349713555000000",
+              "guid": "3e38ba83-165a-4945-8c3c-8be215ae8487",
+              "id": "702",
+              "name": "What Is Wireshark and How to Use It",
+              "type": "url",
+              "url": "https://www.comptia.org/content/articles/what-is-wireshark-and-how-to-use-it"
+            },
+            {
+              "date_added": "13349714038000000",
+              "guid": "7343b127-249d-4a59-8f63-66955d67b9a3",
+              "id": "703",
+              "name": "How to Use Wireshark: Comprehensive Tutorial + Tips",
+              "type": "url",
+              "url": "https://www.varonis.com/blog/how-to-use-wireshark"
+            },
+            {
+              "date_added": "13349741313000000",
+              "guid": "a5a38547-14cb-4a2a-897e-2c7d047f8505",
+              "id": "704",
+              "name": "How to prevent a person B to kick of person A remote desktop connection, on Windows? - Super User",
+              "type": "url",
+              "url": "https://superuser.com/questions/1481020/how-to-prevent-a-person-b-to-kick-of-person-a-remote-desktop-connection-on-wind"
+            },
+            {
+              "date_added": "13349754865000000",
+              "guid": "8f21d8d2-ae6d-48d4-bd37-485cdadea397",
+              "id": "705",
+              "name": "How to Enable SSH on Cisco Switch, Router and ASA",
+              "type": "url",
+              "url": "https://www.thegeekstuff.com/2013/08/enable-ssh-cisco/"
+            },
+            {
+              "date_added": "13349819855000000",
+              "guid": "58ecd870-9fef-4888-9174-abc8044640cd",
+              "id": "706",
+              "name": "HowTo : Enable/Disable Interface on CISCO - Shutdown Command | Answers at Makerere (Knowledge Base)",
+              "type": "url",
+              "url": "https://answers.mak.ac.ug/network-connectivity/howto-enabledisable-interface-cisco-shutdown-command"
+            },
+            {
+              "date_added": "13349836856000000",
+              "guid": "036d1af5-36ce-47f7-9739-3f5e01eba50d",
+              "id": "707",
+              "name": "Easy Ways to Enable a Port on a Cisco Switch: 8 Steps",
+              "type": "url",
+              "url": "https://www.wikihow.com/Enable-a-Port-on-a-Cisco-Switch"
+            },
+            {
+              "date_added": "13349840510000000",
+              "guid": "ecbb090e-fded-4ff6-85e4-9741e04b19a5",
+              "id": "708",
+              "name": "Change CISCO Switch Passwords?",
+              "type": "url",
+              "url": "https://community.spiceworks.com/topic/33127-change-cisco-switch-passwords"
+            },
+            {
+              "date_added": "13349845637000000",
+              "guid": "e77f115e-1f8b-4afe-87e1-223d786d9c51",
+              "id": "709",
+              "name": "How to configure SSH on Cisco IOS",
+              "type": "url",
+              "url": "https://networklessons.com/cisco/ccna-200-301/configure-ssh-cisco-ios"
+            },
+            {
+              "date_added": "13350002821000000",
+              "guid": "37846f2b-3219-4720-8c15-b9847b651eaa",
+              "id": "710",
+              "name": "Wake-on-LAN Packet sniffer",
+              "type": "url",
+              "url": "https://apreltech.com/Blog/Wake_on_lan_Sniffer"
+            },
+            {
+              "date_added": "13350011855000000",
+              "guid": "c0090109-d9d1-460b-af42-6fe50a3dee6c",
+              "id": "711",
+              "name": "Cisco CLI Error: Inconsistent address and mask - Connected Dots Online",
+              "type": "url",
+              "url": "https://www.connecteddots.online/resources/cisco-reference/inconsistent-address-and-mask"
+            },
+            {
+              "date_added": "13350144432000000",
+              "guid": "fe465353-f837-4702-b8b8-92b0e2e508e9",
+              "id": "712",
+              "name": "How to copy files from source to destination in PowerShell | TechTarget",
+              "type": "url",
+              "url": "https://www.techtarget.com/searchwindowsserver/tip/PowerShell-commands-to-copy-files-Basic-to-advanced-methods"
+            },
+            {
+              "date_added": "13350352325000000",
+              "guid": "1a51e28a-82af-4407-8f24-4417d3e8b993",
+              "id": "713",
+              "name": "Install macOS on Windows in VMware Workstation using a Virtual Disk Image - TechLabs",
+              "type": "url",
+              "url": "https://techlabs.blog/categories/guides/install-macos-on-windows-in-vmware-workstation-using-a-virtual-disk-image"
+            },
+            {
+              "date_added": "13350420272000000",
+              "guid": "a35014b3-926e-4c49-99fb-afa455c939fa",
+              "id": "714",
+              "name": "How do I find my username and servername for windows SSH server - Super User",
+              "type": "url",
+              "url": "https://superuser.com/questions/1661724/how-do-i-find-my-username-and-servername-for-windows-ssh-server"
+            },
+            {
+              "date_added": "13350580764000000",
+              "guid": "81d23f17-4fa6-49f0-9eba-367582c4b734",
+              "id": "715",
+              "name": "Group Scope in Active Directory",
+              "type": "url",
+              "url": "https://blog.netwrix.com/2022/10/19/group-scope-in-active-directory/"
+            },
+            {
+              "date_added": "13350940324000000",
+              "guid": "69955215-5747-4f52-824a-13eced21194d",
+              "id": "716",
+              "name": "Official TWRP Recovery on Galaxy Tab S5e and Root it (Root and Install)",
+              "type": "url",
+              "url": "https://www.getdroidtips.com/twrp-recovery-galaxy-tab-s5e/"
+            },
+            {
+              "date_added": "13350947061000000",
+              "guid": "5e8662c5-e057-472d-880c-9664ce3aac5d",
+              "id": "717",
+              "name": "How to Check your Samsung Phone Model or CSC Region Code?",
+              "type": "url",
+              "url": "https://www.cocosenor.com/articles/android/how-to-check-your-samsung-phone-model-or-csc-region-code.html"
+            },
+            {
+              "date_added": "13350947454000000",
+              "guid": "2e60ee8b-2b5e-4078-a58e-20f622cb3d84",
+              "id": "718",
+              "name": "Download firmware updates for your Samsung mobile phone and tablet - SamMobile",
+              "type": "url",
+              "url": "https://www.sammobile.com/firmwares/"
+            },
+            {
+              "date_added": "13344985655000000",
+              "guid": "46e4b93c-ea3c-4f7e-aff4-8c75ef584e0f",
+              "id": "719",
+              "name": "Create UI using Tkinter in Python",
+              "type": "url",
+              "url": "https://www.tutorialsteacher.com/python/create-gui-using-tkinter-python"
+            },
+            {
+              "date_added": "13344888196000000",
+              "guid": "de365ac1-8b7d-48a5-9065-5e9c153693a9",
+              "id": "720",
+              "name": "How To: Terminating a Cat5e Standard Push On Unshielded RJ45 Connector",
+              "type": "url",
+              "url": "https://www.truecable.com/blogs/cable-academy/how-to-terminating-a-cat5e-standard-push-on-unshielded-rj45-connector"
+            },
+            {
+              "date_added": "13351473976000000",
+              "guid": "c90be9d4-edad-4aec-a65d-8e5962786776",
+              "id": "721",
+              "name": "Establishing SSH Key Login on Windows 11: A Step-by-Step Process - Geek Rewind",
+              "type": "url",
+              "url": "https://geekrewind.com/how-to-set-up-ssh-key-login-with-windows-11/"
+            },
+            {
+              "date_added": "13351638188000000",
+              "guid": "7575e2d0-d2f7-4386-ae66-437f79a837db",
+              "id": "722",
+              "name": "windows - OpenVPN to Access Remote Desktop - Super User",
+              "type": "url",
+              "url": "https://superuser.com/questions/1252421/openvpn-to-access-remote-desktop"
+            },
+            {
+              "date_added": "13351640193000000",
+              "guid": "973a11cc-2035-44de-88f9-49710a887171",
+              "id": "723",
+              "name": "How to set up VPN for Remote Desktop [Step-by-Step Tutorial]",
+              "type": "url",
+              "url": "https://www.anyviewer.com/how-to/vpn-for-remote-desktop-0427.html"
+            },
+            {
+              "date_added": "13351719460000000",
+              "guid": "df65ef67-16e8-43c1-98f3-ebe0e58f1d93",
+              "id": "724",
+              "name": "PSA: You can set UAC to require your pin in your administrator account : r/windows",
+              "type": "url",
+              "url": "https://www.reddit.com/r/windows/comments/eqmlb8/psa_you_can_set_uac_to_require_your_pin_in_your/?rdt=43203"
+            },
+            {
+              "date_added": "13351806710000000",
+              "guid": "8e564ef6-7e59-4c45-9998-b714e46a4648",
+              "id": "725",
+              "name": "[ Solved ] Windows 10 Wake On LAN Problem After Shutdown - Microsoft Community",
+              "type": "url",
+              "url": "https://answers.microsoft.com/en-us/windows/forum/all/solved-windows-10-wake-on-lan-problem-after/89ea895f-592f-4a29-be05-ac5f3badcd3c"
+            },
+            {
+              "date_added": "13351817237000000",
+              "guid": "6b9cdf67-8bf0-4b0d-a30f-b7b838255f05",
+              "id": "726",
+              "name": "How do I set the Windows network timeout for physically disconnected mapped drive? - Super User",
+              "type": "url",
+              "url": "https://superuser.com/questions/453741/how-do-i-set-the-windows-network-timeout-for-physically-disconnected-mapped-driv"
+            },
+            {
+              "date_added": "13351889270000000",
+              "guid": "09d33bb7-ea44-4109-8ef0-7b5c7415d67c",
+              "id": "727",
+              "name": "11 Free Tools To Disable And Stop Windows From Spying And Tracking You",
+              "type": "url",
+              "url": "https://www.geckoandfly.com/25083/free-tools-disable-stop-windows-spying-tracking-you/"
+            },
+            {
+              "date_added": "13352128935000000",
+              "guid": "cfa77036-afd8-4222-a474-e85d3bb3d188",
+              "id": "728",
+              "name": "The Ultimate Guide to Subnetting - ITPRC",
+              "type": "url",
+              "url": "https://www.itprc.com/subnetting/"
+            },
+            {
+              "date_added": "13352561065000000",
+              "guid": "f26cb8c9-a3be-46f7-addc-3448aa08bc27",
+              "id": "729",
+              "name": "Deprovision Devices - Remove Device Management | ManageEngine Mobile Device Manager Plus",
+              "type": "url",
+              "url": "https://www.manageengine.com/mobile-device-management/help/enrollment/mdm_device_deprovision.html"
+            },
+            {
+              "date_added": "13353117453000000",
+              "guid": "bc11ca00-5514-44f7-901b-29f5f0894ce0",
+              "id": "730",
+              "name": "CompTIA A+ Certification Practice Test 2 (Exam 220-1101 / Core 1)",
+              "type": "url",
+              "url": "https://www.examcompass.com/comptia-a-plus-certification-practice-test-2-exam-220-1101"
+            },
+            {
+              "date_added": "13353168872000000",
+              "guid": "1ce90e69-f39e-4af4-bb8b-0841d6f62b1b",
+              "id": "731",
+              "name": "Download Time Calculator",
+              "type": "url",
+              "url": "https://www.omnicalculator.com/other/download-time"
+            },
+            {
+              "date_added": "13353169046000000",
+              "guid": "001d9b46-f0aa-41f7-b0e2-83a1edab924c",
+              "id": "732",
+              "name": "Time to Seconds Calculator - Inch Calculator",
+              "type": "url",
+              "url": "https://www.inchcalculator.com/time-to-seconds-calculator/"
+            },
+            {
+              "date_added": "13353169135000000",
+              "guid": "76fd663a-b4e0-42ca-887d-ffac86f8390a",
+              "id": "733",
+              "name": "Welcome to Metric-time.com",
+              "type": "url",
+              "url": "https://metric-time.com/"
+            },
+            {
+              "date_added": "13353555256000000",
+              "guid": "3a457235-e55f-40ec-866d-716714fc232b",
+              "id": "734",
+              "name": "!fits - Dark Muninn Â· Streamlit",
+              "type": "url",
+              "url": "https://caldarijoans.streamlit.app/Dark_Muninn"
+            },
+            {
+              "date_added": "13353989384000000",
+              "guid": "70abe606-c294-4ae2-ac21-4aac4451bc21",
+              "id": "735",
+              "name": "Quick Bayes Theorem Calculator",
+              "type": "url",
+              "url": "https://www.socscistatistics.com/bayes/default.aspx"
+            },
+            {
+              "date_added": "13353989983000000",
+              "guid": "8613ed59-734a-4bb7-9ede-9074af40388f",
+              "id": "736",
+              "name": "Logical Fallacies and the Art of Debate",
+              "type": "url",
+              "url": "https://www.csun.edu/~dgw61315/fallacies.html"
+            },
+            {
+              "date_added": "13354678115000000",
+              "guid": "b012bfc8-9fbc-45aa-8b3d-91ac8238bf85",
+              "id": "737",
+              "name": "Carl Jung On \"Evil\" - Quotations - Carl Jung Depth Psychology",
+              "type": "url",
+              "url": "https://carljungdepthpsychologysite.blog/2020/05/03/carl-jung-on-evil-quotations/"
+            },
+            {
+              "date_added": "13355256971000000",
+              "guid": "c0a567a9-bde7-48aa-9bc8-9cac81df4be3",
+              "id": "738",
+              "name": "Percentage Calculator",
+              "type": "url",
+              "url": "https://www.calculator.net/percent-calculator.html"
+            },
+            {
+              "date_added": "13355592330000000",
+              "guid": "1dd211b8-b7bb-4611-bf48-0932d593f38b",
+              "id": "739",
+              "name": "Make an After Effects Transparent Background",
+              "type": "url",
+              "url": "https://blog.motionisland.com/how-to-render-a-transparent-background-in-after-effects/"
+            },
+            {
+              "date_added": "13356412592000000",
+              "guid": "1a9a661a-a9d5-423f-864a-3a1252e2d140",
+              "id": "740",
+              "name": "You searched for hud - MATESFX",
+              "type": "url",
+              "url": "https://freevideoeffect.com/?s=hud"
+            },
+            {
+              "date_added": "13356887526000000",
+              "guid": "da8c21be-06b5-4a13-b161-2de0153f23a0",
+              "id": "741",
+              "name": "RunAsDate - Run a program with the specified date/time",
+              "type": "url",
+              "url": "https://www.nirsoft.net/utils/run_as_date.html"
+            },
+            {
+              "date_added": "13359384386000000",
+              "guid": "d1fd0e98-7fae-42b4-8a8f-6628bb50245f",
+              "id": "742",
+              "name": "Install Docker on Windows (WSL) without Docker Desktop - DEV Community",
+              "type": "url",
+              "url": "https://dev.to/bowmanjd/install-docker-on-windows-wsl-without-docker-desktop-34m9"
+            },
+            {
+              "date_added": "13251214419230479",
+              "guid": "5d6ba14d-1317-4386-a09c-088853f940eb",
+              "id": "743",
+              "name": "How to Flash the BIOS on an AMD GPU: A Comprehensive Guide - Appuals.com",
+              "type": "url",
+              "url": "https://appuals.com/how-to-flash-the-bios-on-an-amd-gpu/"
+            },
+            {
+              "date_added": "13251216733474734",
+              "guid": "84ee9fd2-6071-47cd-8d2e-b74deb2a4250",
+              "id": "744",
+              "name": "Flashed Sapphire Pulse Vega 56 to Vega 64 (Success) : Amd",
+              "type": "url",
+              "url": "https://www.reddit.com/r/Amd/comments/isgz4j/flashed_sapphire_pulse_vega_56_to_vega_64_success/"
+            },
+            {
+              "date_added": "13262064414393480",
+              "guid": "70ec08ce-c19e-4c80-919e-6409af1deb79",
+              "id": "745",
+              "name": "DX: IW John P's texture pack compatibility (solution provided), page 1 - Forum - GOG.com",
+              "type": "url",
+              "url": "https://www.gog.com/forum/deus_ex_series/dx_iw_john_ps_texture_pack_compatibility_solution_provided/page1"
+            },
+            {
+              "date_added": "13351699232856101",
+              "guid": "7ceeba37-e51a-49e7-b340-97ef82d8a3f7",
+              "id": "746",
+              "name": "Personal Cloud Storage â€“ Microsoft OneDrive",
+              "type": "url",
+              "url": "https://www.microsoft.com/en-gb/microsoft-365/onedrive/online-cloud-storage"
+            },
+            {
+              "date_added": "13351699232856124",
+              "guid": "67e446e2-d132-4bdf-9a59-fcf705baeb36",
+              "id": "747",
+              "name": "My files - OneDrive",
+              "type": "url",
+              "url": "https://onedrive.live.com/?id=root&cid=393AC9065CDCBAD2"
+            },
+            {
+              "date_added": "13351699232856140",
+              "guid": "356ca29f-f2d8-4d6e-bf6b-c908aa81f4cd",
+              "id": "748",
+              "name": "My Drive - Google Drive",
+              "type": "url",
+              "url": "https://drive.google.com/drive/my-drive?hl=en_GB"
+            },
+            {
+              "date_added": "13351699232856156",
+              "guid": "ce3fc39f-dae3-48ed-aa80-7e33c6e59a95",
+              "id": "749",
+              "name": "Differences Between TCP and UDP",
+              "type": "url",
+              "url": "https://www.spiceworks.com/tech/networking/articles/tcp-vs-udp/"
+            },
+            {
+              "date_added": "13351699232856174",
+              "guid": "a3fe40c9-32a2-48aa-a5e6-0f6ce89ec68f",
+              "id": "750",
+              "name": "Support for OptiPlex 5490 All-In-One | Overview | Dell UK",
+              "type": "url",
+              "url": "https://www.dell.com/support/home/en-uk/product-support/servicetag/0-OUJyZzBNY2hPN3NYRkRXRjFYT041QT090/overview"
+            },
+            {
+              "date_added": "13351948763670236",
+              "guid": "bc2bfef1-b175-4df2-baa5-2b6d6d7dd270",
+              "id": "751",
+              "name": "How to change the URL address of a SharePoint site | SharePoint Maven",
+              "type": "url",
+              "url": "https://sharepointmaven.com/how-to-change-the-url-address-of-a-sharepoint-site/"
+            },
+            {
+              "date_added": "13352225376634459",
+              "guid": "8c997a88-ff1b-4f78-84bf-9d278f191bdc",
+              "id": "752",
+              "name": "Stepwise Guide: Chrome Remote Desktop Setup via SSH",
+              "type": "url",
+              "url": "https://www.anyviewer.com/how-to/chrome-remote-desktop-setup-via-ssh-0007.html"
+            },
+            {
+              "date_added": "13353002642072760",
+              "guid": "6289a9d1-d362-4fa6-b994-2745e9d0bc8f",
+              "id": "753",
+              "name": "Excel conditional formatting formulas based on another cell",
+              "type": "url",
+              "url": "https://www.ablebits.com/office-addins-blog/excel-conditional-formatting-formulas/"
+            },
+            {
+              "date_added": "13355318624749621",
+              "guid": "990f5ec1-127c-4e64-9fed-13a8b0c3d518",
+              "id": "754",
+              "name": "CompTIA A+ Certification Practice Test Questions",
+              "type": "url",
+              "url": "https://www.examcompass.com/comptia/a-plus-certification/free-a-plus-practice-tests"
+            },
+            {
+              "date_added": "13355421259547812",
+              "guid": "e27536c2-000c-4089-b5f7-6c9b7bfb4c5c",
+              "id": "755",
+              "name": "windows - active directory structure and replication for dummies - Server Fault",
+              "type": "url",
+              "url": "https://serverfault.com/questions/637113/active-directory-structure-and-replication-for-dummies"
+            },
+            {
+              "date_added": "13355840023263950",
+              "guid": "5fdd0d11-8839-4e86-9991-89fdfd6e5452",
+              "id": "756",
+              "name": "Install Adobe Reader DC with PowerShell - PowerShell - Pulseway",
+              "type": "url",
+              "url": "https://forum.pulseway.com/topic/1930-install-adobe-reader-dc-with-powershell/"
+            },
+            {
+              "date_added": "13357182346427091",
+              "guid": "9b807edf-c75d-4bf5-82e3-a061e39a2237",
+              "id": "757",
+              "name": "Check if a Windows service exists and delete in PowerShell - Stack Overflow",
+              "type": "url",
+              "url": "https://stackoverflow.com/questions/4967496/check-if-a-windows-service-exists-and-delete-in-powershell"
+            },
+            {
+              "date_added": "13357217760578557",
+              "guid": "97246eed-0209-4699-b3d3-afe3c5e76dff",
+              "id": "758",
+              "name": "PDF to JPG online converter - Convert PDF to JPG for FREE",
+              "type": "url",
+              "url": "https://pdf2jpg.net/"
+            },
+            {
+              "date_added": "13357399136268300",
+              "guid": "79350ddd-6d76-439e-a4cf-0e89b06e0638",
+              "id": "759",
+              "name": "How to connect to an SMB share from your Android device | TechRepublic",
+              "type": "url",
+              "url": "https://www.techrepublic.com/article/how-to-connect-to-an-smb-share-from-your-android-device/"
+            },
+            {
+              "date_added": "13361993893668351",
+              "guid": "a1dd55f9-79b2-4104-ac28-b91a7afa7902",
+              "id": "760",
+              "name": "Bitwise operations for IPv4 calculations - DEV Community",
+              "type": "url",
+              "url": "https://dev.to/dinifarb/bitwise-operations-for-ipv4-calculations-5cle"
+            },
+            {
+              "date_added": "13362674962749853",
+              "guid": "e6a2ffcf-5f4f-4976-ba5b-2a1d36cfbd50",
+              "id": "761",
+              "name": "networking - Use commandline to show disabled network interfaces in windows? (Mobile Broadband and Regular Connections) - Super User",
+              "type": "url",
+              "url": "https://superuser.com/questions/619786/use-commandline-to-show-disabled-network-interfaces-in-windows-mobile-broadban"
+            },
+            {
+              "date_added": "13362757129108241",
+              "guid": "620199ce-4f27-4edd-a454-99e92f08db21",
+              "id": "762",
+              "name": "STP Port and Path Costs Explained",
+              "type": "url",
+              "url": "https://www.computernetworkingnotes.com/ccna-study-guide/stp-port-and-path-costs-explained.html"
+            },
+            {
+              "date_added": "13359141529481576",
+              "guid": "f7464ae1-96b6-484c-9407-95eb9bd26d6c",
+              "id": "763",
+              "name": "Microsoft account | Devices",
+              "type": "url",
+              "url": "https://account.microsoft.com/devices?fref=home.drawers.devices.manage-devices"
+            },
+            {
+              "date_added": "13359141529483880",
+              "guid": "74749d2e-6691-46fb-b705-53b1a4df30ec",
+              "id": "764",
+              "name": "Bookmark All",
+              "type": "url",
+              "url": "https://chromewebstore.google.com/detail/bookmark-all/hgkgfbldbflndlpnnhbdallenfmiejnb?hl=en-GB&utm_source=ext_sidebar"
+            },
+            {
+              "date_added": "13359325936922845",
+              "guid": "ea78a79b-01e0-49bf-aeeb-5df0eb89c0fa",
+              "id": "765",
+              "name": "How to install ADB on Windows, macOS, and Linux",
+              "type": "url",
+              "url": "https://www.xda-developers.com/install-adb-windows-macos-linux/"
+            },
+            {
+              "date_added": "13351545380000000",
+              "guid": "9a65e329-7373-4ddd-8ee0-224a795d34fd",
+              "id": "766",
+              "name": "How to Disable Automatic Driver Updates in Windows",
+              "type": "url",
+              "url": "https://driverfinderpro.com/driver-guide/how-to-disable-automatic-driver-updates-in-windows/"
+            },
+            {
+              "date_added": "13332792114000000",
+              "guid": "ccd27c07-759c-4ec0-830c-5dd36a9b6b14",
+              "id": "767",
+              "name": "Atmospheric Particles with â€œCC Particle Systems IIâ€ - Animating Photos with After Effects - In the Loop | In the Loop",
+              "type": "url",
+              "url": "https://blog.gallereplay.com/atmospheric-particles-with-cc-particle-systems-ii-animating-photos-with-after-effects/"
+            },
+            {
+              "date_added": "13332782505000000",
+              "guid": "bb92d81c-acf8-4a29-bf3d-029018e1e8e0",
+              "id": "768",
+              "name": "Royalty Free Dark Ambient Background Music Downloads | FStudios",
+              "type": "url",
+              "url": "https://www.fesliyanstudios.com/royalty-free-music/downloads-c/dark-ambient-music/76"
+            },
+            {
+              "date_added": "13332780531000000",
+              "guid": "f19b6a75-539e-4401-8a2b-3d60fe75ae57",
+              "id": "769",
+              "name": "How to Upscale 1080 Video to 4K and Preserve Detail in Premiere Pro",
+              "type": "url",
+              "url": "https://photography.tutsplus.com/tutorials/how-to-upscale-resolution-1080-4k-premiere-pro--cms-36629"
+            },
+            {
+              "date_added": "13329791163000000",
+              "guid": "e0643b72-edfe-47b0-b525-83c986636151",
+              "id": "770",
+              "name": "Library Genesis",
+              "type": "url",
+              "url": "https://libgen.fun/search.php?req=Ccna"
+            },
+            {
+              "date_added": "13336614647000000",
+              "guid": "01004734-8f59-4ee0-942e-749c9e463e6d",
+              "id": "771",
+              "name": "Daron Acemoglu - Why Nations Fail Audiobook - AudioBooks",
+              "type": "url",
+              "url": "https://appaudiobooks.com/daron-acemoglu-why-nations-fail-audiobook/"
+            },
+            {
+              "date_added": "13341803186000000",
+              "guid": "c08a7ed6-eaab-4590-8a15-a92b53c1702a",
+              "id": "772",
+              "name": "Everything you wanted to know about Blitzing",
+              "type": "url",
+              "url": "https://docs.google.com/document/d/1knVqZEH8qFY0eT44nMEFwcKd3t4PbgcZeuv58SVUxsI/pub"
+            },
+            {
+              "date_added": "13344909059000000",
+              "guid": "a3821508-f7f5-4087-917c-166c63a91fe8",
+              "id": "773",
+              "name": "How to Check a Power Supply: PSU Tester, Paperclip, & More",
+              "type": "url",
+              "url": "https://www.wikihow.com/Check-a-Power-Supply"
+            },
+            {
+              "date_added": "13349015684000000",
+              "guid": "e1f8e8c6-21a7-4b15-a680-05c63fc3ffe6",
+              "id": "774",
+              "name": "What is the difference between a broadcast address and a network ID? - Quora",
+              "type": "url",
+              "url": "https://www.quora.com/What-is-the-difference-between-a-broadcast-address-and-a-network-ID"
+            },
+            {
+              "date_added": "13349069299000000",
+              "guid": "e32fb5c4-af0b-4382-86c4-536b9a88f2ce",
+              "id": "775",
+              "name": "How to Enable a Pre-Boot BitLocker PIN on Windows",
+              "type": "url",
+              "url": "https://www.howtogeek.com/262720/how-to-enable-a-pre-boot-bitlocker-pin-on-windows/"
+            },
+            {
+              "date_added": "13349275093000000",
+              "guid": "83ecfb81-7b18-4a0c-9571-167a3086fbe8",
+              "id": "776",
+              "name": "How to Format a Hard Drive Using the Command Prompt | Tom's Hardware",
+              "type": "url",
+              "url": "https://www.tomshardware.com/news/format-hard-drive-command-prompt,37632.html"
+            },
+            {
+              "date_added": "13349994867000000",
+              "guid": "47e283ac-db6b-444f-ba0c-7bf05c3f76d5",
+              "id": "777",
+              "name": "Excel: Extract number from text string",
+              "type": "url",
+              "url": "https://www.ablebits.com/office-addins-blog/excel-extract-number-from-string/"
+            },
+            {
+              "date_added": "13349995027000000",
+              "guid": "7559ac73-c173-4ce8-8c37-f6396dd4c863",
+              "id": "778",
+              "name": "Documentation - Ablebits.com",
+              "type": "url",
+              "url": "https://www.ablebits.com/docs/"
+            },
+            {
+              "date_added": "13371730481492139",
+              "guid": "73ced1dd-81e5-447a-896b-2db539bc68e4",
+              "id": "779",
+              "name": "microsoft excel - Convert a column into a comma separated list - Super User",
+              "type": "url",
+              "url": "https://superuser.com/questions/240858/convert-a-column-into-a-comma-separated-list"
+            },
+            {
+              "date_added": "13371917747436907",
+              "guid": "bf5bba66-e0bf-49b4-9ec5-4fde2f466077",
+              "id": "780",
+              "name": "Solve PC problems over a remote connection - Microsoft Support",
+              "type": "url",
+              "url": "https://support.microsoft.com/en-gb/windows/solve-pc-problems-over-a-remote-connection-b077e31a-16f4-2529-1a47-21f6a9040bf3"
+            },
+            {
+              "date_added": "13351905383000000",
+              "guid": "d6cc43fd-5673-4bf4-89af-9cba297452d1",
+              "id": "781",
+              "name": "1.4 Install using the .zip portable version | Buru SFTP Server documentation",
+              "type": "url",
+              "url": "https://www.rebex.net/doc/buru-sftp-server/getting-started/01-portable/"
+            },
+            {
+              "date_added": "13369962088519244",
+              "guid": "c5685db2-0e14-417d-ab0c-059bc62af8b2",
+              "id": "782",
+              "name": "A Visual Weapon Identification Guide - Eve Online - Google Slides",
+              "type": "url",
+              "url": "https://docs.google.com/presentation/d/1d2axN23pAF2m_mAws9d4h6tmttFXUgyw2OGpjTaBIc4/edit?pli=1#slide=id.p7"
+            },
+            {
+              "date_added": "13369962088519319",
+              "guid": "2633066f-a1eb-4a6b-9234-a8da2ab62871",
+              "id": "783",
+              "name": "A Visual Weapon Identification Guide - Eve Online - Google Slides",
+              "type": "url",
+              "url": "https://docs.google.com/presentation/d/1d2axN23pAF2m_mAws9d4h6tmttFXUgyw2OGpjTaBIc4/edit?pli=1#slide=id.p10"
+            },
+            {
+              "date_added": "13369962088519371",
+              "guid": "29480063-2b18-43c3-915e-f7aa5391dabc",
+              "id": "784",
+              "name": "What Is My IP Address - See Your Public Address - IPv4 & IPv6",
+              "type": "url",
+              "url": "https://whatismyipaddress.com/"
+            },
+            {
+              "date_added": "13369962088519735",
+              "guid": "02041490-a7d0-4ac5-bfde-dbaa65db026b",
+              "id": "785",
+              "name": "EVE_NT Ship Editor",
+              "type": "url",
+              "url": "https://eve-nt.uk/designer/"
+            },
+            {
+              "date_added": "13369962521817063",
+              "guid": "c8740d40-cb63-44e0-babf-866559cba94b",
+              "id": "786",
+              "name": "EVE - Check before you jump!",
+              "type": "url",
+              "url": "https://eve-gatecheck.space/eve/"
+            },
+            {
+              "date_added": "13389711242571652",
+              "guid": "c4e8f492-0d97-45d4-8ebb-6790ad1c4999",
+              "id": "787",
+              "name": "A Visual Weapon Identification Guide - Eve Online - Google Slides",
+              "type": "url",
+              "url": "https://docs.google.com/presentation/d/1d2axN23pAF2m_mAws9d4h6tmttFXUgyw2OGpjTaBIc4/edit?pli=1&slide=id.p7#slide=id.p7"
+            },
+            {
+              "date_added": "13389740243343166",
+              "guid": "5de7a431-15f2-4684-a676-a8d1c65afc03",
+              "id": "788",
+              "name": "Burner mission guide",
+              "type": "url",
+              "url": "https://docs.google.com/document/u/0/d/1SAv6bnGM-5etLoPHxVtCsbsz8Q8feN5CFSEgUZclPLI/pub?pli=1"
+            },
+            {
+              "date_added": "13390263738267039",
+              "guid": "0ec9a1af-3ab6-4930-bae3-f1c226ece9e3",
+              "id": "789",
+              "name": "Image to ASCII: Free ASCII Art Converter",
+              "type": "url",
+              "url": "https://www.asciiart.eu/image-to-ascii"
+            },
+            {
+              "date_added": "13400020919025705",
+              "guid": "859ed0d4-3e6c-4ddd-8483-b15c9f0f0b52",
+              "id": "790",
+              "name": "EdgeKeePass - Microsoft Edge Addons",
+              "type": "url",
+              "url": "https://microsoftedge.microsoft.com/addons/detail/edgekeepass/jnhjknbfnclancjpknceboifoegiompf?hl=en-GB"
+            },
+            {
+              "date_added": "13396482036789442",
+              "guid": "8eef2113-37f7-4ac6-9385-22522585e100",
+              "id": "791",
+              "name": "Andrew's Notebook - Microsoft OneNote Online",
+              "type": "url",
+              "url": "https://onedrive.live.com/edit.aspx?resid=393AC9065CDCBAD2!s7754dc5ab07d43ac9e7cbbddbcac5409&migratedtospo=true&wd=target%28Quick%20Notes.one%7C207b4906-8714-7546-9f80-c11877832da5%2FMasAIO%203.0%7C4d363057-48f1-fd48-8191-daa61e4c02b4%2F%29&wdorigin=NavigationUrl"
+            },
+            {
+              "date_added": "13396833915705475",
+              "guid": "1d5221a0-2b5b-4701-8201-a6e1c61e5742",
+              "id": "792",
+              "name": "ChatGPT",
+              "type": "url",
+              "url": "https://chatgpt.com/?model=auto"
+            },
+            {
+              "date_added": "13396833969330391",
+              "guid": "cd0c4217-34be-492a-9687-ecafec4c7003",
+              "id": "793",
+              "name": "DeepSeek - Into the Unknown",
+              "type": "url",
+              "url": "https://chat.deepseek.com/"
+            },
+            {
+              "date_added": "13396888508925278",
+              "guid": "9f7c6e14-4d87-4e67-a049-20823bc652ce",
+              "id": "794",
+              "name": "Message trace - Exchange admin center",
+              "type": "url",
+              "url": "https://admin.exchange.microsoft.com/#/messagetrace"
+            },
+            {
+              "date_added": "13397252158419616",
+              "guid": "968ef32b-5d61-4a2b-815a-1e1b2eb282e0",
+              "id": "795",
+              "name": "How to Disable, Enable, and Manage Microsoft Defender Using PowerShell? â€“ TheITBros",
+              "type": "url",
+              "url": "https://theitbros.com/managing-windows-defender-using-powershell/"
+            },
+            {
+              "date_added": "13400166858910859",
+              "guid": "8cc3200b-0ad3-4f0c-a08a-03af0920f1ef",
+              "id": "796",
+              "name": "Apps | Microsoft 365 Copilot",
+              "type": "url",
+              "url": "https://m365.cloud.microsoft/apps?auth=2&home=1"
+            },
+            {
+              "date_added": "13400173359774416",
+              "guid": "c3759a51-7681-46ae-85dd-23aa0a1db3b7",
+              "id": "797",
+              "name": "Google Gemini",
+              "type": "url",
+              "url": "https://gemini.google.com/app/196f07e7cf28be1e"
+            },
+            {
+              "date_added": "13400613187533690",
+              "guid": "b6966b7a-88f4-4fcd-b862-ea1bbfb38168",
+              "id": "798",
+              "name": "While playing games, my screen will randomly go black for 2-3 seconds and then come back. : r/computers",
+              "type": "url",
+              "url": "https://www.reddit.com/r/computers/comments/w7n95t/while_playing_games_my_screen_will_randomly_go/"
+            },
+            {
+              "date_added": "13401464141314062",
+              "guid": "d0c2ce3a-20cf-4bad-b73c-80bdcf96fabc",
+              "id": "799",
+              "name": "Best OBS Settings for AMD Encoder Performance",
+              "type": "url",
+              "url": "https://hyper-casual.games/blog/obs-settings-for-amd-encoders"
+            },
+            {
+              "date_added": "13411766669247770",
+              "guid": "ebaa06da-ba18-412d-b4fd-ea23fe89a855",
+              "id": "800",
+              "name": "Google",
+              "type": "url",
+              "url": "https://www.google.com/"
+            },
+            {
+              "date_added": "13412125659412559",
+              "guid": "0bea442e-382d-4390-a0be-b4064ea8f09f",
+              "id": "801",
+              "name": "PowerShell is fun :)Upload Windows Autopilot hardware hash easily",
+              "type": "url",
+              "url": "https://powershellisfun.com/2022/07/09/upload-windows-autopilot-hardware-hash/"
+            },
+            {
+              "date_added": "13410213451254732",
+              "guid": "162be7be-80be-46c7-a7b7-9d96a1526888",
+              "id": "802",
+              "name": "All admin centers - Microsoft 365 admin center",
+              "type": "url",
+              "url": "https://admin.cloud.microsoft/?login_hint=andrew%40ajolnet.com&source=applauncher#/alladmincenters"
+            },
+            {
+              "date_added": "13411777724445408",
+              "guid": "9e3a4d21-af71-42b2-8054-b69fef523c33",
+              "id": "803",
+              "name": "Building a Virtual Security Home Lab: Part 1 - Network Topology | Source Code",
+              "type": "url",
+              "url": "https://blog.davidvarghese.net/posts/building-home-lab-part-1/"
+            },
+            {
+              "date_added": "13411960965761567",
+              "guid": "2c0fac6c-4fc5-4bd3-a925-83271853ea1a",
+              "id": "804",
+              "name": "Building a Virtual Security Home Lab: Part 9 - Tsurugi Linux (DFIR) Setup | Source Code",
+              "type": "url",
+              "url": "https://blog.davidvarghese.net/posts/building-home-lab-part-9/"
+            },
+            {
+              "date_added": "13413998507475068",
+              "guid": "39a16a73-c283-405f-b5a0-5ba80fb55c8b",
+              "id": "805",
+              "name": "Microsoft Activation Scripts | MAS",
+              "type": "url",
+              "url": "https://massgrave.dev/"
+            },
+            {
+              "date_added": "13417185299874111",
+              "guid": "fc72b859-0125-4152-9556-6f5f3fef2e83",
+              "id": "806",
+              "name": "Uninstall security agents",
+              "type": "url",
+              "url": "https://www.bitdefender.com/business/support/en/77211-87953-uninstalling-security-agents.html"
+            },
+            {
+              "date_added": "13418551773594376",
+              "guid": "0eb7a6d8-e5ec-432d-bd63-39693c1d0a24",
+              "id": "807",
+              "name": "Drivers & Software laptops and netbooks :: thinkpad x series laptops :: thinkpad x9 14 gen 1 type 21qa 21qb :: 21qa :: 21qa001wuk :: pf5gbhgq - Lenovo Support GB |",
+              "type": "url",
+              "url": "https://pcsupport.lenovo.com/gb/en/products/laptops-and-netbooks/thinkpad-x-series-laptops/thinkpad-x9-14-gen-1-type-21qa-21qb/21qa/21qa001wuk/pf5gbhgq/downloads/driver-list/component?name=BIOS%2FUEFI&id=5AC6A815-321D-440E-8833-B07A93E0428C"
+            },
+            {
+              "date_added": "13370027225587018",
+              "guid": "17172cb3-ba8b-42e7-ac3a-5dd05a91b254",
+              "id": "808",
+              "name": "Beckenham to Watford - Google Maps",
+              "type": "url",
+              "url": "https://www.google.co.uk/maps/dir/Beckenham/Watford/@51.5395383,-0.3426556,11z/data=!4m13!4m12!1m5!1m1!1s0x4876002c98ae8579:0x69e9592192db09e5!2m2!1d-0.025813!2d51.40817!1m5!1m1!1s0x487614c908fcc35b:0x5d521bb3eb9734f1!2m2!1d-0.3970199!2d51.6611283?entry=ttu&g_ep=EgoyMDI0MDkwMi4xIKXMDSoASAFQAw%3D%3D"
+            },
+            {
+              "date_added": "13370027999177600",
+              "guid": "ddefd910-be1a-4819-b14f-b7da264022ca",
+              "id": "809",
+              "name": "LOR Careers - My Home",
+              "type": "url",
+              "url": "https://career.laingorourke.com/jobs/welcome/"
+            },
+            {
+              "date_added": "13370459383263507",
+              "guid": "f821e7c7-3707-46e2-aba2-e9c877b8298b",
+              "id": "810",
+              "name": "How do I start remote desktop from PowerShell? - Stack Overflow",
+              "type": "url",
+              "url": "https://stackoverflow.com/questions/24493213/how-do-i-start-remote-desktop-from-powershell"
+            },
+            {
+              "date_added": "13371065761620729",
+              "guid": "21530a96-6971-4e75-bf48-c219602807d4",
+              "id": "811",
+              "name": "Building a Virtual Security Home Lab: Part 1 - Network Topology | Source Code",
+              "type": "url",
+              "url": "https://blog.davidvarghese.dev/posts/building-home-lab-part-1/"
+            },
+            {
+              "date_added": "13371150099407990",
+              "guid": "fb03abac-0bd6-44d5-9f81-3e9557f54dcd",
+              "id": "812",
+              "name": "Megathread for Intel Core 13th & 14th Gen CPU instability issues : r/intel",
+              "type": "url",
+              "url": "https://www.reddit.com/r/intel/comments/1egthzw/megathread_for_intel_core_13th_14th_gen_cpu/"
+            },
+            {
+              "date_added": "13371216477195001",
+              "guid": "6a1f5268-0782-49f5-901d-ee891f4dff0f",
+              "id": "813",
+              "name": "The Number One Rule for Writing Great PowerShell Scripts - Scripting Blog [archived]",
+              "type": "url",
+              "url": "https://devblogs.microsoft.com/scripting/the-number-one-rule-for-writing-great-powershell-scripts/"
+            },
+            {
+              "date_added": "13372432411024113",
+              "guid": "cfe98fac-6cad-4e35-a876-05befa4cf3ba",
+              "id": "814",
+              "name": "The combination of propylene glycol and vegetable glycerin e-cigarette aerosols induces airway inflammation and mucus hyperconcentration | Scientific Reports",
+              "type": "url",
+              "url": "https://www.nature.com/articles/s41598-024-52317-8"
+            }
+          ],
+          "date_added": "1.34198669471872E+16",
+          "date_modified": "1.34198669471872E+16",
+          "guid": "79e8a037-c8d4-4e9c-afc5-e6d2ea2dd9d9",
+          "id": "815",
+          "name": "Uncategorised",
+          "type": "folder"
+        }
+      ],
+      "date_added": "13396480212649616",
+      "date_last_used": "0",
+      "date_modified": "13419693801572500",
+      "guid": "0bc5d13f-2cba-5d74-951f-3f233fe6c908",
+      "id": "1",
+      "name": "Favourites bar",
+      "source": "unknown",
+      "type": "folder"
+    },
+    "other": {
+      "children": [],
+      "date_added": "13396480212649616",
+      "date_last_used": "0",
+      "date_modified": "13396480647946112",
+      "guid": "82b081ec-3dd3-529c-8475-ab6c344590dd",
+      "id": "872",
+      "name": "Other favourites",
+      "source": "unknown",
+      "type": "folder"
+    },
+    "synced": {
+      "children": [],
+      "date_added": "13396480212649616",
+      "date_last_used": "0",
+      "date_modified": "13370053112754497",
+      "guid": "4cf2e351-0e85-532b-bb37-df045d8f8d0f",
+      "id": "873",
+      "name": "Mobile favourites",
+      "source": "unknown",
+      "type": "folder"
+    },
+    "workspaces_v2": {
+      "children": [],
+      "date_added": "13414356009639197",
+      "date_last_used": "0",
+      "date_modified": "0",
+      "guid": "75aa6670-344f-549d-b742-660f029506ab",
+      "id": "874",
+      "name": "Workspaces",
+      "source": "unknown",
+      "type": "folder"
+    }
+  },
+  "version": 1
+}
