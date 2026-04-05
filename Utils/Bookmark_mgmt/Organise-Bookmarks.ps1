@@ -1,8 +1,8 @@
 param (
-    [string]   $BrowserPath   = '',
-    [string]   $AuditCsv      = '',
+    [string]   $BrowserPath    = '',
+    [string]   $AuditCsv       = '',
     [string[]] $RemoveOutcomes = @(),
-    [string]   $ReportPath    = '',
+    [string]   $ReportPath     = '',
     [switch]   $WhatIf
 )
 
@@ -10,9 +10,53 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 # ============================================================================
+# EDGE PROFILE DISCOVERY
+# ============================================================================
+
+function Get-EdgeBookmarkPath {
+    $userDataRoot = "$env:LOCALAPPDATA\Microsoft\Edge\User Data"
+    if (-not (Test-Path $userDataRoot)) { Write-Warning "Edge User Data not found: $userDataRoot"; return $null }
+
+    $profiles = Get-ChildItem $userDataRoot -Directory |
+        Where-Object { Test-Path "$($_.FullName)\Bookmarks" } |
+        ForEach-Object {
+            $displayName = $_.Name
+            $prefFile    = "$($_.FullName)\Preferences"
+            if (Test-Path $prefFile) {
+                try { $n = (Get-Content $prefFile -Raw | ConvertFrom-Json).profile.name; if ($n) { $displayName = $n } } catch {}
+            }
+            [PSCustomObject]@{ Index=0; FolderName=$_.Name; DisplayName=$displayName; FullPath="$($_.FullName)\Bookmarks" }
+        } | Sort-Object FolderName
+
+    if (-not $profiles -or $profiles.Count -eq 0) { Write-Warning "No Edge profiles with bookmarks found."; return $null }
+
+    $i = 1; foreach ($p in $profiles) { $p.Index = $i++ }
+
+    if ($profiles.Count -eq 1) {
+        Write-Host "Profile : $($profiles[0].DisplayName) ($($profiles[0].FolderName))"
+        return $profiles[0].FullPath
+    }
+
+    Write-Host "Edge profiles found:"
+    foreach ($p in $profiles) { Write-Host ("  [{0}] {1,-30} {2}" -f $p.Index, $p.DisplayName, $p.FolderName) }
+    Write-Host "  [C] Custom path`n"
+
+    do {
+        $sel = (Read-Host "  Select profile number (or C for custom)").Trim()
+        if ($sel -match '^[Cc]$') {
+            $custom = (Read-Host "  Paste full Bookmarks path").Trim()
+            if (Test-Path $custom) { return $custom }
+            Write-Warning "Path not found: $custom"; return $null
+        }
+        $match = $profiles | Where-Object { $_.Index -eq [int]$sel }
+    } until ($match)
+
+    Write-Host "  Selected: $($match.DisplayName) ($($match.FolderName))`n"
+    return $match.FullPath
+}
+
+# ============================================================================
 # INTERACTIVE MODE
-# When run via iex (irm ...) the param() block fires but values are empty.
-# Each prompt is skipped if the parameter was already passed (file mode).
 # ============================================================================
 
 Write-Host "`n================================================" -ForegroundColor Cyan
@@ -20,11 +64,9 @@ Write-Host "  Bookmark Organiser v2.1" -ForegroundColor Cyan
 Write-Host "================================================`n" -ForegroundColor Cyan
 
 if (-not $BrowserPath) {
-    $def   = "$env:LOCALAPPDATA\Microsoft\Edge\User Data\Default\Bookmarks"
-    Write-Host "[1/4] Browser bookmark file"
-    Write-Host "      Default: $def"
-    $i = (Read-Host "      Press Enter for default or paste path").Trim()
-    $BrowserPath = if ($i) { $i } else { $def }
+    Write-Host "[1/4] Select Edge profile to organise"
+    $BrowserPath = Get-EdgeBookmarkPath
+    if (-not $BrowserPath) { Write-Error "No bookmark file selected."; exit 1 }
 }
 
 if (-not $AuditCsv) {
@@ -41,22 +83,19 @@ if (-not $WhatIf) {
 }
 
 if (-not $RemoveOutcomes -or $RemoveOutcomes.Count -eq 0) {
-    Write-Host "`n[4/4] Outcomes to auto-remove (from audit CSV)"
+    Write-Host "`n[4/4] Outcomes to auto-remove from audit CSV"
     Write-Host "      Options : DEAD, ERROR, TIMEOUT, SERVER-ERROR, RATELIMITED, AUTH"
     Write-Host "      Default : DEAD,ERROR"
     $i = (Read-Host "      Press Enter for default or type comma-separated list").Trim()
     $RemoveOutcomes = if ($i) { $i -split ',' | ForEach-Object { $_.Trim() } } else { @('DEAD','ERROR') }
 }
 
-if (-not $ReportPath) {
-    $def = "$env:USERPROFILE\Desktop\bookmark-cleanup-report.csv"
-    $ReportPath = $def
-}
+if (-not $ReportPath) { $ReportPath = "$env:USERPROFILE\Desktop\bookmark-cleanup-report.csv" }
 
 Write-Host ""
 
 # ============================================================================
-# CONFIGURATION - Confirmed Dead URLs (exact match, always removed)
+# CONFIGURATION - Confirmed Dead URLs
 # ============================================================================
 
 $ConfirmedDeadUrls = [System.Collections.Generic.HashSet[string]]@(
@@ -119,7 +158,7 @@ $ConfirmedDeadUrls = [System.Collections.Generic.HashSet[string]]@(
 )
 
 # ============================================================================
-# CONFIGURATION - Pattern-based removal
+# CONFIGURATION - Pattern removal
 # ============================================================================
 
 $RemoveIfUrlMatchesPattern = @(
@@ -350,17 +389,11 @@ function Get-AllBookmarksFlat {
     if (-not $Node.PSObject.Properties['children'] -or -not $Node.children) { return $out }
     foreach ($item in $Node.children) {
         if ($item.type -eq 'url') {
-            $out.Add([PSCustomObject]@{
-                Name       = [string]$item.name
-                URL        = [string]$item.url
-                DateAdded  = [string]$item.date_added
-                FolderPath = $FolderPath
-            })
+            $out.Add([PSCustomObject]@{ Name=[string]$item.name; URL=[string]$item.url; DateAdded=[string]$item.date_added; FolderPath=$FolderPath })
         }
         elseif ($item.type -eq 'folder') {
-            $sub     = if ($FolderPath) { "$FolderPath > $($item.name)" } else { $item.name }
-            $subList = Get-AllBookmarksFlat -Node $item -FolderPath $sub
-            foreach ($s in $subList) { $out.Add($s) }
+            $sub = if ($FolderPath) { "$FolderPath > $($item.name)" } else { $item.name }
+            foreach ($s in (Get-AllBookmarksFlat -Node $item -FolderPath $sub)) { $out.Add($s) }
         }
     }
     return $out
@@ -368,15 +401,10 @@ function Get-AllBookmarksFlat {
 
 function Get-BookmarkCategory {
     param ([string]$Name, [string]$Url)
-
     if ($script:FolderOverride.ContainsKey($Url)) { return $script:FolderOverride[$Url] }
-
     foreach ($folder in $CategoryRules.Keys) {
-        foreach ($pattern in $CategoryRules[$folder]) {
-            if ($Url -match $pattern) { return $folder }
-        }
+        foreach ($pattern in $CategoryRules[$folder]) { if ($Url -match $pattern) { return $folder } }
     }
-
     if ($Url -match 'youtube\.com|youtu\.be|m\.youtube\.com') {
         $n = $Name.ToLower()
         if ($n -match 'cisco|network|vlan|pxe|routing|switching|ccna|comptia|subnet|tftp|ipxe')             { return 'Networking and CCNA' }
@@ -389,7 +417,6 @@ function Get-BookmarkCategory {
         if ($n -match 'battletech|aliens.*descent|gaming|fps')                                               { return 'Gaming' }
         return 'Video and Media Production'
     }
-
     if ($Url -match 'github\.com') {
         $n = $Name.ToLower()
         if ($n -match '\beve\b|zkill|fleet|dscan')                  { return 'EVE Online' }
@@ -397,7 +424,6 @@ function Get-BookmarkCategory {
         if ($n -match 'powershell|ps1|script|sophia|intune|win32') { return 'PowerShell and Scripting' }
         return 'Programming and Development'
     }
-
     return 'Uncategorised'
 }
 
@@ -417,13 +443,8 @@ function New-FolderNode {
     param ([string]$FolderName, [array]$Children)
     $now = Get-WinFileTime
     return [PSCustomObject]@{
-        children      = $Children
-        date_added    = $now
-        date_modified = $now
-        guid          = [guid]::NewGuid().ToString()
-        id            = New-NodeId
-        name          = $FolderName
-        type          = 'folder'
+        children=($Children); date_added=$now; date_modified=$now
+        guid=[guid]::NewGuid().ToString(); id=New-NodeId; name=$FolderName; type='folder'
     }
 }
 
@@ -455,17 +476,14 @@ foreach ($bm in (Get-AllBookmarksFlat -Node $data.roots.synced       -FolderPath
 $originalCount = $all.Count
 Write-Host "Extracted : $originalCount bookmarks`n"
 
-# Step 1 - Remove dead
 $removedDead = [System.Collections.Generic.List[PSObject]]::new()
 $step1       = [System.Collections.Generic.List[PSObject]]::new()
 foreach ($bm in $all) {
-    $isBuiltIn   = $ConfirmedDeadUrls.Contains($bm.URL)
-    $isAuditDead = $script:AuditOutcomes.ContainsKey($bm.URL) -and ($script:AuditOutcomes[$bm.URL] -in $RemoveOutcomes)
-    $isManual    = $script:ManualDeletes.ContainsKey($bm.URL)
-    if ($isBuiltIn -or $isAuditDead -or $isManual) { $removedDead.Add($bm) } else { $step1.Add($bm) }
+    if ($ConfirmedDeadUrls.Contains($bm.URL) -or
+        ($script:AuditOutcomes.ContainsKey($bm.URL) -and $script:AuditOutcomes[$bm.URL] -in $RemoveOutcomes) -or
+        $script:ManualDeletes.ContainsKey($bm.URL)) { $removedDead.Add($bm) } else { $step1.Add($bm) }
 }
 
-# Step 2 - Remove junk patterns
 $removedJunk = [System.Collections.Generic.List[PSObject]]::new()
 $step2       = [System.Collections.Generic.List[PSObject]]::new()
 foreach ($bm in $step1) {
@@ -474,63 +492,44 @@ foreach ($bm in $step1) {
     if ($junk) { $removedJunk.Add($bm) } else { $step2.Add($bm) }
 }
 
-# Step 3 - Deduplicate
 $seen         = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
 $removedDupes = [System.Collections.Generic.List[PSObject]]::new()
 $unique       = [System.Collections.Generic.List[PSObject]]::new()
-foreach ($bm in $step2) {
-    if ($seen.Add($bm.URL)) { $unique.Add($bm) } else { $removedDupes.Add($bm) }
-}
+foreach ($bm in $step2) { if ($seen.Add($bm.URL)) { $unique.Add($bm) } else { $removedDupes.Add($bm) } }
 
 Write-Host "Removed - dead / audit / manual : $($removedDead.Count)"
 Write-Host "Removed - junk/search URLs      : $($removedJunk.Count)"
 Write-Host "Removed - duplicates            : $($removedDupes.Count)"
 Write-Host "Remaining for organisation      : $($unique.Count)`n"
 
-# Step 4 - Categorise
 $categorised = [ordered]@{}
 foreach ($bm in $unique) {
     $cat = Get-BookmarkCategory -Name $bm.Name -Url $bm.URL
-    if (-not $categorised.Contains($cat)) {
-        $categorised[$cat] = [System.Collections.Generic.List[PSObject]]::new()
-    }
+    if (-not $categorised.Contains($cat)) { $categorised[$cat] = [System.Collections.Generic.List[PSObject]]::new() }
     $categorised[$cat].Add($bm)
 }
 
 Write-Host "Category breakdown:"
 foreach ($cat in $categorised.Keys) {
-    $overrideCount = @($categorised[$cat] | Where-Object { $script:FolderOverride.ContainsKey($_.URL) }).Count
-    $tag = if ($overrideCount -gt 0) { "  [$overrideCount override(s)]" } else { '' }
-    Write-Host ("  {0,-44} {1}{2}" -f $cat, $categorised[$cat].Count, $tag)
+    $ov = @($categorised[$cat] | Where-Object { $script:FolderOverride.ContainsKey($_.URL) }).Count
+    Write-Host ("  {0,-44} {1}{2}" -f $cat, $categorised[$cat].Count, $(if ($ov -gt 0) { "  [$ov override(s)]" } else { '' }))
 }
 Write-Host ""
 
-# Step 5 - Build folders
 $folderOrder = @(
-    'Microsoft 365 and Admin'
-    'Intune and Endpoint Management'
-    'Azure and Entra'
-    'Microsoft Docs and Learn'
-    'PowerShell and Scripting'
-    'Networking and CCNA'
-    'Security and Pentesting'
-    'Homelab and Virtualisation'
-    'EVE Online'
-    'Programming and Development'
-    'Video and Media Production'
-    'Gaming'
-    'Personal'
-    'Tools and Utilities'
-    'Uncategorised'
+    'Microsoft 365 and Admin'; 'Intune and Endpoint Management'; 'Azure and Entra'
+    'Microsoft Docs and Learn'; 'PowerShell and Scripting'; 'Networking and CCNA'
+    'Security and Pentesting'; 'Homelab and Virtualisation'; 'EVE Online'
+    'Programming and Development'; 'Video and Media Production'; 'Gaming'
+    'Personal'; 'Tools and Utilities'; 'Uncategorised'
 )
 foreach ($cat in $categorised.Keys) { if ($cat -notin $folderOrder) { $folderOrder += $cat } }
 
 $newBarChildren = [System.Collections.Generic.List[PSObject]]::new()
 foreach ($folderName in $folderOrder) {
     if (-not $categorised.Contains($folderName)) { continue }
-    $nodes      = @($categorised[$folderName] | ForEach-Object { New-UrlNode -Bookmark $_ })
-    $folderNode = New-FolderNode -FolderName $folderName -Children $nodes
-    $newBarChildren.Add($folderNode)
+    $nodes = @($categorised[$folderName] | ForEach-Object { New-UrlNode -Bookmark $_ })
+    $newBarChildren.Add((New-FolderNode -FolderName $folderName -Children $nodes))
     Write-Host "  Built: $folderName ($($nodes.Count))"
 }
 
@@ -538,7 +537,6 @@ $data.roots.bookmark_bar.children = @($newBarChildren)
 $data.roots.other.children        = @()
 $data.roots.synced.children       = @()
 
-# Step 6 - Write
 if (-not $WhatIf) {
     [System.IO.File]::WriteAllText($BrowserPath, ($data | ConvertTo-Json -Depth 50), [System.Text.Encoding]::UTF8)
     Write-Host "`nBookmarks file written." -ForegroundColor Green
@@ -546,27 +544,21 @@ if (-not $WhatIf) {
     Write-Host "`n[WhatIf] No changes written." -ForegroundColor Yellow
 }
 
-# Step 7 - CSV report
 $report = [System.Collections.Generic.List[PSObject]]::new()
 foreach ($bm in $removedDead) {
-    $reason = if     ($script:ManualDeletes.ContainsKey($bm.URL))  { 'Manual delete flag' }
-              elseif ($ConfirmedDeadUrls.Contains($bm.URL))        { 'Built-in dead list' }
-              elseif ($script:AuditOutcomes.ContainsKey($bm.URL))  { "Audit: $($script:AuditOutcomes[$bm.URL])" }
-              else   { 'Unknown' }
-    $report.Add([PSCustomObject]@{ Action='Removed-Dead'; Reason=$reason;         Name=$bm.Name; URL=$bm.URL; NewFolder=''; OriginalFolder=$bm.FolderPath })
+    $reason = if ($script:ManualDeletes.ContainsKey($bm.URL)) { 'Manual delete flag' }
+              elseif ($ConfirmedDeadUrls.Contains($bm.URL))   { 'Built-in dead list' }
+              elseif ($script:AuditOutcomes.ContainsKey($bm.URL)) { "Audit: $($script:AuditOutcomes[$bm.URL])" }
+              else { 'Unknown' }
+    $report.Add([PSCustomObject]@{ Action='Removed-Dead'; Reason=$reason; Name=$bm.Name; URL=$bm.URL; NewFolder=''; OriginalFolder=$bm.FolderPath })
 }
 foreach ($bm in $removedJunk)  { $report.Add([PSCustomObject]@{ Action='Removed-Junk'; Reason='Pattern match'; Name=$bm.Name; URL=$bm.URL; NewFolder=''; OriginalFolder=$bm.FolderPath }) }
 foreach ($bm in $removedDupes) { $report.Add([PSCustomObject]@{ Action='Removed-Dupe'; Reason='Duplicate URL'; Name=$bm.Name; URL=$bm.URL; NewFolder=''; OriginalFolder=$bm.FolderPath }) }
 foreach ($cat in $categorised.Keys) {
     foreach ($bm in $categorised[$cat]) {
-        $overrideUsed = $script:FolderOverride.ContainsKey($bm.URL)
         $report.Add([PSCustomObject]@{
-            Action         = 'Kept'
-            Reason         = if ($overrideUsed) { 'Audit CSV folder override' } else { 'Auto-categorised' }
-            Name           = $bm.Name
-            URL            = $bm.URL
-            NewFolder      = $cat
-            OriginalFolder = $bm.FolderPath
+            Action='Kept'; Reason=if ($script:FolderOverride.ContainsKey($bm.URL)) { 'Audit CSV folder override' } else { 'Auto-categorised' }
+            Name=$bm.Name; URL=$bm.URL; NewFolder=$cat; OriginalFolder=$bm.FolderPath
         })
     }
 }
