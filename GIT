@@ -1,5 +1,5 @@
 cd "C:\Users\Administrator\OneDrive\DEV_OPS\IT-Scripts"
 git add -A
 git status
-git commit -m "Add: Bookmark management toolkit v2.1 - audit, organise, backup, export"
+git commit -m "Add: Bookmark management toolkit v2.1 - audit, organise, backup, export & new sub menu items"
 git push

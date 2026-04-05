@@ -16,31 +16,32 @@ $Script:BaseUrl = "https://raw.githubusercontent.com/$($Script:Config.RepoOwner)
 
 $Script:MenuStructure = [ordered]@{
     "Active Directory" = @(
-        # The 'Interactive' script was deleted, so we only list the 'Param' version
-        @{ Name = "Copy User Groups";     Path = "ActiveDirectory/migrate_groups/migrate_user_group_memberships_param.ps1"; Description = "Copy groups from Source to Target user" }
-        @{ Name = "UPN Name Change";      Path = "ActiveDirectory/Rename-UPN/UPN_NameChange.ps1";                           Description = "Change user UPN and display name" }
+        @{ Name = "Copy User Groups"; Path = "ActiveDirectory/migrate_groups/migrate_user_group_memberships_param.ps1"; Description = "Copy groups from Source to Target user" }
+        @{ Name = "UPN Name Change";  Path = "ActiveDirectory/Rename-UPN/UPN_NameChange.ps1";                          Description = "Change user UPN and display name" }
     )
     "Device Setup" = @(
-        @{ Name = "Get Hardware Hash";    Path = "Setup/HWH/hwh.ps1";                                                        Description = "Collect Autopilot hardware hash" }
+        @{ Name = "Get Hardware Hash"; Path = "Setup/HWH/hwh.ps1"; Description = "Collect Autopilot hardware hash" }
     )
     "Utilities" = @(
-        @{ Name = "Create Backup Folders"; Path = "Utils/BACKUPS/Create_Folders_v2.ps1";                                     Description = "Create backup folder structure for migrations" }
-        @{ Name = "Install Standard Apps"; Path = "Utils/Install-standard-apps/Install-StandardApps.ps1";                    Description = "Auto-installs Winget, 7-Zip, and Notepad++" }
-        @{ Name = "Set Screen Lock"; Path = "Utils/Set Screen Lock/Set-AutoLock.ps1";                                        Description = "Set Windows Auto-Lock timeout for user and machine" }
-        @{ Name = "Export App JSON"; Path = "Utils/Export App JSON/App Export_JSON.ps1";                             Description = "Export list of installed applications to a text file" }
-        @{ Name = "Windows mgmt"; Path = "Utils/Windows mgmt/Win11-FeatureManager.ps1";                       Description = "Manage Windows 11 features and settings" }
-        @{ Name = "Set Loc"; Path = "Utils\Set Loc\Set-Region.ps1";                                     Description = "mgmt-Tools general purpose" }
-        @{ Name = "Backup Bookmarks"; Path = "Utils/Bookmark_mgmt/Backup-Bookmarks.ps1"; Description = "Backup Edge bookmarks with auto-retention (keeps last 10)" }
-
-    "Windows Autopilot Deployment_WINhome" = @(
-        @{ Name = "Create_Bypass"; Path = "Windows Autopilot Deployment_WINhome/Create_Bypass.ps1";                          Description = "Create files for Windows ISO modification to prep for Home Edition" }
-        @{ Name = "Install_AnyBurn"; Path = "Windows Autopilot Deployment_WINhome/Install_AnyBurn.ps1";                      Description = "Install AnyBurn for ISO editing" }
+        @{ Name = "Create Backup Folders"; Path = "Utils/BACKUPS/Create_Folders_v2.ps1";                              Description = "Create backup folder structure for migrations" }
+        @{ Name = "Install Standard Apps"; Path = "Utils/Install-standard-apps/Install-StandardApps.ps1";             Description = "Auto-installs Winget, 7-Zip, and Notepad++" }
+        @{ Name = "Set Screen Lock";       Path = "Utils/Set Screen Lock/Set-AutoLock.ps1";                           Description = "Set Windows Auto-Lock timeout for user and machine" }
+        @{ Name = "Export App JSON";       Path = "Utils/Export App JSON/App Export_JSON.ps1";                        Description = "Export list of installed applications to a text file" }
+        @{ Name = "Windows Mgmt";          Path = "Utils/Windows mgmt/Win11-FeatureManager.ps1";                      Description = "Manage Windows 11 features and settings" }
+        @{ Name = "Set Loc";               Path = "Utils/Set Loc/Set-Region.ps1";                                     Description = "mgmt-Tools general purpose" }
     )
-
-    
-        
-    
+    "Windows Autopilot Deployment_WINhome" = @(
+        @{ Name = "Create_Bypass";   Path = "Windows Autopilot Deployment_WINhome/Create_Bypass.ps1";   Description = "Create files for Windows ISO modification to prep for Home Edition" }
+        @{ Name = "Install_AnyBurn"; Path = "Windows Autopilot Deployment_WINhome/Install_AnyBurn.ps1"; Description = "Install AnyBurn for ISO editing" }
+    )
+    "Bookmark Management" = @(
+        @{ Name = "1. Audit - Check Dead Links";  Path = "Utils/Bookmark_mgmt/Check-Bookmarks-Parallel.ps1"; Description = "Parallel HTTP check of all bookmarks. Produces CSV report. Requires PS7." }
+        @{ Name = "2. Organise - Clean and Sort"; Path = "Utils/Bookmark_mgmt/Organise-Bookmarks.ps1";       Description = "Remove dead links, deduplicate, sort into folders. Optionally ingests audit CSV." }
+        @{ Name = "3. Export to HTML";            Path = "Utils/Bookmark_mgmt/Export-BookmarksToHtml.ps1";   Description = "Export cleaned bookmarks to Netscape HTML for browser import." }
+        @{ Name = "4. Backup Bookmarks";          Path = "Utils/Bookmark_mgmt/Backup-Bookmarks.ps1";         Description = "Backup Edge bookmarks with auto-retention (keeps last 10)" }
+    )
 }
+
 
 function Show-Banner {
     Clear-Host

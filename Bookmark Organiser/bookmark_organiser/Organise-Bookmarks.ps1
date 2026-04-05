@@ -1,59 +1,73 @@
+#Requires -Version 5.1
+<#
+.SYNOPSIS
+    Cleans and re-organises Edge/Chrome bookmarks, optionally driven by an audit CSV.
+
+.DESCRIPTION
+    1. Creates a timestamped backup of the Bookmarks file.
+    2. Flattens all bookmarks from all three roots.
+    3. Removes confirmed dead links (built-in list + audit CSV outcomes + DeleteFlag).
+    4. Removes saved search URLs and chrome:// internal pages.
+    5. Removes duplicate URLs, keeping first occurrence.
+    6. Applies folder overrides from audit CSV (FolderOverride column).
+    7. Categorises remaining bookmarks into named folders by URL pattern.
+    8. Writes a rebuilt clean Bookmarks JSON to disk.
+    9. Exports a CSV summary report of all actions taken.
+
+.PARAMETER BrowserPath
+    Path to the Bookmarks JSON file. Defaults to Edge Default profile.
+
+.PARAMETER AuditCsv
+    Path to the CSV produced by Check-Bookmarks-Parallel.ps1.
+    When supplied:
+      - Bookmarks with Outcome in $RemoveOutcomes are removed automatically.
+      - Bookmarks with a value in the FolderOverride column are placed in that folder.
+      - Bookmarks with DeleteFlag = Y are removed regardless of outcome.
+
+.PARAMETER RemoveOutcomes
+    Audit CSV Outcome values that trigger automatic removal.
+    Default: DEAD, ERROR.
+    TIMEOUT, SERVER-ERROR, RATELIMITED, AUTH excluded by default.
+
+.PARAMETER ReportPath
+    Path for the CSV output report. Defaults to Desktop.
+
+.PARAMETER WhatIf
+    Preview mode. No changes written to disk.
+
+.EXAMPLE
+    # Run without audit CSV (built-in dead list only)
+    .\Organise-Bookmarks.ps1
+
+.EXAMPLE
+    # Full flow: feed audit CSV in
+    .\Organise-Bookmarks.ps1 -AuditCsv "$env:USERPROFILE\Desktop\bookmark-audit-20260404-1430.csv"
+
+.EXAMPLE
+    # Preview with extended removal (also remove timeouts)
+    .\Organise-Bookmarks.ps1 -AuditCsv ".\audit.csv" -RemoveOutcomes DEAD,ERROR,TIMEOUT -WhatIf
+
+.NOTES
+    Author  : Andrew Jones
+    Version : 2.0
+    IMPORTANT: Close the browser before running.
+#>
+
+[CmdletBinding(SupportsShouldProcess)]
 param (
-    [string]   $BrowserPath   = '',
-    [string]   $AuditCsv      = '',
-    [string[]] $RemoveOutcomes = @(),
-    [string]   $ReportPath    = '',
-    [switch]   $WhatIf
+    [string]   $BrowserPath    = "$env:LOCALAPPDATA\Microsoft\Edge\User Data\Default\Bookmarks",
+    [string]   $AuditCsv       = '',
+    [string[]] $RemoveOutcomes = @('DEAD', 'ERROR'),
+    [string]   $ReportPath     = "$env:USERPROFILE\Desktop\bookmark-cleanup-report.csv"
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-# ============================================================================
-# INTERACTIVE MODE
-# When run via iex (irm ...) the param() block fires but values are empty.
-# Each prompt is skipped if the parameter was already passed (file mode).
-# ============================================================================
-
-Write-Host "`n================================================" -ForegroundColor Cyan
-Write-Host "  Bookmark Organiser v2.1" -ForegroundColor Cyan
-Write-Host "================================================`n" -ForegroundColor Cyan
-
-if (-not $BrowserPath) {
-    $def   = "$env:LOCALAPPDATA\Microsoft\Edge\User Data\Default\Bookmarks"
-    Write-Host "[1/4] Browser bookmark file"
-    Write-Host "      Default: $def"
-    $i = (Read-Host "      Press Enter for default or paste path").Trim()
-    $BrowserPath = if ($i) { $i } else { $def }
-}
-
-if (-not $AuditCsv) {
-    Write-Host "`n[2/4] Audit CSV from Check-Bookmarks-Parallel"
-    Write-Host "      Leave blank to run without audit data"
-    $i = (Read-Host "      CSV path (or Enter to skip)").Trim()
-    $AuditCsv = $i
-}
-
-if (-not $WhatIf) {
-    Write-Host "`n[3/4] Preview mode - no changes will be written"
-    $i = (Read-Host "      Preview only? (Y/N, default N)").Trim()
-    if ($i -match '^(Y|yes)$') { $WhatIf = $true }
-}
-
-if (-not $RemoveOutcomes -or $RemoveOutcomes.Count -eq 0) {
-    Write-Host "`n[4/4] Outcomes to auto-remove (from audit CSV)"
-    Write-Host "      Options : DEAD, ERROR, TIMEOUT, SERVER-ERROR, RATELIMITED, AUTH"
-    Write-Host "      Default : DEAD,ERROR"
-    $i = (Read-Host "      Press Enter for default or type comma-separated list").Trim()
-    $RemoveOutcomes = if ($i) { $i -split ',' | ForEach-Object { $_.Trim() } } else { @('DEAD','ERROR') }
-}
-
-if (-not $ReportPath) {
-    $def = "$env:USERPROFILE\Desktop\bookmark-cleanup-report.csv"
-    $ReportPath = $def
-}
-
-Write-Host ""
+# Null-safe defaults (guards against interactive paste without param() firing)
+if (-not $BrowserPath)  { $BrowserPath  = "$env:LOCALAPPDATA\Microsoft\Edge\User Data\Default\Bookmarks" }
+if (-not $RemoveOutcomes -or $RemoveOutcomes.Count -eq 0) { $RemoveOutcomes = @('DEAD','ERROR') }
+if (-not $ReportPath)   { $ReportPath   = "$env:USERPROFILE\Desktop\bookmark-cleanup-report.csv" }
 
 # ============================================================================
 # CONFIGURATION - Confirmed Dead URLs (exact match, always removed)
@@ -119,7 +133,7 @@ $ConfirmedDeadUrls = [System.Collections.Generic.HashSet[string]]@(
 )
 
 # ============================================================================
-# CONFIGURATION - Pattern-based removal
+# CONFIGURATION - Pattern-based removal (regex on URL)
 # ============================================================================
 
 $RemoveIfUrlMatchesPattern = @(
@@ -137,10 +151,11 @@ $RemoveIfUrlMatchesPattern = @(
 )
 
 # ============================================================================
-# CONFIGURATION - Category Rules
+# CONFIGURATION - Category Rules (ordered, first match wins)
 # ============================================================================
 
 $CategoryRules = [ordered]@{
+
     'Intune and Endpoint Management' = @(
         'intune\.microsoft\.com'
         '/endpoint/'
@@ -303,19 +318,22 @@ $CategoryRules = [ordered]@{
 }
 
 # ============================================================================
-# LOAD AUDIT CSV
+# LOAD AUDIT CSV (if supplied)
+# Script-scope so Get-BookmarkCategory can reach them without passing parameters
 # ============================================================================
 
-$script:AuditOutcomes  = @{}
-$script:FolderOverride = @{}
-$script:ManualDeletes  = @{}
+$script:AuditOutcomes  = @{}   # URL -> Outcome string
+$script:FolderOverride = @{}   # URL -> folder name string (from FolderOverride column)
+$script:ManualDeletes  = @{}   # URL -> $true (from DeleteFlag column)
 
 if ($AuditCsv -and (Test-Path $AuditCsv)) {
     $auditRows = Import-Csv $AuditCsv
     foreach ($row in $auditRows) {
         if (-not $row.URL) { continue }
         $url = $row.URL.Trim()
+
         if ($row.Outcome) { $script:AuditOutcomes[$url] = $row.Outcome.Trim() }
+
         if ($row.PSObject.Properties['FolderOverride'] -and $row.FolderOverride.Trim()) {
             $script:FolderOverride[$url] = $row.FolderOverride.Trim()
         }
@@ -323,13 +341,14 @@ if ($AuditCsv -and (Test-Path $AuditCsv)) {
             $script:ManualDeletes[$url] = $true
         }
     }
+
     Write-Host "Audit CSV loaded  : $($auditRows.Count) entries"
     Write-Host "  Remove outcomes : $($RemoveOutcomes -join ', ')"
     Write-Host "  Matching dead   : $(($auditRows | Where-Object { $_.Outcome -in $RemoveOutcomes }).Count)"
     Write-Host "  Folder overrides: $($script:FolderOverride.Count)"
     Write-Host "  Manual deletes  : $($script:ManualDeletes.Count)`n"
 } elseif ($AuditCsv) {
-    Write-Warning "AuditCsv not found: $AuditCsv - continuing without audit data."
+    Write-Warning "AuditCsv not found at: $AuditCsv - continuing without audit data."
 }
 
 # ============================================================================
@@ -337,6 +356,7 @@ if ($AuditCsv -and (Test-Path $AuditCsv)) {
 # ============================================================================
 
 $Script:IdCounter = 500
+
 function New-NodeId { return ([string]($Script:IdCounter++)) }
 
 function Get-WinFileTime {
@@ -369,31 +389,37 @@ function Get-AllBookmarksFlat {
 function Get-BookmarkCategory {
     param ([string]$Name, [string]$Url)
 
-    if ($script:FolderOverride.ContainsKey($Url)) { return $script:FolderOverride[$Url] }
+    # Priority 1: FolderOverride column from audit CSV
+    if ($script:FolderOverride.ContainsKey($Url)) {
+        return $script:FolderOverride[$Url]
+    }
 
+    # Priority 2: Ordered category rules against URL
     foreach ($folder in $CategoryRules.Keys) {
         foreach ($pattern in $CategoryRules[$folder]) {
             if ($Url -match $pattern) { return $folder }
         }
     }
 
+    # Priority 3: YouTube - classify by bookmark name keywords
     if ($Url -match 'youtube\.com|youtu\.be|m\.youtube\.com') {
         $n = $Name.ToLower()
-        if ($n -match 'cisco|network|vlan|pxe|routing|switching|ccna|comptia|subnet|tftp|ipxe')             { return 'Networking and CCNA' }
-        if ($n -match 'powershell|intune|azure|defender|active directory|autopilot|m365|office 365|entra')   { return 'Microsoft 365 and Admin' }
-        if ($n -match 'kali|wireshark|nmap|hack|pentest|security|malware|inject')                            { return 'Security and Pentesting' }
-        if ($n -match 'python|docker|programming|linux|bash|code|script|devop')                              { return 'Programming and Development' }
-        if ($n -match 'hyper-v|vmware|virtualiz|wsl|esxi|proxmox|parsec')                                   { return 'Homelab and Virtualisation' }
+        if ($n -match 'cisco|network|vlan|pxe|routing|switching|ccna|comptia|subnet|tftp|ipxe')            { return 'Networking and CCNA' }
+        if ($n -match 'powershell|intune|azure|defender|active directory|autopilot|m365|office 365|entra')  { return 'Microsoft 365 and Admin' }
+        if ($n -match 'kali|wireshark|nmap|hack|pentest|security|malware|inject')                           { return 'Security and Pentesting' }
+        if ($n -match 'python|docker|programming|linux|bash|code|script|devop')                             { return 'Programming and Development' }
+        if ($n -match 'hyper-v|vmware|virtualiz|wsl|esxi|proxmox|parsec')                                  { return 'Homelab and Virtualisation' }
         if ($n -match 'after effects|premiere|photoshop|adobe|particle|motion|animation|trapcode|mogrt|obs') { return 'Video and Media Production' }
-        if ($n -match '\beve\b|zkill|abyss|fleet|pvp|pve|eve online')                                       { return 'EVE Online' }
-        if ($n -match 'battletech|aliens.*descent|gaming|fps')                                               { return 'Gaming' }
+        if ($n -match '\beve\b|zkill|abyss|fleet|pvp|pve|eve online')                                      { return 'EVE Online' }
+        if ($n -match 'battletech|aliens.*descent|gaming|fps')                                              { return 'Gaming' }
         return 'Video and Media Production'
     }
 
+    # Priority 4: GitHub fallback by name
     if ($Url -match 'github\.com') {
         $n = $Name.ToLower()
-        if ($n -match '\beve\b|zkill|fleet|dscan')                  { return 'EVE Online' }
-        if ($n -match 'battletech|game')                            { return 'Gaming' }
+        if ($n -match '\beve\b|zkill|fleet|dscan')         { return 'EVE Online' }
+        if ($n -match 'battletech|game')                   { return 'Gaming' }
         if ($n -match 'powershell|ps1|script|sophia|intune|win32') { return 'PowerShell and Scripting' }
         return 'Programming and Development'
     }
@@ -431,21 +457,22 @@ function New-FolderNode {
 # MAIN
 # ============================================================================
 
-Write-Host "=== Bookmark Cleanup and Organiser v2.1 ===" -ForegroundColor Cyan
+Write-Host "`n=== Bookmark Cleanup and Organiser v2.0 ===" -ForegroundColor Cyan
 Write-Host "Target : $BrowserPath"
 if ($AuditCsv) { Write-Host "Audit  : $AuditCsv" }
-if ($WhatIf)   { Write-Host "[WHATIF MODE - no changes written]" -ForegroundColor Yellow }
-Write-Host ""
+if ($WhatIfPreference) { Write-Host "[WHATIF MODE - no changes written]`n" -ForegroundColor Yellow }
 
 if (-not (Test-Path $BrowserPath)) { Write-Error "Bookmarks file not found: $BrowserPath"; exit 1 }
 
+# Backup
 $timestamp  = Get-Date -Format 'yyyyMMdd-HHmmss'
 $backupPath = "$BrowserPath.backup-$timestamp"
-if (-not $WhatIf) {
+if (-not $WhatIfPreference) {
     Copy-Item $BrowserPath $backupPath -Force
-    Write-Host "Backup : $backupPath" -ForegroundColor Green
+    Write-Host "Backup : $backupPath`n" -ForegroundColor Green
 }
 
+# Load and flatten
 $data = Get-Content $BrowserPath -Raw | ConvertFrom-Json
 $all  = [System.Collections.Generic.List[PSObject]]::new()
 foreach ($bm in (Get-AllBookmarksFlat -Node $data.roots.bookmark_bar -FolderPath 'Bookmark Bar'))   { $all.Add($bm) }
@@ -455,17 +482,18 @@ foreach ($bm in (Get-AllBookmarksFlat -Node $data.roots.synced       -FolderPath
 $originalCount = $all.Count
 Write-Host "Extracted : $originalCount bookmarks`n"
 
-# Step 1 - Remove dead
+# --- Step 1: Remove dead URLs (built-in + audit outcomes + manual delete flag) ---
 $removedDead = [System.Collections.Generic.List[PSObject]]::new()
 $step1       = [System.Collections.Generic.List[PSObject]]::new()
 foreach ($bm in $all) {
-    $isBuiltIn   = $ConfirmedDeadUrls.Contains($bm.URL)
-    $isAuditDead = $script:AuditOutcomes.ContainsKey($bm.URL) -and ($script:AuditOutcomes[$bm.URL] -in $RemoveOutcomes)
-    $isManual    = $script:ManualDeletes.ContainsKey($bm.URL)
-    if ($isBuiltIn -or $isAuditDead -or $isManual) { $removedDead.Add($bm) } else { $step1.Add($bm) }
+    $isBuiltIn     = $ConfirmedDeadUrls.Contains($bm.URL)
+    $isAuditDead   = $script:AuditOutcomes.ContainsKey($bm.URL) -and ($script:AuditOutcomes[$bm.URL] -in $RemoveOutcomes)
+    $isManual      = $script:ManualDeletes.ContainsKey($bm.URL)
+    if ($isBuiltIn -or $isAuditDead -or $isManual) { $removedDead.Add($bm) }
+    else { $step1.Add($bm) }
 }
 
-# Step 2 - Remove junk patterns
+# --- Step 2: Remove pattern-matched junk ---
 $removedJunk = [System.Collections.Generic.List[PSObject]]::new()
 $step2       = [System.Collections.Generic.List[PSObject]]::new()
 foreach ($bm in $step1) {
@@ -474,7 +502,7 @@ foreach ($bm in $step1) {
     if ($junk) { $removedJunk.Add($bm) } else { $step2.Add($bm) }
 }
 
-# Step 3 - Deduplicate
+# --- Step 3: Deduplicate ---
 $seen         = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
 $removedDupes = [System.Collections.Generic.List[PSObject]]::new()
 $unique       = [System.Collections.Generic.List[PSObject]]::new()
@@ -487,7 +515,7 @@ Write-Host "Removed - junk/search URLs      : $($removedJunk.Count)"
 Write-Host "Removed - duplicates            : $($removedDupes.Count)"
 Write-Host "Remaining for organisation      : $($unique.Count)`n"
 
-# Step 4 - Categorise
+# --- Step 4: Categorise ---
 $categorised = [ordered]@{}
 foreach ($bm in $unique) {
     $cat = Get-BookmarkCategory -Name $bm.Name -Url $bm.URL
@@ -499,13 +527,13 @@ foreach ($bm in $unique) {
 
 Write-Host "Category breakdown:"
 foreach ($cat in $categorised.Keys) {
-    $overrideCount = @($categorised[$cat] | Where-Object { $script:FolderOverride.ContainsKey($_.URL) }).Count
-    $tag = if ($overrideCount -gt 0) { "  [$overrideCount override(s)]" } else { '' }
+    $hasOverrides = @($categorised[$cat] | Where-Object { $script:FolderOverride.ContainsKey($_.URL) }).Count
+    $tag = if ($hasOverrides -gt 0) { "  [$hasOverrides override(s) from audit CSV]" } else { '' }
     Write-Host ("  {0,-44} {1}{2}" -f $cat, $categorised[$cat].Count, $tag)
 }
 Write-Host ""
 
-# Step 5 - Build folders
+# --- Step 5: Build new folder structure ---
 $folderOrder = @(
     'Microsoft 365 and Admin'
     'Intune and Endpoint Management'
@@ -538,22 +566,22 @@ $data.roots.bookmark_bar.children = @($newBarChildren)
 $data.roots.other.children        = @()
 $data.roots.synced.children       = @()
 
-# Step 6 - Write
-if (-not $WhatIf) {
+# --- Step 6: Write ---
+if (-not $WhatIfPreference) {
     [System.IO.File]::WriteAllText($BrowserPath, ($data | ConvertTo-Json -Depth 50), [System.Text.Encoding]::UTF8)
     Write-Host "`nBookmarks file written." -ForegroundColor Green
 } else {
     Write-Host "`n[WhatIf] No changes written." -ForegroundColor Yellow
 }
 
-# Step 7 - CSV report
+# --- Step 7: CSV Report ---
 $report = [System.Collections.Generic.List[PSObject]]::new()
 foreach ($bm in $removedDead) {
     $reason = if     ($script:ManualDeletes.ContainsKey($bm.URL))  { 'Manual delete flag' }
               elseif ($ConfirmedDeadUrls.Contains($bm.URL))        { 'Built-in dead list' }
               elseif ($script:AuditOutcomes.ContainsKey($bm.URL))  { "Audit: $($script:AuditOutcomes[$bm.URL])" }
               else   { 'Unknown' }
-    $report.Add([PSCustomObject]@{ Action='Removed-Dead'; Reason=$reason;         Name=$bm.Name; URL=$bm.URL; NewFolder=''; OriginalFolder=$bm.FolderPath })
+    $report.Add([PSCustomObject]@{ Action='Removed-Dead'; Reason=$reason;         Name=$bm.Name; URL=$bm.URL; NewFolder='';  OriginalFolder=$bm.FolderPath })
 }
 foreach ($bm in $removedJunk)  { $report.Add([PSCustomObject]@{ Action='Removed-Junk'; Reason='Pattern match'; Name=$bm.Name; URL=$bm.URL; NewFolder=''; OriginalFolder=$bm.FolderPath }) }
 foreach ($bm in $removedDupes) { $report.Add([PSCustomObject]@{ Action='Removed-Dupe'; Reason='Duplicate URL'; Name=$bm.Name; URL=$bm.URL; NewFolder=''; OriginalFolder=$bm.FolderPath }) }
@@ -571,7 +599,7 @@ foreach ($cat in $categorised.Keys) {
     }
 }
 
-if (-not $WhatIf) {
+if (-not $WhatIfPreference) {
     $report | Export-Csv $ReportPath -NoTypeInformation
     Write-Host "Report  : $ReportPath"
 }
@@ -582,6 +610,5 @@ Write-Host "Dead/manual: $($removedDead.Count)"
 Write-Host "Junk       : $($removedJunk.Count)"
 Write-Host "Duplicates : $($removedDupes.Count)"
 Write-Host "Final      : $($unique.Count)"
-Write-Host "Overrides  : $($script:FolderOverride.Count) applied"
-if (-not $WhatIf) { Write-Host "Backup     : $backupPath" }
-Write-Host ""
+Write-Host "Overrides  : $($script:FolderOverride.Count) folder overrides applied"
+Write-Host "Backup     : $backupPath`n"
