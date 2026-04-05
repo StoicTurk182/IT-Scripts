@@ -85,6 +85,7 @@ if (-not $WhatIf) {
 if (-not $RemoveOutcomes -or $RemoveOutcomes.Count -eq 0) {
     Write-Host "`n[4/4] Outcomes to auto-remove from audit CSV"
     Write-Host "      Options : DEAD, ERROR, TIMEOUT, SERVER-ERROR, RATELIMITED, AUTH"
+    Write-Host "      Note    : Duplicates are always removed automatically regardless of this setting"
     Write-Host "      Default : DEAD,ERROR"
     $i = (Read-Host "      Press Enter for default or type comma-separated list").Trim()
     $RemoveOutcomes = if ($i) { $i -split ',' | ForEach-Object { $_.Trim() } } else { @('DEAD','ERROR') }
