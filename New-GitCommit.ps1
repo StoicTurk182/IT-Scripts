@@ -104,7 +104,7 @@ function Get-CommitScope {
     )
 
     # Normalise repo root for comparison
-    $repoRootNorm = $RepoRoot.TrimEnd('/', '\\').Replace('\\', '/').ToLower()
+    $repoRootNorm = $RepoRoot.Replace('\', '/').TrimEnd('/').ToLower()
     $scopes = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
 
     foreach ($path in $FilePaths) {
