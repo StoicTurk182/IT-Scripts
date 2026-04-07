@@ -29,7 +29,8 @@ $Script:MenuStructure = [ordered]@{
         @{ Name = "Export App JSON";       Path = "Utils/Export App JSON/App Export_JSON.ps1";                        Description = "Export list of installed applications to a text file" }
         @{ Name = "Windows Mgmt";          Path = "Utils/Windows mgmt/Win11-FeatureManager.ps1";                      Description = "Manage Windows 11 features and settings" }
         @{ Name = "Set Loc";               Path = "Utils/Set Loc/Set-Region.ps1";                                     Description = "mgmt-Tools general purpose" }
-        @{ Name = "Win11 App Manager"; Path = "Utils/Win11-AppManager/Win11-AppManager.ps1"; Description = "Audit and remove built-in Windows 11 apps with duplicate detection" }
+        @{ Name = "Win11 App Manager"; Path = "Utils/Win11-AppManager/Win11-AppManager.ps1";                          Description = "Audit and remove built-in Windows 11 apps with duplicate detection" }
+        @{ Name = "Generate WiFi QR Code"; Path = "Utils/WiFi-QR/New-WiFiQRCode.ps1";                                 Description = "Generate a static WiFi QR code PNG from SSID and password" }
     )
     "Windows Autopilot Deployment_WINhome" = @(
         @{ Name = "Create_Bypass";   Path = "Windows Autopilot Deployment_WINhome/Create_Bypass.ps1";   Description = "Create files for Windows ISO modification to prep for Home Edition" }
