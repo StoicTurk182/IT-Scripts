@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VaultWatch Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: #1a1b1c;
+            color: #d4d4d4;
+            font-family: "Segoe UI", sans-serif;
+            padding: 24px;
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .subtitle {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 24px;
+        }
+
+        .stat-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: #252627;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .stat-card .label {
+            font-size: 0.75rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+
+        .stat-card .value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #7c9ef8;
+        }
+
+        .stat-card .sub {
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .chart-grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .chart-card {
+            background: #252627;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .chart-card h2 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 16px;
+        }
+
+        .chart-card canvas {
+            max-height: 260px;
+        }
+
+        .table-card {
+            background: #252627;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .table-card h2 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 16px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+        }
+
+        th {
+            text-align: left;
+            padding: 8px 12px;
+            color: #666;
+            border-bottom: 1px solid #333;
+            font-weight: 500;
+        }
+
+        td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #2a2b2c;
+            color: #ccc;
+        }
+
+        tr:last-child td { border-bottom: none; }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.72rem;
+            font-weight: 600;
+        }
+
+        .badge-added    { background: #1a3a2a; color: #4caf7d; }
+        .badge-deleted  { background: #3a1a1a; color: #e06c6c; }
+        .badge-modified { background: #2a2a1a; color: #e0c46c; }
+        .badge-none     { background: #252627; color: #666; }
+
+        .no-changes {
+            color: #555;
+            font-size: 0.85rem;
+            padding: 12px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>VaultWatch</h1>
+    <div class="subtitle">
+        Latest snapshot: Run #{{ latest.run_id }} &mdash;
+        {{ latest.timestamp }} &mdash;
+        {{ latest.total_files }} files &mdash;
+        {{ latest.total_size }} MB
+    </div>
+
+    <div class="stat-row">
+        <div class="stat-card">
+            <div class="label">Total Files</div>
+            <div class="value">{{ latest.total_files }}</div>
+            <div class="sub">Latest snapshot</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Vault Size</div>
+            <div class="value">{{ latest.total_size }} MB</div>
+            <div class="sub">Latest snapshot</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Latest Run</div>
+            <div class="value">#{{ latest.run_id }}</div>
+            <div class="sub">{{ latest.timestamp }}</div>
+        </div>
+        <div class="stat-card" id="changes-stat">
+            <div class="label">Recent Changes</div>
+            <div class="value" id="changes-count">...</div>
+            <div class="sub">Since last snapshot</div>
+        </div>
+    </div>
+
+    <div class="chart-grid">
+        <div class="chart-card">
+            <h2>File Count Over Time</h2>
+            <canvas id="fileCountChart"></canvas>
+        </div>
+        <div class="chart-card">
+            <h2>Vault Size Over Time (MB)</h2>
+            <canvas id="vaultSizeChart"></canvas>
+        </div>
+    </div>
+
+    <div class="chart-grid">
+        <div class="chart-card">
+            <h2>Files per Folder (Top 15)</h2>
+            <canvas id="folderChart"></canvas>
+        </div>
+        <div class="chart-card">
+            <h2>Largest Files (Top 10)</h2>
+            <canvas id="largestChart"></canvas>
+        </div>
+    </div>
+
+    <div class="table-card">
+        <h2>Recent Changes</h2>
+        <div id="changes-table-container">
+            <div class="no-changes">Loading...</div>
+        </div>
+    </div>
+
+    <div class="table-card">
+        <h2>Largest Files Detail</h2>
+        <table id="largest-table">
+            <thead>
+                <tr>
+                    <th>File</th>
+                    <th>Folder</th>
+                    <th>Size (bytes)</th>
+                    <th>Lines</th>
+                </tr>
+            </thead>
+            <tbody id="largest-tbody"></tbody>
+        </table>
+    </div>
+
+<script>
+const chartDefaults = {
+    color: "#aaa",
+    borderColor: "#333"
+};
+
+Chart.defaults.color = "#888";
+Chart.defaults.borderColor = "#2e2e2e";
+
+async function buildTimeCharts() {
+    const res  = await fetch("/api/vault-size-over-time");
+    const data = await res.json();
+
+    const labels     = data.map(d => d.timestamp);
+    const fileCounts = data.map(d => d.total_files);
+    const sizes      = data.map(d => d.total_size);
+
+    new Chart(document.getElementById("fileCountChart"), {
+        type: "line",
+        data: {
+            labels,
+            datasets: [{
+                label: "Files",
+                data: fileCounts,
+                borderColor: "#7c9ef8",
+                backgroundColor: "rgba(124,158,248,0.08)",
+                tension: 0.3,
+                fill: true,
+                pointRadius: 4
+            }]
+        },
+        options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: false } } }
+    });
+
+    new Chart(document.getElementById("vaultSizeChart"), {
+        type: "line",
+        data: {
+            labels,
+            datasets: [{
+                label: "MB",
+                data: sizes,
+                borderColor: "#7ec8a4",
+                backgroundColor: "rgba(126,200,164,0.08)",
+                tension: 0.3,
+                fill: true,
+                pointRadius: 4
+            }]
+        },
+        options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: false } } }
+    });
+}
+
+async function buildFolderChart() {
+    const res  = await fetch("/api/files-per-folder");
+    const data = await res.json();
+
+    new Chart(document.getElementById("folderChart"), {
+        type: "bar",
+        data: {
+            labels: data.map(d => d.folder),
+            datasets: [{
+                label: "Files",
+                data: data.map(d => d.count),
+                backgroundColor: "rgba(124,158,248,0.7)",
+                borderRadius: 4
+            }]
+        },
+        options: {
+            indexAxis: "y",
+            plugins: { legend: { display: false } },
+            scales: { x: { beginAtZero: true } }
+        }
+    });
+}
+
+async function buildLargestChart() {
+    const res  = await fetch("/api/largest-files");
+    const data = await res.json();
+
+    new Chart(document.getElementById("largestChart"), {
+        type: "bar",
+        data: {
+            labels: data.map(d => d.filename.replace(/^.*_/, "")),
+            datasets: [{
+                label: "Bytes",
+                data: data.map(d => d.size),
+                backgroundColor: "rgba(224,196,108,0.7)",
+                borderRadius: 4
+            }]
+        },
+        options: {
+            indexAxis: "y",
+            plugins: { legend: { display: false } },
+            scales: { x: { beginAtZero: true } }
+        }
+    });
+
+    const tbody = document.getElementById("largest-tbody");
+    data.forEach(d => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${d.filename}</td><td>${d.folder}</td><td>${d.size.toLocaleString()}</td><td>${d.lines.toLocaleString()}</td>`;
+        tbody.appendChild(tr);
+    });
+}
+
+async function buildChangesTable() {
+    const res  = await fetch("/api/recent-changes");
+    const data = await res.json();
+
+    document.getElementById("changes-count").textContent = data.length;
+
+    const container = document.getElementById("changes-table-container");
+
+    if (data.length === 0) {
+        container.innerHTML = '<div class="no-changes">No changes detected between the two most recent snapshots.</div>';
+        return;
+    }
+
+    const table = document.createElement("table");
+    table.innerHTML = `
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>File</th>
+                <th>Folder</th>
+                <th>Size Before</th>
+                <th>Size After</th>
+            </tr>
+        </thead>
+    `;
+    const tbody = document.createElement("tbody");
+    data.forEach(d => {
+        const badgeClass = d.change_type === "ADDED" ? "badge-added" :
+                           d.change_type === "DELETED" ? "badge-deleted" : "badge-modified";
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td><span class="badge ${badgeClass}">${d.change_type}</span></td>
+            <td>${d.filename}</td>
+            <td>${d.folder}</td>
+            <td>${d.size_before !== null ? d.size_before.toLocaleString() : "-"}</td>
+            <td>${d.size_after  !== null ? d.size_after.toLocaleString()  : "-"}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    container.innerHTML = "";
+    container.appendChild(table);
+}
+
+buildTimeCharts();
+buildFolderChart();
+buildLargestChart();
+buildChangesTable();
+</script>
+
+</body>
+</html>
