@@ -69,13 +69,6 @@
             margin-bottom: 16px;
         }
 
-        .chart-grid-3 {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 16px;
-            margin-bottom: 16px;
-        }
-
         .chart-card {
             background: #252627;
             border: 1px solid #333;
@@ -146,7 +139,16 @@
         .badge-added    { background: #1a3a2a; color: #4caf7d; }
         .badge-deleted  { background: #3a1a1a; color: #e06c6c; }
         .badge-modified { background: #2a2a1a; color: #e0c46c; }
-        .badge-none     { background: #252627; color: #666; }
+
+        .file-link {
+            color: #7c9ef8;
+            text-decoration: none;
+        }
+
+        .file-link:hover {
+            text-decoration: underline;
+            color: #a0b8ff;
+        }
 
         .no-changes {
             color: #555;
@@ -174,14 +176,14 @@
         <div class="stat-card">
             <div class="label">Vault Size</div>
             <div class="value">{{ latest.total_size }} MB</div>
-            <div class="sub">Latest snapshot</div>
+            <div class="sub">Markdown files only</div>
         </div>
         <div class="stat-card">
             <div class="label">Latest Run</div>
             <div class="value">#{{ latest.run_id }}</div>
             <div class="sub">{{ latest.timestamp }}</div>
         </div>
-        <div class="stat-card" id="changes-stat">
+        <div class="stat-card">
             <div class="label">Recent Changes</div>
             <div class="value" id="changes-count">...</div>
             <div class="sub">Since last snapshot</div>
@@ -233,11 +235,6 @@
     </div>
 
 <script>
-const chartDefaults = {
-    color: "#aaa",
-    borderColor: "#333"
-};
-
 Chart.defaults.color = "#888";
 Chart.defaults.borderColor = "#2e2e2e";
 
@@ -362,20 +359,28 @@ async function buildChangesTable() {
             </tr>
         </thead>
     `;
+
     const tbody = document.createElement("tbody");
+
     data.forEach(d => {
-        const badgeClass = d.change_type === "ADDED" ? "badge-added" :
-                           d.change_type === "DELETED" ? "badge-deleted" : "badge-modified";
+        const badgeClass = d.change_type === "ADDED"    ? "badge-added"    :
+                           d.change_type === "DELETED"  ? "badge-deleted"  : "badge-modified";
+
+        // Build Obsidian deep link from relative path
+        const cleanPath   = d.relative_path.replace(/\\/g, "/");
+        const obsidianUri = `obsidian://open?vault=Obsidian&file=${encodeURIComponent(cleanPath)}`;
+
         const tr = document.createElement("tr");
         tr.innerHTML = `
             <td><span class="badge ${badgeClass}">${d.change_type}</span></td>
-            <td>${d.filename}</td>
+            <td><a href="${obsidianUri}" class="file-link" title="Open in Obsidian">${d.filename}</a></td>
             <td>${d.folder}</td>
             <td>${d.size_before !== null ? d.size_before.toLocaleString() : "-"}</td>
             <td>${d.size_after  !== null ? d.size_after.toLocaleString()  : "-"}</td>
         `;
         tbody.appendChild(tr);
     });
+
     table.appendChild(tbody);
     container.innerHTML = "";
     container.appendChild(table);

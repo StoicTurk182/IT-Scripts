@@ -90,7 +90,7 @@ def recent_changes():
         DECLARE @RunB INT = (SELECT MAX(RunID) FROM (SELECT TOP 2 RunID FROM SnapshotRuns ORDER BY RunID DESC) x);
 
         SELECT 'MODIFIED' AS ChangeType, b.FileName, b.FolderName,
-               a.SizeBytes AS Before, b.SizeBytes AS After
+               a.SizeBytes AS Before, b.SizeBytes AS After, b.RelativePath
         FROM FileSnapshots a
         JOIN FileSnapshots b ON a.RelativePath = b.RelativePath
             AND a.RunID = @RunA AND b.RunID = @RunB
@@ -98,14 +98,14 @@ def recent_changes():
 
         UNION ALL
 
-        SELECT 'ADDED', b.FileName, b.FolderName, NULL, b.SizeBytes
+        SELECT 'ADDED', b.FileName, b.FolderName, NULL, b.SizeBytes, b.RelativePath
         FROM FileSnapshots b
         WHERE b.RunID = @RunB
         AND b.RelativePath NOT IN (SELECT RelativePath FROM FileSnapshots WHERE RunID = @RunA)
 
         UNION ALL
 
-        SELECT 'DELETED', a.FileName, a.FolderName, a.SizeBytes, NULL
+        SELECT 'DELETED', a.FileName, a.FolderName, a.SizeBytes, NULL, a.RelativePath
         FROM FileSnapshots a
         WHERE a.RunID = @RunA
         AND a.RelativePath NOT IN (SELECT RelativePath FROM FileSnapshots WHERE RunID = @RunB)
@@ -115,11 +115,12 @@ def recent_changes():
     rows = cursor.fetchall()
     conn.close()
     return jsonify([{
-        "change_type": row[0],
-        "filename":    row[1],
-        "folder":      row[2],
-        "size_before": row[3],
-        "size_after":  row[4]
+        "change_type":   row[0],
+        "filename":      row[1],
+        "folder":        row[2],
+        "size_before":   row[3],
+        "size_after":    row[4],
+        "relative_path": row[5]
     } for row in rows])
 
 
