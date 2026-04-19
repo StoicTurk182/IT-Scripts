@@ -4,6 +4,32 @@ created: 2026-04-14T00:00:00
 updated: 2026-04-14T00:00:00
 ---
 
+## Dashboard Port
+
+VaultWatch runs on port **47800** bound to localhost only.
+
+Access: `http://127.0.0.1:47800`
+
+Port reserved via Windows URL ACL:
+```powershell
+netsh http add urlacl url=http://127.0.0.1:47800/ user=Everyone
+```
+
+`app.py` last line:
+```python
+app.run(debug=True, host="127.0.0.1", port=47800)
+```
+
+To verify the reservation:
+```powershell
+netsh http show urlacl | findstr "47800"
+```
+
+To remove the reservation:
+```powershell
+netsh http delete urlacl url=http://127.0.0.1:47800/
+```
+
 # VaultWatch - Obsidian Vault Monitoring System
 
 Reference documentation for the VaultWatch project. Covers architecture, database schema, script reference, daily workflow, maintenance procedures, and known limitations. Built on PowerShell, SQL Server Express 2022, Python 3.14, and Flask with Chart.js.
