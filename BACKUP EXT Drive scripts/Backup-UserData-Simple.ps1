@@ -61,6 +61,8 @@ Function Initialize-BackupFolderStructure {
     }
 
     # --- 5. Pre-flight: warn on running browsers / OneDrive ---
+    # NOTE: $null = Read-Host required - without it the empty input string
+    # leaks into the function's output stream and corrupts the return value
     $Procs = Get-Process -ErrorAction SilentlyContinue -Name msedge,chrome,brave,opera,vivaldi,firefox,OneDrive
     if ($Procs) {
         Write-Host ""
@@ -71,7 +73,7 @@ Function Initialize-BackupFolderStructure {
         Write-Host "  - Close all browsers" -ForegroundColor Yellow
         Write-Host "  - Right-click OneDrive in system tray > Pause syncing > 8 hours" -ForegroundColor Yellow
         Write-Host ""
-        Read-Host "Press ENTER once done (or Ctrl+C to abort)"
+        $null = Read-Host "Press ENTER once done (or Ctrl+C to abort)"
     }
 
     # --- 6. Logging setup (script scope so Copy-UserData shares it) ---
@@ -129,6 +131,36 @@ Function Invoke-Robo {
         Write-Log -Message "[+] Done ${Label} (exit=$exit)" -Color Green
     } else {
         Write-Log -Message "[!] Errors ${Label} (exit=$exit) - see $RoboLog" -Color Red
+    }
+}
+
+Function Clear-HiddenSystemAttrs {
+    <#
+    .SYNOPSIS
+        Strips Hidden and System attributes from a path and everything beneath it.
+    .DESCRIPTION
+        Robocopy's /A-:SH only acts on files, not directories. When mirroring a
+        source like $Recycle.Bin (which is system+hidden) the destination dirs
+        inherit those attributes and are invisible in Explorer by default.
+        This walks the tree post-copy and clears Hidden+System on dirs and files.
+    #>
+    param([string]$Path)
+
+    if (-not (Test-Path -LiteralPath $Path)) { return }
+
+    $hidden = [IO.FileAttributes]::Hidden
+    $system = [IO.FileAttributes]::System
+
+    $items  = @(Get-Item     -LiteralPath $Path -Force -ErrorAction SilentlyContinue)
+    $items += @(Get-ChildItem -LiteralPath $Path -Recurse -Force -ErrorAction SilentlyContinue)
+
+    foreach ($i in $items) {
+        if ($null -eq $i) { continue }
+        try {
+            $i.Attributes = ($i.Attributes -band -bnot $hidden) -band -bnot $system
+        } catch {
+            # Some items may refuse attribute changes (reparse points, ACL-locked)
+        }
     }
 }
 
@@ -203,7 +235,9 @@ Function Copy-UserData {
     }
 
     # Recycle Bin per fixed drive -> RecycleBin\<letter>\
-    # /A-:SH clears System+Hidden attrs on dest (so it's browsable in Explorer)
+    # Source $Recycle.Bin and its SID subfolders are System+Hidden.
+    # /A-:SH strips those from copied FILES; Clear-HiddenSystemAttrs handles DIRS
+    # post-copy so the destination is browsable in Explorer.
     # /B = backup mode for reading other-user SID folders if running elevated
     # Guard skips the destination drive itself - prevents copying RecycleBin\W into W:\
     $DestDriveLetter = (Split-Path $RootPath -Qualifier).TrimEnd(':')
@@ -216,10 +250,17 @@ Function Copy-UserData {
             continue
         }
         $RBSrc = Join-Path "$d\" '$Recycle.Bin'
+        $RBDst = Join-Path $RootPath "RecycleBin\$letter"
+
         Invoke-Robo -Source      $RBSrc `
-                    -Destination (Join-Path $RootPath "RecycleBin\$letter") `
+                    -Destination $RBDst `
                     -Label       "RecycleBin-$letter" `
                     -Extra       @('/A-:SH','/B')
+
+        # Strip Hidden+System from the directory tree (Robocopy /A-:SH = files only)
+        Write-Log -Message "[>] Clearing Hidden/System attrs on RecycleBin-$letter" -Color DarkCyan
+        Clear-HiddenSystemAttrs -Path $RBDst
+        Write-Log -Message "[+] Attrs cleared on RecycleBin-$letter" -Color Green
     }
 
     Write-Log -Message "--- Data Copy Complete ---" -Color Cyan
