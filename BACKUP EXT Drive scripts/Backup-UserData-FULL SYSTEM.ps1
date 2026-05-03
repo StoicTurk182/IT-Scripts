@@ -1,7 +1,7 @@
 <#
 .SYNOPSIS
     Interactive single-user data backup. Creates a labelled folder structure on
-    a chosen drive and copies the running user's standard folders, browser
+    a chosen drive and copies a target user's standard folders, browser
     profiles, OneDrive content, Sage data, and Recycle Bins into the matching
     subfolders.
 .DESCRIPTION
@@ -9,10 +9,16 @@
     TransWiz-style migrations where the profile state is handled separately and
     the script only needs to grab raw data into a predictable folder layout.
     Robocopy options tuned for NVMe-over-USB destinations (/MT:32 /J).
+
+    Detects elevation mismatch: if the script was launched by elevating from a
+    different user account, it warns and lets the operator pick the correct
+    target profile (interactive console user vs running-as user vs manual override).
 #>
 
-# --- Script-scope log file (set by Initialize-BackupFolderStructure) -------
-$Script:LogFile = $null
+# --- Script-scope state (set by Initialize-BackupFolderStructure / Resolve-TargetProfile) ---
+$Script:LogFile    = $null
+$Script:TargetUser = $null  # selected username (matches actual on-disk folder name)
+$Script:TargetHome = $null  # full path to user profile root
 
 Function Write-Log {
     param(
@@ -43,11 +49,25 @@ Function Initialize-BackupFolderStructure {
     $UserLabel = Read-Host "Backup label (e.g. old_PC, laptop)"
     if ([string]::IsNullOrWhiteSpace($UserLabel)) { $UserLabel = "Backup" }
 
-    # --- 3. Root path ---
+       # --- 3. Root path ---
+    # If a folder already exists for this run (same hostname/label/user/timestamp),
+    # append _2, _3, ... so each run gets its own folder instead of merging.
     $Hostname    = $env:COMPUTERNAME
-    $DateString  = Get-Date -Format "ddMMyyyy"
-    $FolderName  = "${Hostname}_${UserLabel}_${DateString}"
-    $RootPath    = Join-Path -Path $DriveRoot -ChildPath $FolderName
+    $DateString  = Get-Date -Format "ddMMyyyy_HHmmss"
+    $BaseFolder  = "${Hostname}_${UserLabel}_${Script:TargetUser}_${DateString}"
+    $RootPath    = Join-Path -Path $DriveRoot -ChildPath $BaseFolder
+
+    $counter = 2
+    while (Test-Path -Path $RootPath) {
+        $RootPath = Join-Path -Path $DriveRoot -ChildPath "${BaseFolder}_${counter}"
+        $counter++
+    }
+
+    $counter = 2
+    while (Test-Path -Path $RootPath) {
+        $RootPath = Join-Path -Path $DriveRoot -ChildPath "${BaseFolder}_${counter}"
+        $counter++
+    }
 
     # --- 4. Create root ---
     if (-not (Test-Path -Path $RootPath)) {
@@ -76,7 +96,7 @@ Function Initialize-BackupFolderStructure {
         $null = Read-Host "Press ENTER once done (or Ctrl+C to abort)"
     }
 
-    # --- 6. Logging setup (script scope so Copy-UserData shares it) ---
+    # --- 6. Logging setup (script scope so other functions share it) ---
     $Script:LogFile = Join-Path -Path $RootPath -ChildPath "Backup_Log.txt"
 
     Write-Log -Message "--- Backup Structure Initialization Started ---" -Color Cyan
@@ -96,6 +116,99 @@ Function Initialize-BackupFolderStructure {
 
     Write-Log -Message "--- Structure Complete ---" -Color Cyan
     return $RootPath
+}
+
+Function Resolve-TargetProfile {
+    <#
+    .SYNOPSIS
+        Determines which user profile to back up. Detects elevation mismatch.
+    .DESCRIPTION
+        $env:USERNAME returns the elevated account when the script is run via
+        UAC from a different user. That's almost never the user we want to back
+        up - we want the interactive console user.
+
+        Win32_ComputerSystem.UserName returns the active console user and
+        survives elevation. The function lists every valid profile under
+        C:\Users\ on every run, marks the detected default with an asterisk,
+        and lets the operator pick by number, by typed username, or by pressing
+        ENTER to accept the default. Mismatch between running-as and interactive
+        is flagged but does not change the prompt flow. Sets $Script:TargetUser
+        and $Script:TargetHome.
+    #>
+
+    $RunAsUser = $env:USERNAME
+
+    # Active console user - survives elevation. Returns DOMAIN\user.
+    $InteractiveRaw  = (Get-CimInstance Win32_ComputerSystem -ErrorAction SilentlyContinue).UserName
+    $InteractiveUser = if ($InteractiveRaw) { Split-Path $InteractiveRaw -Leaf } else { $null }
+
+    Write-Host ""
+    Write-Host "Profile detection:" -ForegroundColor Cyan
+    Write-Host "  Running as          : $RunAsUser"
+    Write-Host "  Interactive console : $(if ($InteractiveUser) { $InteractiveUser } else { '(none detected)' })"
+
+    # Mismatch warning (loud but non-blocking - operator still chooses below)
+    if ($InteractiveUser -and $InteractiveUser -ine $RunAsUser) {
+        Write-Host ""
+        Write-Host "MISMATCH: script was elevated from a different account." -ForegroundColor Yellow
+        Write-Host "Pick the interactive console user unless you know otherwise." -ForegroundColor Yellow
+    }
+
+    # Default suggestion: prefer interactive over running-as where they differ
+    $DefaultUser = if ($InteractiveUser -and $InteractiveUser -ine $RunAsUser) { $InteractiveUser } else { $RunAsUser }
+
+    # Always list profiles - operator can pick any of them on every run
+    Write-Host ""
+    Write-Host "Available profiles on this machine:" -ForegroundColor Cyan
+    $Profiles = @(Get-ChildItem 'C:\Users' -Directory -Force -ErrorAction SilentlyContinue |
+                  Where-Object { Test-Path (Join-Path $_.FullName 'NTUSER.DAT') })
+
+    if (-not $Profiles -or $Profiles.Count -eq 0) {
+        Write-Warning "No valid user profiles found under C:\Users"
+        return $false
+    }
+
+    for ($i = 0; $i -lt $Profiles.Count; $i++) {
+        $marker = if ($Profiles[$i].Name -ieq $DefaultUser) { '*' } else { ' ' }
+        Write-Host ("  [{0}]{1} {2}" -f ($i + 1), $marker, $Profiles[$i].Name)
+    }
+    Write-Host "  (* = detected default. Press ENTER to accept, or enter a number / username)"
+    Write-Host ""
+
+    $choice = Read-Host "Target profile"
+
+    if ([string]::IsNullOrWhiteSpace($choice)) {
+        $Selected = $DefaultUser
+    }
+    elseif ($choice -match '^\d+$' -and [int]$choice -ge 1 -and [int]$choice -le $Profiles.Count) {
+        $Selected = $Profiles[[int]$choice - 1].Name
+    }
+    else {
+        $Selected = $choice
+    }
+
+    # Validate against on-disk profile folder
+    $ProfilePath = Join-Path 'C:\Users' $Selected
+    if (-not (Test-Path -LiteralPath $ProfilePath)) {
+        Write-Warning "Profile folder not found: $ProfilePath"
+        return $false
+    }
+
+    # Resolve to actual on-disk casing for path correctness
+    $Resolved = Get-Item -LiteralPath $ProfilePath
+    $Script:TargetUser = $Resolved.Name
+    $Script:TargetHome = $Resolved.FullName
+
+    Write-Host ""
+    Write-Host "Target profile: $Script:TargetUser" -ForegroundColor Green
+    Write-Host "Profile path  : $Script:TargetHome" -ForegroundColor Green
+    Write-Host ""
+
+    Write-Log -Message "Target profile resolved: $Script:TargetUser" -Color Green
+    Write-Log -Message "Profile path: $Script:TargetHome" -Color Gray
+    Write-Log -Message "Running-as user was: $RunAsUser (interactive: $(if ($InteractiveUser) { $InteractiveUser } else { 'none' }))" -Color Gray
+
+    return $true
 }
 
 Function Invoke-Robo {
@@ -172,7 +285,8 @@ Function Copy-UserData {
     )
 
     Write-Log -Message "--- Data Copy Started ---" -Color Cyan
-    Write-Log -Message "Source user: $env:USERNAME" -Color Gray
+    Write-Log -Message "Source user: $Script:TargetUser" -Color Gray
+    Write-Log -Message "Source home: $Script:TargetHome" -Color Gray
 
     # Warn on running browsers (locked DBs may copy partially even with /B)
     $Procs = Get-Process -ErrorAction SilentlyContinue -Name msedge,chrome,brave,opera,vivaldi,firefox
@@ -182,11 +296,11 @@ Function Copy-UserData {
 
     # Standard folders -> matching subfolders
     $Map = @(
-        @{ Sub = 'Desktop';   Src = (Join-Path $env:USERPROFILE 'Desktop')   }
-        @{ Sub = 'Documents'; Src = (Join-Path $env:USERPROFILE 'Documents') }
-        @{ Sub = 'Download';  Src = (Join-Path $env:USERPROFILE 'Downloads') }
-        @{ Sub = 'Pictures';  Src = (Join-Path $env:USERPROFILE 'Pictures')  }
-        @{ Sub = 'Music';     Src = (Join-Path $env:USERPROFILE 'Music')     }
+        @{ Sub = 'Desktop';   Src = (Join-Path $Script:TargetHome 'Desktop')   }
+        @{ Sub = 'Documents'; Src = (Join-Path $Script:TargetHome 'Documents') }
+        @{ Sub = 'Download';  Src = (Join-Path $Script:TargetHome 'Downloads') }
+        @{ Sub = 'Pictures';  Src = (Join-Path $Script:TargetHome 'Pictures')  }
+        @{ Sub = 'Music';     Src = (Join-Path $Script:TargetHome 'Music')     }
     )
     foreach ($m in $Map) {
         Invoke-Robo -Source      $m.Src `
@@ -203,14 +317,14 @@ Function Copy-UserData {
     )
     $CacheExclude = @('/XD','Cache','GPUCache','Crashpad','ShaderCache','GrShaderCache')
     foreach ($b in $Browsers) {
-        Invoke-Robo -Source      (Join-Path $env:USERPROFILE $b.Path) `
+        Invoke-Robo -Source      (Join-Path $Script:TargetHome $b.Path) `
                     -Destination (Join-Path $RootPath "Browser\$($b.Name)") `
                     -Label       "Browser-$($b.Name)" `
                     -Extra       (@('/B') + $CacheExclude)
     }
 
     # OneDrive folders -> Unsynced_Onedrive\<folder>\  (skip cloud-only placeholders)
-    Get-ChildItem $env:USERPROFILE -Directory -Filter 'OneDrive*' -Force -ErrorAction SilentlyContinue |
+    Get-ChildItem $Script:TargetHome -Directory -Filter 'OneDrive*' -Force -ErrorAction SilentlyContinue |
         ForEach-Object {
             Invoke-Robo -Source      $_.FullName `
                         -Destination (Join-Path $RootPath "Unsynced_Onedrive\$($_.Name)") `
@@ -221,7 +335,7 @@ Function Copy-UserData {
     # Sage data -> Sage\<source-path-leaf>\  (best-guess locations)
     $SageSources = @(
         'C:\ProgramData\Sage\Accounts'
-        (Join-Path $env:USERPROFILE 'Documents\Sage')
+        (Join-Path $Script:TargetHome 'Documents\Sage')
         'C:\Users\Public\Documents\Sage'
     )
     foreach ($s in $SageSources) {
@@ -267,8 +381,12 @@ Function Copy-UserData {
 }
 
 # --- Usage -----------------------------------------------------------------
-$BackupPath = Initialize-BackupFolderStructure
-if ($BackupPath) {
-    Copy-UserData -RootPath $BackupPath
-    Write-Host "`nLog file located at: $BackupPath\Backup_Log.txt" -ForegroundColor Yellow
+if (Resolve-TargetProfile) {
+    $BackupPath = Initialize-BackupFolderStructure
+    if ($BackupPath) {
+        Copy-UserData -RootPath $BackupPath
+        Write-Host "`nLog file located at: $BackupPath\Backup_Log.txt" -ForegroundColor Yellow
+    }
+} else {
+    Write-Host "Aborting - target profile could not be resolved." -ForegroundColor Red
 }
