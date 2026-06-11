@@ -1,0 +1,83 @@
+<#
+.SYNOPSIS
+    Deploy Windows 11
+	
+.DESCRIPTION
+    Automated provisioning of Windows 11 VMs with:
+    - Generation 2 architecture
+    - 64GB dynamic VHDX disk
+    - 4GB startup RAM, 2-8GB dynamic range
+    - 2 vCPUs
+    - TPM 2.0 enabled
+    - Secure Boot enabled
+    - ISO mounting for installation
+
+.PARAMETER VMName
+    Name of the virtual machine
+
+.PARAMETER ISOPath
+    Full path to Windows 11 IoT Enterprise LTSC 2024 ISO file
+
+.PARAMETER VMPath
+    Parent directory path for VM files
+
+.PARAMETER SwitchName
+    Name of the Hyper-V virtual switch to attach
+
+.EXAMPLE
+    .\Deploy-Win11VM.ps1
+    Runs with hardcoded configuration in the script
+
+.NOTES
+    Author: Andrew Jones
+    Date: 2026-05-15
+    Requires: Hyper-V role, Administrator privileges
+    Windows: Server 2022+, Win11 Pro/Enterprise
+#>
+
+#Requires -RunAsAdministrator
+#Requires -Modules Hyper-V
+
+# --- Configuration ---
+$VMName = "Win11-Enterprise-Lab"
+$ISOPath = "C:\ISOs\Win11_25H2_EnglishInternational_x64_v2.iso"
+$VMPath = "F:\Hyper-V\$VMName"
+$VHDPath = "$VMPath\$VMName.vhdx"
+$SwitchName = "Default Switch" 
+
+# Create the directory on the F: drive if it doesn't exist
+if (!(Test-Path $VMPath)) {
+    New-Item -Path $VMPath -ItemType Directory -Force
+}
+
+# 1. Create the VM (Generation 2)
+New-VM -Name $VMName -MemoryStartupBytes 4GB -Generation 2 -Path $VMPath -SwitchName $SwitchName
+
+# 2. Create and Attach VHDX (64GB dynamic)
+New-VHD -Path $VHDPath -SizeBytes 64GB -Dynamic
+Add-VMHardDiskDrive -VMName $VMName -Path $VHDPath
+
+# 3. Add DVD Drive and mount ISO
+Add-VMDvdDrive -VMName $VMName -Path $ISOPath
+
+# 4. Configure Hardware (Optimized for Win 11)
+Set-VMMemory -VMName $VMName -DynamicMemoryEnabled $true -MinimumBytes 2GB -StartupBytes 4GB -MaximumBytes 8GB
+Set-VMProcessor -VMName $VMName -Count 2
+
+# 5. Enable Security Features (TPM & Secure Boot)
+# This uses a try/catch to handle potential local authorization issues
+try {
+    $KP = New-VMKeyProtector -Internal
+    Set-VMSecurity -VMName $VMName -SecureBootTemplate MicrosoftWindows -TpmEnabled $true -KeyProtector $KP
+} catch {
+    Set-VMSecurity -VMName $VMName -SecureBootTemplate MicrosoftWindows -TpmEnabled $true
+}
+
+# 6. Set Boot Order (DVD first for installation)
+$DVDDrive = Get-VMDvdDrive -VMName $VMName
+Set-VMFirmware -VMName $VMName -FirstBootDevice $DVDDrive
+
+# 7. Start the VM and Open Connection
+Write-Host "VM $VMName created successfully! Launching now..." -ForegroundColor Cyan
+Start-VM -Name $VMName
+vmconnect.exe localhost $VMName
