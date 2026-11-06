@@ -1,0 +1,61 @@
+# Remove from install location
+Remove-Item "$env:USERPROFILE\Documents\PowerShell\Modules\clear-pre" -Recurse -Force
+
+# Remove the Build folder from the source script directory
+Remove-Item "C:\Users\Administrator\OneDrive\DEV_OPS\IT-Scripts\Clear_Prefetch\Build\clear-pre" -Recurse -Force
+
+# Drop from current session if loaded
+Remove-Module clear-pre -Force -ErrorAction SilentlyContinue
+
+Complete Uninstallation Instructions: .\.git
+
+# Remove from session
+Remove-Module Clear-PreCache -Force -ErrorAction SilentlyContinue
+
+# Remove installed module
+Remove-Item "$env:USERPROFILE\Documents\PowerShell\Modules\Clear-PreCache" -Recurse -Force
+
+# Remove build output
+Remove-Item "C:\Users\Administrator\OneDrive\DEV_OPS\IT-Scripts\Clear_Prefetch\Build" -Recurse -Force
+
+# Clear from session history
+Clear-History
+
+# Clear the console
+Clear-Host
+
+
+Remove From Shell: 
+
+
+Remove-Module Clear-PreCache -Force -ErrorAction SilentlyContinue
+Remove-Item "$env:USERPROFILE\Documents\PowerShell\Modules\Clear-PreCache" -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item "C:\Users\Administrator\OneDrive\DEV_OPS\IT-Scripts\Clear_Prefetch\Build" -Recurse -Force -ErrorAction SilentlyContinue
+
+Get-Module Clear-PreCache
+Test-Path "$env:USERPROFILE\Documents\PowerShell\Modules\Clear-PreCache"
+
+
+Remove from History:
+
+
+Clear-History
+
+
+$historyFile = (Get-PSReadLineOption).HistorySavePath
+(Get-Content $historyFile) | Where-Object { 
+    $_ -notmatch 'Clear-PreCache|clear_pre|Clear-Pre|Convert-PSScript' 
+} | Set-Content $historyFile
+
+# Clear console
+Clear-Host
+
+
+Run script from current location: 
+
+& "C:\Users\Administrator\OneDrive\DEV_OPS\IT-Scripts\Convert-PSScript.ps1"
+
+
+
+
+
